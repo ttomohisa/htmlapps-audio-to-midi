@@ -11,9 +11,12 @@ Development milestone, 2026-10-16. Previous record: [v0.4](VERIFICATION-v04.md).
 - Supplied SVG inspected and copied unchanged. Builds embed identical source bytes in favicon/header and self-extract favicon.
 - Local Chromium could not launch because the cloud shell disallows its process-singleton socket; browser evidence will come from ordinary CI and HTTPS preview.
 
-## Browser gates
+## Browser verification
 
-Pending exact-head CI: offline normal/self-extract and HTTPS settings/history, successful conversion, validation, cancel/failure preserving prior notes/history, keyboard, narrow JA/EN layouts, icon bytes, edited MIDI readback, and file/native virtual-microphone regressions. The PR remains Draft until these checks and independent review complete.
+- Source head7aa0d48: [HTTPS preview run38935040327](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38935040327) passed all4 browser cases. Includes actual configured pitch-range reanalysis, history/shortcuts, rejected invalid settings, failed/cancelled reanalysis preserving notes/history, exact favicon bytes, edited MIDI readback and native virtual microphone. No runtime HTTP requests or page errors.
+- [Initial offline run38935040418](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38935040418) passed184 unit tests, real-model smoke and23 browser cases. Its one failure was an outdated BFCache assertion expecting results to be discarded during interrupted reanalysis. v0.5 intentionally retains them; the assertion now requires exact prior notes and a working MIDI download. This final test/evidence commit requires green exact-head checks before Ready.
+- Actual English desktop and Japanese mobile settings/editor screenshots were inspected. README screenshot now shows v0.5 and the supplied icon; synthetic C4 recording only. Independent source review completed, including a corrected selection fallback after undoing additions/redoing deletions.
+- Exact final run links and completion status are in the PR description/checks, avoiding documentation-only CI loops.
 
 ## Remaining manual gates
 

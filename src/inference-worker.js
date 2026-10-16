@@ -49,7 +49,7 @@ if(typeof self!=='undefined' && typeof self.postMessage==='function') {
       }
       const notes=await InferenceRuntime.runBasicPitch(tf,BasicPitchPostprocess,model,samples,p=>self.postMessage(p));
       self.postMessage({phase:'complete',notes,elapsedMs:performance.now()-started,tensors:tf.memory().numTensors});
-    } catch(error) {self.postMessage({phase:'error',code:'analysisFailed'});}
+    } catch(error) {console.error('Audio inference failed:',error);self.postMessage({phase:'error',code:'analysisFailed'});}
     finally{busy=false;}
   };
 }

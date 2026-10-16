@@ -97,10 +97,10 @@ async function analyze(){
    else{state.phase=result.phase;state.progress=result.progress||0;}
    render();
   };
-  activeWorker.onerror=event=>{event.preventDefault();if(generation.isCurrent(token)){state.phase='error';state.error='analysisFailed';stopWorker();render();}};
+  activeWorker.onerror=event=>{console.error('Audio worker failed:',event.message);event.preventDefault();if(generation.isCurrent(token)){state.phase='error';state.error='analysisFailed';stopWorker();render();}};
   const copy=new Float32Array(state.samples);
   activeWorker.postMessage({samples:copy,modelJson:activeWorker.modelJson,weights:activeWorker.modelWeights.buffer},[copy.buffer]);
- }catch{if(generation.isCurrent(token)){stopWorker();state.phase='error';state.error='analysisFailed';render();}}
+ }catch(error){console.error('Audio runtime preparation failed:',error);if(generation.isCurrent(token)){stopWorker();state.phase='error';state.error='analysisFailed';render();}}
 }
 $('#audioFile').addEventListener('change',event=>{const files=Array.from(event.target.files);event.target.value='';selectFiles(files);});
 const drop=$('#dropZone');

@@ -24,7 +24,7 @@ Verified code commit: `76ae2e3c576f59f8bce6ceb0f44db625b53fdb2c`, 2026-10-16.
 - [Ordinary Cloudflare preview run](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38864341238): **1 Chromium HTTPS test passed**. Downloaded HTML SHA-256 matched that job's built HTML before interaction. After initial navigation the context was switched offline; real C4 inference, MIDI download/readback and JA/EN narrow layouts passed without subsequent HTTP requests or page errors. Active download-toast language switching also passed.
 - Preview MIDI readback: SMF 1, 2 tracks, 480 PPQ, 500,000 microseconds/beat, channel 1, program 0, C4 (60), velocity 96, onset tick 245 / offset tick 2175 (0.255208 / 2.265625 s).
 - User preview refinements verified in Chromium: descriptive JA/EN header subtitle, canonical white framed workspaces, and Help/reset background scroll lock. At 1360 px and 320 px / 480 px height, wheel input leaves background geometry unchanged while Help content scrolls; close button, Escape, backdrop and native close restore the exact scroll position and allow scrolling again. Reset cancellation also restores scrolling. Pure regressions cover prior inline styles, nested/repeated ownership, delayed close events and showModal failure cleanup. Physical touch-device behavior remains unverified.
-- CI screenshots are actual rendered results. `assets/screenshot.png` is the 1360 × 900 HTTPS result captured at commit `76ae2e3`; no mockup or personal recording is used.
+- CI screenshots are actual rendered results. At the v0.1 checkpoint, `assets/screenshot.png` was the 1360 × 900 HTTPS result captured at commit `76ae2e3`; the current screenshot is documented under v0.3 below. No mockup or personal recording is used.
 - Exact 0.5 s boundary fixture uses the browser's native decode rate. A different source rate can round decoded duration below 0.5 s; the product keeps the specified strict **decoded-duration** limit, rather than relaxing it for the test.
 
 The hosted Windows Server runner is automated browser evidence, not a physical Windows/phone device claim. The shared cloud Chrome displayed the HTTPS UI, but its file-chooser operation failed with a browser tooling timeout; it is not counted as a successful conversion.
@@ -38,7 +38,7 @@ The hosted Windows Server runner is automated browser evidence, not a physical W
 - 10/30/60 s performance matrix, 100-cycle stress and background/sleep behavior
 - DAW playback compatibility
 
-The supplied 92-case matrix is the long-term acceptance contract. v0.2–v1.0 features remain unimplemented. v0.1 device DoD remains open until physical-device gates are recorded.
+The supplied 92-case matrix is the long-term acceptance contract. At this v0.1 checkpoint, v0.2–v1.0 features were not yet implemented; v0.2 is now merged and the v0.3 evidence follows below. Physical-device DoD remains open until its gates are recorded.
 
 ## Implementation details
 

@@ -8,10 +8,24 @@ const AudioMidiReview = (() => {
     const seek=$('seekPosition'), mode=$('playbackMode');
     let buffer=null, notes=[], peaks=[], selected=null, zoom=80, view=null, lastWidth=0, error=false, player=null, locked=false, needsReveal=false;
     const editFields={pitch:$('editPitch'),start:$('editStart'),end:$('editEnd')};
-    const editing={enabled:false,dirty:false,canUndo:false,canRedo:false,error:null};
-    let fieldSignature;
+    const splitSeconds=$('splitSeconds'),mergePicker=$('mergeNoteId'),quantizeEnabled=$('quantizeEnabled');
+    const editing={enabled:false,dirty:false,canUndo:false,canRedo:false,error:null,mergeCandidates:[]};
+    let fieldSignature,mergeSignature;
     function node(name,attributes={},text){const el=document.createElementNS('http://www.w3.org/2000/svg',name);for(const [key,value] of Object.entries(attributes))el.setAttribute(key,String(value));if(text!==undefined)el.textContent=text;return el;}
     function selectedNote(){return notes.find(n=>n.id===selected);}
+    function refreshMergeCandidates(){
+      const candidates=selectedNote()&&Array.isArray(editing.mergeCandidates)?editing.mergeCandidates.filter(note=>note.id!==selected):[];
+      const labels=candidates.map(note=>`${translate('editPitch')}: ${t.pitchName(note.pitchMidi)} · ${translate('editStart')}: ${note.startSeconds.toFixed(3)} s · ${translate('editEnd')}: ${note.endSeconds.toFixed(3)} s`);
+      const signature=JSON.stringify([selected,candidates.map(note=>note.id),labels,translate('mergeNone')]);
+      if(signature!==mergeSignature){
+        const previous=mergePicker.value;mergeSignature=signature;
+        const options=candidates.map((note,index)=>{const option=document.createElement('option');option.value=note.id;option.textContent=labels[index];return option;});
+        if(!options.length){const option=document.createElement('option');option.value='';option.textContent=translate('mergeNone');options.push(option);}
+        mergePicker.replaceChildren(...options);
+        if(candidates.some(note=>note.id===previous))mergePicker.value=previous;
+      }
+      return candidates.length>0;
+    }
     function refreshEditor(){
       const note=selectedNote(),enabled=!!buffer&&editing.enabled&&!locked&&typeof onEdit==='function';
       $('noteEditor').dataset.enabled=String(enabled);$('noteEditor').dataset.dirty=String(!!editing.dirty);
@@ -27,6 +41,13 @@ const AudioMidiReview = (() => {
       // The application provides the localized validation message. Keep the
       // attempted text intact so an invalid field can be corrected in place.
       for(const field of Object.values(editFields))field.setAttribute('aria-invalid',String(!!editError));
+      splitSeconds.disabled=!enabled||!note;$('splitNoteButton').disabled=!enabled||!note;
+      splitSeconds.min=note?String(note.startSeconds):'0';splitSeconds.max=note?String(note.endSeconds):'';
+      const hasMergeCandidates=refreshMergeCandidates();
+      mergePicker.disabled=!enabled||!note||!hasMergeCandidates;$('mergeNotesButton').disabled=mergePicker.disabled;
+      $('shortNoteSeconds').disabled=!enabled;$('previewShortButton').disabled=!enabled||!notes.length;
+      quantizeEnabled.disabled=!enabled;
+      for(const id of ['gridSeconds','quantizeMode','previewQuantizeButton'])$(id).disabled=!enabled||!quantizeEnabled.checked||!notes.length;
     }
     function fillEditor(){
       const note=selectedNote(),signature=note?JSON.stringify([note.id,note.pitchMidi,note.startSeconds,note.endSeconds]):null;
@@ -37,6 +58,9 @@ const AudioMidiReview = (() => {
       // never be read back as the model value when applying a different field.
       editFields.start.value=note?String(note.startSeconds):'';
       editFields.end.value=note?String(note.endSeconds):'';
+      // Re-rendering transport, validation or language must preserve the user's
+      // split draft. Only a different selected note/model resets its midpoint.
+      splitSeconds.value=note?String(note.startSeconds+(note.endSeconds-note.startSeconds)/2):'';
     }
     function selectedDetails(){
       const note=selectedNote();
@@ -61,6 +85,13 @@ const AudioMidiReview = (() => {
       if(type==='redo'&&!editing.canRedo)return;
       const action={type};if(type==='update'||type==='delete')action.id=selected;if(patch)action.patch=patch;
       onEdit(action);
+    }
+    function emitCleanup(type,values){
+      if(!buffer||locked||!editing.enabled||typeof onEdit!=='function')return;
+      if((type==='previewSplit'||type==='previewMerge')&&!selectedNote())return;
+      if(type==='previewMerge'&&(mergePicker.disabled||!mergePicker.value))return;
+      if(type==='previewQuantize'&&!quantizeEnabled.checked)return;
+      onEdit({type,...values});
     }
     function adjust(field,amount){
       const note=selectedNote();if(note)emitEdit('update',{[field]:note[field]+amount});
@@ -163,6 +194,11 @@ const AudioMidiReview = (() => {
     $('undoNoteButton').addEventListener('click',()=>emitEdit('undo'));
     $('redoNoteButton').addEventListener('click',()=>emitEdit('redo'));
     $('applyNoteButton').addEventListener('click',applyFields);
+    $('splitNoteButton').addEventListener('click',()=>emitCleanup('previewSplit',{id:selected,seconds:Number(splitSeconds.value)}));
+    $('mergeNotesButton').addEventListener('click',()=>emitCleanup('previewMerge',{id:selected,otherId:mergePicker.value}));
+    $('previewShortButton').addEventListener('click',()=>emitCleanup('previewRemoveShort',{threshold:Number($('shortNoteSeconds').value)}));
+    $('previewQuantizeButton').addEventListener('click',()=>emitCleanup('previewQuantize',{gridSeconds:Number($('gridSeconds').value),mode:$('quantizeMode').value}));
+    quantizeEnabled.addEventListener('change',refreshEditor);
     for(const field of Object.values(editFields))field.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();applyFields();}});
     for(const [id,field,amount] of [['pitchDown','pitchMidi',-1],['pitchUp','pitchMidi',1],['startEarlier','startSeconds',-.05],['startLater','startSeconds',.05],['endEarlier','endSeconds',-.05],['endLater','endSeconds',.05]])$(id).addEventListener('click',()=>adjust(field,amount));
     waveform.addEventListener('click',event=>{if(view)guard(()=>player.seek(t.xToTime(event.clientX-waveform.getBoundingClientRect().left,view)));});

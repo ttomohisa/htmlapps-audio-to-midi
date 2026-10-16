@@ -629,3 +629,382 @@ test('fixed-seed edit and history sequences match a detached snapshot model and 
     assert.deepEqual(session.originalNotes(), original);
   }
 });
+
+test('split preview is detached and one commit preserves exact extent, pitch, origin and Undo/Redo', () => {
+  const initial = note('source', 61, .123456789, 1.876543219);
+  const session = api().createSession([initial], 2);
+  const plan = session.previewSplit('source', .987654321);
+  assert.equal(plan.type, 'split');
+  assert.equal(plan.count, 1);
+  assert.equal(plan.skippedCount, 0);
+  assert.deepEqual(plan.changes[0], {before: initial, after: {...initial, endSeconds: .987654321}});
+  const right = plan.changes[1].after;
+  assert.equal(plan.changes[1].before, null);
+  assert.match(right.id, /^split-/);
+  assert.deepEqual(right, {...initial, id: right.id, startSeconds: .987654321});
+  assert.deepEqual(session.snapshot(), [initial]);
+  assert.equal(session.canUndo(), false);
+  assert.equal(session.dirty(), false);
+  const applied = session.applyPlan(plan);
+  assert.equal(applied.id, initial.id);
+  const result = session.snapshot();
+  assert.equal(result.length, 2);
+  assert.deepEqual(session.originalNotes(), [initial]);
+  applied.pitchMidi = 1;
+  right.pitchMidi = 2;
+  assert.deepEqual(session.snapshot(), result);
+  assert.equal(session.undo().id, initial.id);
+  assert.deepEqual(session.snapshot(), [initial]);
+  assert.equal(session.dirty(), false);
+  assert.equal(session.canUndo(), false);
+  session.redo();
+  assert.deepEqual(session.snapshot(), result);
+});
+
+test('split validates a strictly interior finite second without modifying state', () => {
+  const session = api().createSession([note('a', 60, .1, 1)], 2);
+  for (const seconds of [-1, 0, .1, 1, 2, NaN, Infinity, '0.5', null, undefined]) {
+    rejectsCode(() => session.previewSplit('a', seconds), 'split');
+  }
+  assert.equal(session.previewSplit('missing', .5), null);
+  assert.deepEqual(session.snapshot(), [note('a', 60, .1, 1)]);
+  assert.equal(session.canUndo(), false);
+});
+
+test('split IDs remain reserved through cancelled previews, Undo and new branches', () => {
+  const initial = {...note('split-1', 60, 0, 1), origin: 'manual'};
+  const session = api().createSession([initial], 2);
+  const cancelled = session.previewSplit(initial.id, .4);
+  const first = session.previewSplit(initial.id, .5);
+  const firstId = first.changes[1].after.id;
+  assert.notEqual(cancelled.changes[1].after.id, firstId);
+  session.applyPlan(first);
+  assert.equal(session.snapshot().find(n => n.id === firstId).origin, 'manual');
+  session.undo();
+  const next = session.previewSplit(initial.id, .7);
+  assert.notEqual(next.changes[1].after.id, firstId);
+  assert.notEqual(next.changes[1].after.id, initial.id);
+  session.applyPlan(next);
+  assert.equal(session.canRedo(), false);
+});
+
+test('merge candidates are explicit same-pitch temporal neighbors with gaps from zero to 0.05 seconds', () => {
+  const notes = [note('left', 60, 0, .4), note('selected', 60, .45, 1), note('right', 60, 1.05, 1.5),
+    note('other-pitch', 61, .5, 1), note('far', 60, 1.6, 2)];
+  const session = api().createSession(notes, 2);
+  const candidates = session.mergeCandidates('selected');
+  assert.deepEqual(candidates.map(n => n.id), ['left', 'right']);
+  candidates[0].pitchMidi = 12;
+  assert.equal(session.mergeCandidates('selected')[0].pitchMidi, 60);
+  assert.deepEqual(session.mergeCandidates('missing'), []);
+  rejectsCode(() => session.previewMerge('selected', 'other-pitch'), 'merge');
+  rejectsCode(() => session.previewMerge('selected', 'far'), 'merge');
+  rejectsCode(() => session.previewMerge('selected', 'selected'), 'merge');
+  assert.equal(session.previewMerge('missing', 'selected'), null);
+  assert.equal(session.previewMerge('selected', 'missing'), null);
+  assert.deepEqual(session.snapshot().map(n => n.id).sort(), notes.map(n => n.id).sort());
+  assert.equal(session.canUndo(), false);
+});
+
+test('overlap and intervening same-pitch notes prevent skipping ahead to merge', () => {
+  const session = api().createSession([note('long', 60, 0, 1), note('overlap', 60, .4, .5),
+    note('next', 60, 1, 1.5), note('duplicate', 62, 0, 1), note('duplicate-2', 62, 0, 1)], 2);
+  assert.deepEqual(session.mergeCandidates('long'), []);
+  assert.deepEqual(session.mergeCandidates('next'), []);
+  assert.deepEqual(session.mergeCandidates('duplicate'), []);
+  for (const other of ['overlap', 'next']) rejectsCode(() => session.previewMerge('long', other), 'merge');
+  const beyond = api().createSession([note('a', 60, 0, 1), note('b', 60, 1.0500000001, 2)], 2);
+  assert.deepEqual(beyond.mergeCandidates('a'), []);
+});
+
+for (const selectedId of ['a', 'b']) {
+  test(`merging ${selectedId} preserves the selected identity and provenance and restores both notes atomically`, () => {
+    const initial = [note('a', 60, .123456789, .5), {...note('b', 60, .5, 1.876543219), origin: 'manual'}, note('c', 72, .3, 1)];
+    const session = api().createSession(initial, 2);
+    const before = session.snapshot();
+    const plan = session.previewMerge(selectedId, selectedId === 'a' ? 'b' : 'a');
+    assert.equal(plan.type, 'merge');
+    assert.equal(plan.count, 2);
+    assert.equal(plan.skippedCount, 0);
+    assert.equal(plan.changes.length, 2);
+    assert.deepEqual(session.snapshot(), before);
+    const result = session.applyPlan(plan);
+    assert.deepEqual(result, {...initial.find(n => n.id === selectedId), startSeconds: .123456789, endSeconds: 1.876543219});
+    const after = session.snapshot();
+    assert.equal(after.length, 2);
+    assert.equal(session.canUndoDelete(), false, 'a batch merge is not a legacy single deletion');
+    session.undo();
+    assert.deepEqual(session.snapshot(), before);
+    assert.equal(session.canUndo(), false);
+    session.redo();
+    assert.deepEqual(session.snapshot(), after);
+  });
+}
+
+test('short-note cleanup previews every strictly shorter note and deletes them in one operation', () => {
+  const initial = [note('first', 60, 0, .02), note('equal', 61, 0, .05), note('long', 62, .1, 1),
+    note('last', 63, 1, 1.03), note('equal-later', 64, .3, .35)];
+  const session = api().createSession(initial, 2);
+  const before = session.snapshot();
+  const plan = session.previewRemoveShort(.05);
+  assert.equal(plan.type, 'remove-short');
+  assert.equal(plan.count, 2);
+  assert.equal(plan.skippedCount, 0);
+  assert.deepEqual(plan.changes.map(change => change.before.id).sort(), ['first', 'last']);
+  assert.ok(plan.changes.every(change => change.after === null));
+  assert.deepEqual(session.snapshot(), before);
+  session.applyPlan(plan);
+  const after = session.snapshot();
+  assert.deepEqual(after.map(n => n.id), ['equal', 'long', 'equal-later']);
+  assert.equal(session.canUndoDelete(), false);
+  session.undo();
+  assert.deepEqual(session.snapshot(), before);
+  assert.equal(session.canUndo(), false);
+  session.redo();
+  assert.deepEqual(session.snapshot(), after);
+});
+
+test('short-note thresholds reject coercion and invalid bounds, allowing 0.01 and 2 seconds', () => {
+  const session = api().createSession([note('a', 60, 0, .005)], 2);
+  for (const threshold of [0, .0099, 2.00001, NaN, Infinity, '.05', null, undefined, false]) {
+    rejectsCode(() => session.previewRemoveShort(threshold), 'threshold');
+  }
+  assert.equal(session.previewRemoveShort(.01).count, 1);
+  assert.equal(session.previewRemoveShort(2).count, 1);
+  assert.equal(session.canUndo(), false);
+});
+
+test('short-note threshold preserves exact decimal equality without hiding a just-shorter interval', () => {
+  const session = api().createSession([note('equal', 60, .01, .06), note('shorter', 61, .01, .05999999999999999)], 1);
+  assert.deepEqual(session.previewRemoveShort(.05).changes.map(change => change.before.id), ['shorter']);
+});
+
+for (const [mode, expectedStart, expectedEnd] of [['start', .1, .86], ['end', .14, .9], ['both', .1, .9]]) {
+  test(`seconds-grid ${mode} preview changes only requested boundaries and preserves pitch/provenance`, () => {
+    const initial = {...note('manual', 127, .14, .86), origin: 'manual'};
+    const session = api().createSession([initial], 2);
+    const plan = session.previewQuantize(.1, mode);
+    assert.equal(plan.type, 'quantize');
+    assert.equal(plan.count, 1);
+    assert.equal(plan.skippedCount, 0);
+    assert.deepEqual(plan.changes, [{before: initial, after: {...initial, startSeconds: expectedStart, endSeconds: expectedEnd}}]);
+    assert.deepEqual(session.snapshot(), [initial]);
+    assert.equal(session.dirty(), false);
+    session.applyPlan(plan);
+    assert.deepEqual(session.snapshot(), [plan.changes[0].after]);
+    session.undo();
+    assert.deepEqual(session.snapshot(), [initial]);
+    session.redo();
+    assert.deepEqual(session.snapshot(), [plan.changes[0].after]);
+  });
+}
+
+test('seconds-grid uses a zero origin, stable decimal grid points and rounds exact halfway values later', () => {
+  const session = api().createSession([note('half', 60, .15, .25), note('aligned', 61, .1, .3)], .3);
+  const plan = session.previewQuantize(.1, 'both');
+  assert.equal(plan.count, 1);
+  assert.equal(plan.skippedCount, 0);
+  session.applyPlan(plan);
+  assert.deepEqual(session.snapshot(), [note('aligned', 61, .1, .3), note('half', 60, .2, .3)]);
+});
+
+test('seconds-grid rounds a just-below-half value earlier rather than applying a tolerance', () => {
+  const session = api().createSession([note('before-half', 60, .44999999999999996, .86)], 1);
+  const plan = session.previewQuantize(.1, 'both');
+  assert.equal(plan.changes[0].after.startSeconds, .4);
+  assert.equal(plan.changes[0].after.endSeconds, .9);
+});
+
+test('a decimal gap just over 0.05 seconds is excluded even when binary addition rounds onto it', () => {
+  const session = api().createSession([note('a', 60, 0, .1), note('b', 60, .15000000000000002, .5)], 1);
+  assert.deepEqual(session.mergeCandidates('a'), []);
+});
+
+test('invalid rounded intervals are skipped whole without clamping or changing their other boundary', () => {
+  const initial = [note('collapsed', 60, .11, .12), note('past-end', 61, .14, .98), note('valid', 62, .16, .74)];
+  const session = api().createSession(initial, .98);
+  const plan = session.previewQuantize(.1, 'both');
+  assert.equal(plan.count, 1);
+  assert.equal(plan.skippedCount, 2);
+  session.applyPlan(plan);
+  const after = session.snapshot();
+  assert.deepEqual(after.find(n => n.id === 'collapsed'), initial[0]);
+  assert.deepEqual(after.find(n => n.id === 'past-end'), initial[1]);
+  assert.deepEqual(after.find(n => n.id === 'valid'), {...initial[2], startSeconds: .2, endSeconds: .7});
+  session.undo();
+  assert.deepEqual(session.snapshot(), initial);
+  for (const [mode, fields] of [['start', [.16, .19]], ['end', [.11, .14]]]) {
+    const one = api().createSession([note('a', 60, ...fields)], 2);
+    const skipped = one.previewQuantize(.1, mode);
+    assert.equal(skipped.count, 0);
+    assert.equal(skipped.skippedCount, 1);
+    assert.equal(one.applyPlan(skipped), null);
+    assert.equal(one.canUndo(), false);
+  }
+});
+
+test('grid and mode inputs have strict finite ranges with no implicit opt-in', () => {
+  const session = api().createSession([note()], 2);
+  for (const grid of [0, .0099, 1.00001, NaN, Infinity, '.1', null, undefined, false]) {
+    rejectsCode(() => session.previewQuantize(grid, 'both'), 'grid');
+  }
+  for (const mode of ['', 'all', 'off', null, undefined, false]) rejectsCode(() => session.previewQuantize(.1, mode), 'mode');
+  assert.equal(session.previewQuantize(.01, 'both').type, 'quantize');
+  assert.equal(session.previewQuantize(1, 'both').type, 'quantize');
+  assert.deepEqual(session.snapshot(), [note()]);
+  assert.equal(session.canUndo(), false);
+});
+
+test('plans are session-owned, single-use and reject forged copies without mutation', () => {
+  const session = api().createSession([note('a', 60, 0, 1)], 2);
+  const foreign = api().createSession([note('a', 60, 0, 1)], 2);
+  const plan = session.previewSplit('a', .5);
+  for (const forged of [null, undefined, {}, {...plan}, JSON.parse(JSON.stringify(plan)), foreign.previewSplit('a', .5)]) {
+    rejectsCode(() => session.applyPlan(forged), 'plan');
+  }
+  rejectsCode(() => foreign.applyPlan(plan), 'plan');
+  assert.deepEqual(session.snapshot(), [note('a', 60, 0, 1)]);
+  assert.equal(session.canUndo(), false);
+  session.applyPlan(plan);
+  const after = session.snapshot();
+  rejectsCode(() => session.applyPlan(plan), 'plan');
+  assert.deepEqual(session.snapshot(), after);
+});
+
+test('tampered plan values, metadata, nested notes and accessor tricks are rejected atomically', () => {
+  const mutations = [
+    plan => { plan.count = 7; },
+    plan => { plan.type = 'remove-short'; },
+    plan => { plan.skippedCount = 1; },
+    plan => { plan.changes[0].after.pitchMidi = 72; },
+    plan => { plan.changes[1].after.id = 'a'; },
+    plan => { plan.changes[0].before.startSeconds = .1; },
+    plan => { plan.changes.reverse(); },
+    plan => { plan.extra = true; },
+    plan => { plan.toJSON = () => ({}); },
+    plan => { Object.defineProperty(plan.changes[0], 'after', {get() { throw new Error('must not execute'); }}); }
+  ];
+  for (const mutate of mutations) {
+    const session = api().createSession([note('a', 60, 0, 1)], 2);
+    const plan = session.previewSplit('a', .5);
+    mutate(plan);
+    rejectsCode(() => session.applyPlan(plan), 'plan');
+    assert.deepEqual(session.snapshot(), [note('a', 60, 0, 1)]);
+    assert.equal(session.canUndo(), false);
+    assert.equal(session.dirty(), false);
+  }
+});
+
+test('any actual edit, Undo or Redo invalidates older previews even after exact content restoration', () => {
+  const session = api().createSession([note('a', 60, 0, 1)], 2);
+  const old = session.previewSplit('a', .5);
+  session.update('a', {pitchMidi: 61});
+  const beforeUndo = session.previewSplit('a', .5);
+  session.undo();
+  rejectsCode(() => session.applyPlan(old), 'plan');
+  rejectsCode(() => session.applyPlan(beforeUndo), 'plan');
+  const beforeRedo = session.previewRemoveShort(2);
+  session.redo();
+  rejectsCode(() => session.applyPlan(beforeRedo), 'plan');
+  assert.deepEqual(session.snapshot(), [note('a', 61, 0, 1)]);
+});
+
+test('no-op previews preserve both histories and do not invalidate an unrelated current preview', () => {
+  const session = api().createSession([note('a', 60, 0, 1)], 2);
+  session.update('a', {pitchMidi: 61});
+  session.undo();
+  const split = session.previewSplit('a', .5);
+  session.markSaved();
+  session.update('a', {pitchMidi: 60});
+  assert.equal(session.applyPlan(session.previewRemoveShort(.01)), null);
+  assert.equal(session.applyPlan(session.previewQuantize(.1, 'both')), null);
+  assert.equal(session.dirty(), false);
+  assert.equal(session.canUndo(), false);
+  assert.equal(session.canRedo(), true);
+  session.applyPlan(split);
+  assert.equal(session.canRedo(), false);
+  assert.equal(session.canUndo(), true);
+});
+
+test('mixed cleanup commands preserve saved fingerprints and each consume only one history slot', () => {
+  const initial = [note('a', 60, .14, .86), note('short', 72, .2, .22)];
+  const session = api().createSession(initial, 2);
+  const states = [session.snapshot()];
+  session.applyPlan(session.previewSplit('a', .4)); states.push(session.snapshot());
+  const secondId = session.snapshot().find(n => n.pitchMidi === 60 && n.id !== 'a').id;
+  session.applyPlan(session.previewMerge('a', secondId)); states.push(session.snapshot());
+  assert.equal(session.dirty(), false);
+  session.applyPlan(session.previewRemoveShort(.05)); states.push(session.snapshot());
+  session.markSaved();
+  session.applyPlan(session.previewQuantize(.1, 'both')); states.push(session.snapshot());
+  assert.equal(session.dirty(), true);
+  for (let index = 3; index >= 0; index--) {
+    session.undo();
+    assert.deepEqual(session.snapshot(), states[index]);
+    assert.equal(session.dirty(), index !== 3);
+  }
+  assert.equal(session.canUndo(), false);
+  for (let index = 1; index <= 4; index++) {
+    session.redo();
+    assert.deepEqual(session.snapshot(), states[index]);
+  }
+  assert.equal(session.canRedo(), false);
+});
+
+test('batch cleanup history holds the latest 100 operations without losing note identities', () => {
+  const session = api().createSession([note('a', 60, 0, 1), note('b', 70, 0, 1)], 2);
+  const states = [session.snapshot()];
+  for (let index = 0; index < 105; index++) {
+    if (index % 2 === 0) session.applyPlan(session.previewSplit('a', .5));
+    else session.applyPlan(session.previewMerge('a', session.mergeCandidates('a')[0].id));
+    states.push(session.snapshot());
+  }
+  for (let index = 104; index >= 5; index--) {
+    session.undo();
+    assert.deepEqual(session.snapshot(), states[index]);
+  }
+  assert.equal(session.canUndo(), false);
+  for (let index = 6; index <= 105; index++) {
+    session.redo();
+    assert.deepEqual(session.snapshot(), states[index]);
+  }
+  assert.equal(session.canRedo(), false);
+});
+
+test('MIDI after cleanup contains precisely the current notes including adjacent split boundaries', () => {
+  const {encodeMidi} = require('../src/audio-core.js');
+  const {parseMidi} = require('midi-file');
+  const session = api().createSession([note('split', 60, .14, .86), note('merge-a', 62, .1, .4),
+    note('merge-b', 62, .45, 1), note('tiny', 64, .1, .12)], 2);
+  session.applyPlan(session.previewSplit('split', .5));
+  session.applyPlan(session.previewMerge('merge-a', 'merge-b'));
+  session.applyPlan(session.previewRemoveShort(.05));
+  session.applyPlan(session.previewQuantize(.1, 'both'));
+  const expected = session.snapshot();
+  const midi = parseMidi(encodeMidi(expected));
+  let tick = 0;
+  const pending = new Map(), actual = [];
+  for (const event of midi.tracks[1]) {
+    tick += event.deltaTime;
+    if (event.type === 'noteOn') {
+      assert.equal(event.velocity, 96);
+      assert.equal(event.channel, 0);
+      assert.equal(pending.has(event.noteNumber), false, 'adjacent split emits prior noteOff first');
+      pending.set(event.noteNumber, tick / 960);
+    } else if (event.type === 'noteOff') {
+      assert.ok(pending.has(event.noteNumber));
+      actual.push({pitchMidi: event.noteNumber, startSeconds: pending.get(event.noteNumber), endSeconds: tick / 960});
+      pending.delete(event.noteNumber);
+    }
+  }
+  assert.equal(pending.size, 0);
+  assert.equal(actual.length, expected.length);
+  const sort = (a, b) => a.pitchMidi - b.pitchMidi || a.startSeconds - b.startSeconds;
+  actual.sort(sort); expected.sort(sort);
+  for (let index = 0; index < expected.length; index++) {
+    assert.equal(actual[index].pitchMidi, expected[index].pitchMidi);
+    assert.ok(Math.abs(actual[index].startSeconds - expected[index].startSeconds) <= 1 / 960);
+    assert.ok(Math.abs(actual[index].endSeconds - expected[index].endSeconds) <= 1 / 960);
+  }
+  assert.deepEqual(session.snapshot().sort(sort), expected);
+});

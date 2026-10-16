@@ -139,3 +139,7 @@ The worker bootstrap concatenates only declared, hash-verified TF.js and Tonejs 
 `detection-settings.js` defines frozen presets and validates detached settings snapshots shared by window and worker. Inference uses the pinned official postprocessor with explicit parameters and inclusive pitch/duration filtering. UI setting drafts apply only on Analyze. The old editor remains owned by the session while a candidate analysis runs; failure/cancel restores its phase, and only successful completion installs a new detection/editor. Generation checks reject stale worker responses.
 
 `editing-core.js` records compact before/after commands (up to100), preserving IDs, exact seconds and provenance. Undo/Redo mutate the same working list and saved-content fingerprint; UI and exports continue sharing `state.notes`. A new edit invalidates Redo. Toast Undo is revision-guarded so it cannot undo an unrelated later edit.
+
+## v0.6 reviewed cleanup transactions
+
+The editing core owns cleanup previews and validates their private session/revision identity before applying. Public before/after rows are detached; split/merge/batch changes become one atomic history command. Ordinary edit commands remain compact. UI previews contain no independent editable score: app state installs only `editor.snapshot()` after a successful Apply/Undo/Redo. Parameter or session changes discard UI previews, and the core independently rejects stale plans. Seconds-grid correction is explicit and off by default; no tempo estimator or new processing dependency is introduced.

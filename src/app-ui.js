@@ -43,6 +43,8 @@ function applyLanguage(){
  document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=translate(el.dataset.i18n);});
  document.querySelectorAll('[data-i18n-title]').forEach(el=>{el.title=translate(el.dataset.i18nTitle);});
  document.querySelectorAll('[data-i18n-aria-label]').forEach(el=>el.setAttribute('aria-label',translate(el.dataset.i18nAriaLabel)));
+ // Translate an active toast without restarting its dismissal timer.
+ if($('#appToast').classList.contains('show')){const message=$('#appToastMessage');if(message.dataset.messageKey)message.textContent=translate(message.dataset.messageKey);}
  $('#languageButton').textContent=language==='ja'?'EN':'JA';$('#languageButton').setAttribute('aria-label',language==='ja'?'英語に切り替え':'Switch to Japanese');
  document.title=language==='ja'?APP_CONFIG.nameJa:APP_CONFIG.name;$('#brandName').textContent=document.title;$('#footerName').textContent=document.title;render();
 }
@@ -121,7 +123,7 @@ $('#downloadButton').addEventListener('click',()=>{
  const filename=core.safeMidiName(outputFilename.value);outputFilename.value=filename.replace(/\.mid$/,'');
  const url=URL.createObjectURL(new Blob([core.encodeMidi(state.notes)],{type:'audio/midi'}));blobUrls.add(url);
  const anchor=document.createElement('a');anchor.href=url;anchor.download=filename;document.body.append(anchor);anchor.click();anchor.remove();
- setTimeout(()=>{URL.revokeObjectURL(url);blobUrls.delete(url);},60000);showToast(translate('downloaded'));
+ setTimeout(()=>{URL.revokeObjectURL(url);blobUrls.delete(url);},60000);showToast('downloaded');
 });
 $('#languageButton').addEventListener('click',()=>{language=language==='ja'?'en':'ja';writeStorage(languageKey,language);applyLanguage();});
 const helpDialog=$('#helpDialog');$('#helpButton').addEventListener('click',()=>helpDialog.showModal());$('#closeHelpButton').addEventListener('click',()=>helpDialog.close());

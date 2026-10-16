@@ -81,4 +81,4 @@
         return Object.freeze({ show, dismiss });
       })();
       window.AppToast = AppToast;
-      function showToast(message, options = {}) { AppToast.show({ message, ...options }); }
+      function showToast(messageKey, options = {}) { $('#appToastMessage').dataset.messageKey=messageKey;AppToast.show({ message:translate(messageKey), ...options }); }

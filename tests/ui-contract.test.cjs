@@ -19,3 +19,5 @@ test('Japanese and English contain every static and dynamic message key',()=>{
 });
 
 test("canonical shell uses compact EN/JA and local-processing badge",()=>{const ui=fs.readFileSync(path.join(__dirname,"../src/app-ui.js"),"utf8");assert.match(ui,/language==='ja'\?'EN':'JA'/);assert.ok(ui.includes("完全ローカル処理"));});
+
+test("active toast retains a translation key without restarting its timer",()=>{const ui=fs.readFileSync(path.join(__dirname,"../src/app-ui.js"),"utf8");const components=fs.readFileSync(path.join(__dirname,"../src/ui-components.js"),"utf8");assert.ok(ui.includes("showToast('downloaded')"));assert.ok(ui.includes("message.textContent=translate(message.dataset.messageKey)"));assert.ok(components.includes("dataset.messageKey=messageKey"));});

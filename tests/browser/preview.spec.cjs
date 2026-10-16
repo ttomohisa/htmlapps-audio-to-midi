@@ -19,6 +19,8 @@ test('deployed HTTPS preview matches build and converts offline with MIDI readba
  expect(download.suggestedFilename()).toBe('preview-C4.mid');const bytes=fs.readFileSync(await download.path()),midi=parseMidi(bytes);expect(midi.header.format).toBe(1);expect(midi.tracks).toHaveLength(2);
  let tick=0,start,end;for(const event of midi.tracks[1]){tick+=event.deltaTime;if(event.noteNumber===60){if(event.type==='noteOn')start=tick/960;if(event.type==='noteOff')end=tick/960;}}
  expect(Math.abs(start-.25)).toBeLessThan(.05);expect(Math.abs(end-2.25)).toBeLessThan(.05);await testInfo.attach('preview-midi',{body:bytes,contentType:'audio/midi'});
+ const originalLanguage=await page.locator('html').getAttribute('lang');await page.locator('#languageButton').click();await expect(page.locator('#appToastMessage')).toHaveText(originalLanguage==='en'?'MIDIの保存を開始しました':'MIDI download started');await page.locator('#languageButton').click();
+ await page.locator('#notesDetails summary').click();await expect(page.locator('#appToast')).not.toHaveClass(/show/,{timeout:10000});
  await page.setViewportSize({width:1360,height:900});await page.screenshot({path:testInfo.outputPath('preview-desktop.png')});
  await page.setViewportSize({width:320,height:640});for(let i=0;i<2;i++){expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await page.screenshot({path:testInfo.outputPath(`preview-mobile-${i}.png`),fullPage:true});await page.locator('#languageButton').click();}
  expect(errors).toEqual([]);expect(requests).toEqual([]);

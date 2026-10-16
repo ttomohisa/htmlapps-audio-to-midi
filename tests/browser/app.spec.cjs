@@ -81,7 +81,7 @@ test('help and reset dialogs freeze the background and restore scroll on every c
 });
 
 for(const variant of ['index.html','index.self-extract.html'])test(`${variant}: v0.2 timeline, original/synth transport and unchanged MIDI`,async({page,context},testInfo)=>{
- await context.setOffline(true);await open(page,variant);await upload(page,makeWav({sampleRate:48000,channels:2}));await phase(page,'ready');await expect(page.locator('#playbackMode option[value="synth"]')).toBeDisabled();
+ await context.setOffline(true);await open(page,variant);await upload(page,makeWav({sampleRate:48000,channels:2}));await phase(page,'ready');await expect(page.locator('#playbackMode option[value="synth"]')).toHaveJSProperty('disabled',true);
  await page.locator('#analyzeButton').click();await phase(page,'result');await require('./review-check.cjs').checkReview(page,testInfo);
  const saved=page.waitForEvent('download');await page.locator('#downloadButton').click();const {notes}=midiNotes(fs.readFileSync(await (await saved).path()));expect(notes.some(n=>n.pitch===60&&Math.abs(n.start-.25)<.05&&Math.abs(n.end-2.25)<.05)).toBeTruthy();
  await page.locator('#playButton').click();await expect(page.locator('#reviewCard')).toHaveAttribute('data-playback','playing');await upload(page,makeWav({duration:1,notes:[]}),'new.wav');await phase(page,'ready');await expect(page.locator('#reviewCard')).toHaveAttribute('data-playback','stopped');await expect(page.locator('#reviewCard')).toHaveAttribute('data-active-sources','0');await expect(page.locator('#pianoRoll [data-note-id]')).toHaveCount(0);await expect(page.locator('#downloadButton')).toBeDisabled();

@@ -79,3 +79,19 @@ test('help and reset dialogs freeze the background and restore scroll on every c
  await open(page);await upload(page,makeWav());await phase(page,'ready');
  await require('./dialog-check.cjs').checkModalScroll(page,testInfo);
 });
+
+for(const variant of ['index.html','index.self-extract.html'])test(`${variant}: v0.2 timeline, original/synth transport and unchanged MIDI`,async({page,context},testInfo)=>{
+ await context.setOffline(true);await open(page,variant);await upload(page,makeWav({sampleRate:48000,channels:2}));await phase(page,'ready');await expect(page.locator('#playbackMode option[value="synth"]')).toBeDisabled();
+ await page.locator('#analyzeButton').click();await phase(page,'result');await require('./review-check.cjs').checkReview(page,testInfo);
+ const saved=page.waitForEvent('download');await page.locator('#downloadButton').click();const {notes}=midiNotes(fs.readFileSync(await (await saved).path()));expect(notes.some(n=>n.pitch===60&&Math.abs(n.start-.25)<.05&&Math.abs(n.end-2.25)<.05)).toBeTruthy();
+ await page.locator('#playButton').click();await expect(page.locator('#reviewCard')).toHaveAttribute('data-playback','playing');await upload(page,makeWav({duration:1,notes:[]}),'new.wav');await phase(page,'ready');await expect(page.locator('#reviewCard')).toHaveAttribute('data-playback','stopped');await expect(page.locator('#reviewCard')).toHaveAttribute('data-active-sources','0');await expect(page.locator('#pianoRoll [data-note-id]')).toHaveCount(0);await expect(page.locator('#downloadButton')).toBeDisabled();
+ await page.locator('#playButton').click();await expect(page.locator('#reviewCard')).toHaveAttribute('data-playback','playing');await page.evaluate(()=>dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true})));await expect(page.locator('#reviewCard')).toHaveAttribute('data-playback','paused');await expect(page.locator('#reviewCard')).toHaveAttribute('data-active-sources','0');
+ await page.reload();await phase(page,'empty');await expect(page.locator('#playButton')).toBeDisabled();expect(page.audioErrors).toEqual([]);
+});
+
+test('real OfflineAudioContext renders synth pitch and exact note end',async({page})=>{
+ await open(page);const rendered=await page.evaluate(async()=>{
+  const audio=new OfflineAudioContext(1,55125,44100),context={get currentTime(){return audio.currentTime;},state:'running',destination:audio.destination,createGain:()=>audio.createGain(),createOscillator:()=>audio.createOscillator(),close:()=>Promise.resolve()};
+  const player=AudioMidiPlayback.createPlayer({createContext:()=>context});try{player.load(audio.createBuffer(2,55125,44100),[{pitchMidi:69,startSeconds:0,endSeconds:1,velocity:96}]);player.setMode('synth');await player.play();const data=(await audio.startRendering()).getChannelData(0);let crossings=0,peak=0,tail=0;for(let i=4410;i<39690;i++){if(data[i-1]<=0&&data[i]>0)crossings++;peak=Math.max(peak,Math.abs(data[i]));}for(let i=44541;i<data.length;i++)tail=Math.max(tail,Math.abs(data[i]));return {frequency:crossings/.8,peak,tail};}finally{player.dispose();}
+ });expect(rendered.frequency).toBeCloseTo(440,0);expect(rendered.peak).toBeGreaterThan(.02);expect(rendered.peak).toBeLessThan(.1);expect(rendered.tail).toBeLessThan(.000001);
+});

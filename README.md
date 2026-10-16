@@ -9,7 +9,8 @@ Convert a short recording into MIDI using Spotify Basic Pitch, entirely on your 
 - One audio file, 0.5–60 seconds and up to 50 MiB
 - WAV/MP3, plus M4A/AAC/OGG/FLAC when your browser can decode them
 - On-device CPU inference, progress and immediate cancellation
-- Detected note count, pitch range and timing details
+- Read-only piano roll, waveform, zoom, scrolling and selectable note timing
+- Original-audio / simple-synth comparison with play, pause, stop and seek
 - Editable filename and standard MIDI type 1 export
 - Japanese/English, responsive light interface
 
@@ -18,8 +19,9 @@ Convert a short recording into MIDI using Spotify Basic Pitch, entirely on your 
 1. Open the generated `audio-to-midi.html` or `dist/index.html`.
 2. Choose a short recording of a melody or one instrument.
 3. Press **Analyze audio**. Processing speed depends on your device.
-4. Check the summary, edit the filename and **Download MIDI**.
-5. Open the MIDI in a music app to review the transcription.
+4. Compare **Original audio** and **Synthesized notes**, then zoom/scroll and select a note to inspect it.
+5. Edit the filename and **Download MIDI**.
+6. Open the MIDI in a music app to review the transcription.
 
 ## Privacy
 
@@ -27,11 +29,11 @@ Audio, notes and model inference stay in your browser. There are no runtime down
 
 ## Browser support and limits
 
-This is the **v0.1 development milestone**. Chrome/Edge/Firefox/Safari with Web Audio, Workers and DecompressionStream are target browsers. Real Windows, Android and iOS device acceptance is not yet complete; see [verification](docs/VERIFICATION.md).
+This is the **v0.2 development milestone**. Chrome/Edge/Firefox/Safari with Web Audio, Workers and DecompressionStream are target browsers. Real Windows, Android and iOS device acceptance is not yet complete; see [verification](docs/VERIFICATION.md).
 
 Transcription is approximate. Mixed songs, noise and harmonics can create wrong notes. MIDI is note data, not audio. Output uses 120 BPM only to preserve seconds, channel 1, piano program 0 and fixed velocity 96. No tempo/loudness estimation or pitch bends.
 
-Piano roll, playback, microphone recording and editing are future milestones. Nothing in v0.1 can correct a bad note; review it in your music app.
+The piano roll is read-only. Microphone recording and note editing are future milestones. The simple synth does not reproduce the original instrument. Playback stops when the page is hidden; use Play to resume. Review or correct a bad note in your music app.
 
 ## Offline single HTML
 

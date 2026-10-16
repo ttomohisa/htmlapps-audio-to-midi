@@ -441,8 +441,11 @@
     }
 
     [hidden] { display: none !important; }
-    .flow-grid { margin-bottom:28px; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
-    .flow-card { min-width:0; margin-bottom:0; }
+    .flow-grid { margin-bottom:28px; display:grid; grid-template-columns:minmax(260px,.8fr) minmax(0,1.2fr); align-items:start; gap:20px; }
+    .flow-card, .review-card { min-width:0; margin-bottom:0; }
+    .input-card { grid-column:1; grid-row:1 / span 2; }
+    .review-card { grid-column:2; grid-row:1; }
+    .output-card { grid-column:2; grid-row:2; }
     .step { color:var(--accent); font-size:12px; font-weight:750; letter-spacing:.08em; }
     .flow-card h2 { margin:8px 0; }
     .muted { color:var(--muted); font-size:13px; }
@@ -468,7 +471,37 @@
     .filename-input { width:100%; min-width:0; }
     .compact-note { border-left:3px solid var(--accent); padding:0 0 0 13px; color:var(--muted); font-size:13px; margin-top:20px; }
     .license-text { white-space:pre-wrap; overflow-wrap:anywhere; max-height:240px; overflow:auto; font-size:11px; }
-    @media(max-width:680px) {
+    .review-card h2 { margin:8px 0; }
+    .transport { display:grid; gap:10px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+    .control-field { display:grid; gap:5px; min-width:0; color:var(--muted); font-size:12px; }
+    select { width:100%; min-width:0; max-width:100%; min-height:40px; padding:8px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--text); font:inherit; }
+    select:focus-visible, .piano-scroll:focus-visible { outline:3px solid color-mix(in srgb,var(--focus) 55%,transparent); outline-offset:2px; }
+    .seek-field { display:grid; grid-template-columns:1fr auto; gap:4px 10px; color:var(--muted); font-size:12px; }
+    .seek-field input { grid-column:1 / -1; grid-row:2; width:100%; margin:3px 0; accent-color:var(--accent); }
+    .seek-field output { font-variant-numeric:tabular-nums; }
+    .transport-status { margin:0; min-height:1.5em; }
+    .input-error { color:var(--danger); font-size:13px; margin:0; }
+    .timeline-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; margin:12px 0 8px; }
+    .zoom-controls { display:flex; align-items:center; gap:8px; }
+    .zoom-controls .button { width:40px; padding:6px; font-size:18px; }
+    .zoom-controls output { min-width:40px; text-align:center; font-size:12px; }
+    .wave-row { display:grid; grid-template-columns:46px minmax(0,1fr); border:1px solid var(--line); border-radius:8px 8px 0 0; overflow:hidden; }
+    .wave-label { display:grid; place-items:center; font-size:10px; color:var(--muted); background:var(--surface-muted); }
+    .wave-scroll { min-width:0; overflow:hidden; cursor:crosshair; }
+    #waveform { display:block; touch-action:pan-y; }
+    .piano-frame { display:grid; grid-template-columns:46px minmax(0,1fr); border:1px solid var(--line); border-top:0; overflow:hidden; border-radius:0 0 8px 8px; }
+    .pitch-axis { height:264px; overflow:hidden; background:var(--surface-muted); }
+    #pitchLabels { display:block; }
+    .piano-scroll { height:264px; min-width:0; overflow:auto; overscroll-behavior:contain; }
+    #pianoRoll { display:block; touch-action:pan-x pan-y; }
+    .piano-note { fill:var(--accent); stroke:white; stroke-width:1; cursor:pointer; }
+    .piano-note.selected { fill:#d79b29; stroke:#654511; stroke-width:2; }
+    .playhead { stroke:#b3261e; stroke-width:2; pointer-events:none; }
+    .timeline-guide { margin:8px 0; font-size:11px; }
+    .selected-note { margin:8px 0 0; padding:10px; background:var(--accent-soft); border-radius:8px; font-size:12px; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+    @media(max-width:820px) {
+      .input-card, .review-card, .output-card { grid-column:auto; grid-row:auto; }
+
       .flow-grid { grid-template-columns:1fr; gap:14px; }
       .drop-zone { padding:22px 12px; }
     }
@@ -482,7 +515,7 @@
           <img id="appBrandIcon" src="__APP_ICON_DATA_URI__" alt="">
         </div>
         <div class="brand-copy">
-          <p class="brand-name"><span id="brandName">Audio to MIDI</span><span class="version-badge" id="versionBadge">v0.1.0</span></p>
+          <p class="brand-name"><span id="brandName">Audio to MIDI</span><span class="version-badge" id="versionBadge">v0.2.0</span></p>
           <p class="brand-meta" data-i18n="brandMeta">音声から音符を見つけてMIDIに</p>
         </div>
       </div>
@@ -507,9 +540,9 @@
       </div>
     </section>
 
-    <!-- APP:BEGIN Audio to MIDI v0.1 -->
+    <!-- APP:BEGIN Audio to MIDI v0.2 -->
     <div class="flow-grid">
-      <section class="workspace flow-card" aria-labelledby="inputTitle">
+      <section class="workspace flow-card input-card" aria-labelledby="inputTitle">
         <span class="step" data-i18n="stepInput">01 / INPUT</span>
         <h2 id="inputTitle" data-i18n="inputTitle">Choose a short recording</h2>
         <p class="muted" data-i18n="inputHint">One instrument or melody. 0.5–60 seconds · up to 50 MiB.</p>
@@ -531,7 +564,27 @@
         </div>
         <p class="compact-note" data-i18n="privacyNote">Your audio stays on this device. The model is included in this HTML.</p>
       </section>
-      <section class="workspace flow-card" aria-labelledby="resultTitle">
+      <section class="workspace review-card" id="reviewCard" aria-labelledby="reviewTitle">
+        <span class="step" data-i18n="stepReview">02 / REVIEW</span>
+        <h2 id="reviewTitle" data-i18n="reviewTitle">See and compare the notes</h2>
+        <p class="muted" data-i18n="reviewHint">Compare the original recording with a simple synthesized preview. Notes are read-only in this version.</p>
+        <div class="transport" data-i18n-aria-label="playbackControls">
+          <label class="control-field"><span data-i18n="playbackSource">Listen to</span><select id="playbackMode"><option value="original" data-i18n="originalAudio">Original audio</option><option value="synth" data-i18n="synthAudio">Synthesized notes</option></select></label>
+          <div class="button-row transport-buttons"><button type="button" class="button primary" id="playButton" data-i18n="play">Play</button><button type="button" class="button" id="pauseButton" data-i18n="pause">Pause</button><button type="button" class="button" id="stopButton" data-i18n="stop">Stop</button></div>
+          <label class="seek-field"><span data-i18n="playbackPosition">Position</span><input id="seekPosition" type="range" min="0" max="0" step="0.01" value="0" aria-describedby="playbackTime"><output id="playbackTime">0.00 / 0.00 s</output></label>
+          <p class="muted transport-status" id="transportStatus" role="status"></p><p class="input-error" id="playbackError" role="alert" hidden></p>
+        </div>
+        <p class="muted" id="timelineEmpty" data-i18n="timelineEmpty">Choose an audio file to see its waveform.</p>
+        <div id="timelinePanel" hidden>
+          <div class="timeline-toolbar"><span class="muted" data-i18n="timelineUnits">Time in seconds · Pitch</span><div class="zoom-controls"><button class="button" type="button" id="zoomOut" data-i18n-aria-label="zoomOut">−</button><output id="zoomLevel">1×</output><button class="button" type="button" id="zoomIn" data-i18n-aria-label="zoomIn">+</button></div></div>
+          <div class="wave-row"><span class="wave-label" data-i18n="waveformLabel">Wave</span><div class="wave-scroll" id="waveScroll"><svg id="waveform" height="96" role="img" data-i18n-aria-label="waveformDescription"></svg></div></div>
+          <div class="piano-frame"><div class="pitch-axis" aria-hidden="true"><svg id="pitchLabels" width="46"></svg></div><div class="piano-scroll" id="pianoScroll" tabindex="0" data-i18n-aria-label="pianoScrollLabel"><svg id="pianoRoll" role="img" data-i18n-aria-label="pianoDescription"></svg></div></div>
+          <p class="muted timeline-guide" data-i18n="timelineGuide">Scroll the note area to move in time or pitch. Tap a note or choose one below.</p>
+          <label class="control-field note-picker"><span data-i18n="selectedNote">Selected note</span><select id="notePicker"></select></label>
+          <p class="selected-note" id="selectedNoteDetails" role="status"></p>
+        </div>
+      </section>
+      <section class="workspace flow-card output-card" aria-labelledby="resultTitle">
         <span class="step" data-i18n="stepOutput">02 / MIDI</span>
         <h2 id="resultTitle" data-i18n="resultTitle">Save the detected notes</h2>
         <div id="notesSummary"><div class="summary-line"><span id="noteCount" class="result-count">—</span><span data-i18n="notes">notes</span></div><p class="muted" id="resultMeta"></p></div>
@@ -600,6 +653,9 @@
 
   <script>
 __AUDIO_CORE_JS__
+__TIMELINE_CORE_JS__
+__PLAYBACK_ENGINE_JS__
+__REVIEW_UI_JS__
     (() => {
       'use strict';
 

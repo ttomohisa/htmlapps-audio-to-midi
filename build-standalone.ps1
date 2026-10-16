@@ -360,6 +360,9 @@ $replacements = [ordered]@{
   "__APP_ICON_DATA_URI__" = $appIconDataUri
   "__THIRD_PARTY_NOTICES_JSON__" = ConvertTo-SafeJson ([System.IO.File]::ReadAllText((Join-Path $Root "THIRD_PARTY_NOTICES.md"))) 5
   "__AUDIO_CORE_JS__" = [System.IO.File]::ReadAllText((Join-Path $Root "src/audio-core.js"))
+  "__TIMELINE_CORE_JS__" = [System.IO.File]::ReadAllText((Join-Path $Root "src/timeline-core.js"))
+  "__PLAYBACK_ENGINE_JS__" = [System.IO.File]::ReadAllText((Join-Path $Root "src/playback-engine.js"))
+  "__REVIEW_UI_JS__" = [System.IO.File]::ReadAllText((Join-Path $Root "src/review-ui.js"))
   "__INFERENCE_WORKER_JSON__" = ConvertTo-SafeJson ([System.IO.File]::ReadAllText((Join-Path $Root "src/inference-worker.js"))) 5
   "__APP_UI_JS__" = ([System.IO.File]::ReadAllText((Join-Path $Root "src/app-ui.js"))).Replace("__UI_COMPONENTS__", [System.IO.File]::ReadAllText((Join-Path $Root "src/ui-components.js")))
 }
@@ -370,6 +373,9 @@ $replacementExpectedCounts = @{
   "__APP_ICON_DATA_URI__" = 2
   "__THIRD_PARTY_NOTICES_JSON__" = 1
   "__AUDIO_CORE_JS__" = 1
+  "__TIMELINE_CORE_JS__" = 1
+  "__PLAYBACK_ENGINE_JS__" = 1
+  "__REVIEW_UI_JS__" = 1
   "__INFERENCE_WORKER_JSON__" = 1
   "__APP_UI_JS__" = 1
 }

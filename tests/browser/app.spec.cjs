@@ -2,7 +2,7 @@ const {test,expect}=require('@playwright/test');const path=require('node:path');
 const {parseMidi}=require('midi-file');const {makeWav}=require('../fixtures.cjs');
 const file=name=>pathToFileURL(path.join(__dirname,'../../dist',name)).href;
 const upload=async(page,buffer,name='C4.wav')=>{await page.locator('#audioFile').setInputFiles({name,mimeType:'audio/wav',buffer});};
-const phase=async(page,value)=>expect(page.locator('body')).toHaveAttribute('data-phase',value,{timeout:90000});
+const phase=async(page,value)=>{await page.waitForFunction(expected=>document.body.dataset.phase===expected||document.body.dataset.phase==='error',value,{timeout:90000});expect(await page.locator('body').getAttribute('data-phase'),await page.locator('#statusHint').textContent()).toBe(value);};
 async function open(page,variant='index.html'){await page.goto(file(variant));await expect(page.locator('#audioFile')).toBeVisible();}
 function midiNotes(bytes){const midi=parseMidi(bytes);let tick=0;const starts=new Map(),notes=[];for(const e of midi.tracks[1]){tick+=e.deltaTime;if(e.type==='noteOn'){if(!starts.has(e.noteNumber))starts.set(e.noteNumber,[]);starts.get(e.noteNumber).push(tick);}if(e.type==='noteOff')notes.push({pitch:e.noteNumber,start:starts.get(e.noteNumber).shift()/960,end:tick/960,channel:e.channel});}return {midi,notes};}
 for(const variant of ['index.html','index.self-extract.html'])test(`${variant}: offline real inference and downloaded MIDI readback`,async({page,context},testInfo)=>{

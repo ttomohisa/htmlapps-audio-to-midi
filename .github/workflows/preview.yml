@@ -172,6 +172,27 @@ jobs:
 
           throw "Preview did not become ready: $lastError"
 
+      - name: Install browser verification dependencies
+        if: steps.cloudflare.outputs.configured == 'true'
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install chromium
+
+      - name: Verify deployed preview in Chromium
+        if: steps.cloudflare.outputs.configured == 'true'
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.preview_url }}
+        run: npx playwright test preview.spec.cjs
+
+      - name: Upload preview browser evidence
+        if: always() && steps.cloudflare.outputs.configured == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: audio-midi-preview-evidence-${{ github.event.pull_request.head.sha }}
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Comment Preview URL
         if: steps.cloudflare.outputs.configured == 'true'
         shell: pwsh

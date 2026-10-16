@@ -441,10 +441,10 @@
     }
 
     [hidden] { display: none !important; }
-    .flow-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
-    .flow-card { padding:24px; min-width:0; }
+    .flow-grid { margin-bottom:28px; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+    .flow-card { min-width:0; margin-bottom:0; }
     .step { color:var(--accent); font-size:12px; font-weight:750; letter-spacing:.08em; }
-    .flow-card h2 { margin:8px 0; font-size:21px; }
+    .flow-card h2 { margin:8px 0; }
     .muted { color:var(--muted); font-size:13px; }
     .drop-zone { margin:22px 0 16px; border:2px dashed var(--line-strong); border-radius:12px; padding:30px 16px; text-align:center; background:var(--surface-muted); }
     .drop-zone.dragging { border-color:var(--accent); background:var(--accent-soft); }
@@ -470,7 +470,6 @@
     .license-text { white-space:pre-wrap; overflow-wrap:anywhere; max-height:240px; overflow:auto; font-size:11px; }
     @media(max-width:680px) {
       .flow-grid { grid-template-columns:1fr; gap:14px; }
-      .flow-card { padding:18px; }
       .drop-zone { padding:22px 12px; }
     }
   </style>
@@ -484,7 +483,7 @@
         </div>
         <div class="brand-copy">
           <p class="brand-name"><span id="brandName">Audio to MIDI</span><span class="version-badge" id="versionBadge">v0.1.0</span></p>
-          <p class="brand-meta" data-i18n="brandMeta">ローカル音声・端末内で完結</p>
+          <p class="brand-meta" data-i18n="brandMeta">音声から音符を見つけてMIDIに</p>
         </div>
       </div>
       <div class="header-actions">
@@ -510,7 +509,7 @@
 
     <!-- APP:BEGIN Audio to MIDI v0.1 -->
     <div class="flow-grid">
-      <section class="shell flow-card" aria-labelledby="inputTitle">
+      <section class="workspace flow-card" aria-labelledby="inputTitle">
         <span class="step" data-i18n="stepInput">01 / INPUT</span>
         <h2 id="inputTitle" data-i18n="inputTitle">Choose a short recording</h2>
         <p class="muted" data-i18n="inputHint">One instrument or melody. 0.5–60 seconds · up to 50 MiB.</p>
@@ -532,7 +531,7 @@
         </div>
         <p class="compact-note" data-i18n="privacyNote">Your audio stays on this device. The model is included in this HTML.</p>
       </section>
-      <section class="shell flow-card" aria-labelledby="resultTitle">
+      <section class="workspace flow-card" aria-labelledby="resultTitle">
         <span class="step" data-i18n="stepOutput">02 / MIDI</span>
         <h2 id="resultTitle" data-i18n="resultTitle">Save the detected notes</h2>
         <div id="notesSummary"><div class="summary-line"><span id="noteCount" class="result-count">—</span><span data-i18n="notes">notes</span></div><p class="muted" id="resultMeta"></p></div>
@@ -545,7 +544,7 @@
     </div>
     <!-- APP:END -->
 
-    <section class="shell section">
+    <section class="section">
       <details>
         <summary data-i18n="buildInfo">Build information</summary>
         <div class="build-grid">
@@ -590,6 +589,7 @@
     <div class="dialog-body">
       <!-- APP:HELP:BEGIN -->
       <h3 data-i18n="helpBasicsTitle">Basics</h3><ol><li data-i18n="helpStep1"></li><li data-i18n="helpStep2"></li><li data-i18n="helpStep3"></li></ol>
+      <p data-i18n="helpDialogNote"></p>
       <h3 data-i18n="helpPrivacyTitle"></h3><p data-i18n="helpPrivacyBody"></p>
       <h3 data-i18n="helpNotesTitle"></h3><ul><li data-i18n="helpNoteStorage"></li><li data-i18n="helpNoteBrowser"></li><li data-i18n="scopeNote"></li></ul>
       <p class="dialog-note" data-i18n="helpOffline"></p>

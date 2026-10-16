@@ -74,3 +74,8 @@ test('synthetic melody preserves distinct pitches and note time order',async({pa
  const saved=page.waitForEvent('download');await page.locator('#downloadButton').click();const {notes}=midiNotes(fs.readFileSync(await (await saved).path()));
  for(const expected of [{pitch:60,start:.25},{pitch:62,start:1.2},{pitch:64,start:2.15}])expect(notes.some(n=>n.pitch===expected.pitch&&Math.abs(n.start-expected.start)<.07)).toBeTruthy();
 });
+
+test('help and reset dialogs freeze the background and restore scroll on every close path',async({page},testInfo)=>{
+ await open(page);await upload(page,makeWav());await phase(page,'ready');
+ await require('./dialog-check.cjs').checkModalScroll(page,testInfo);
+});

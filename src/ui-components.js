@@ -1,6 +1,58 @@
+// Native dialogs need an explicit page lock on touch browsers. Share ownership so
+// one dialog cannot unlock the page while another is still open.
+const AppDialog = (() => {
+  const active = new Set();
+  let saved = null;
+  function capture(style, names) {
+    return names.map(name => [name, style.getPropertyValue(name), style.getPropertyPriority(name)]);
+  }
+  function restore(style, values) {
+    for (const [name, value, priority] of values) {
+      if (value) style.setProperty(name, value, priority);
+      else style.removeProperty(name);
+    }
+  }
+  function lock(dialog) {
+    if (active.has(dialog)) return;
+    if (!active.size) {
+      const body = document.body, root = document.documentElement;
+      const gap = Math.max(0, window.innerWidth - root.clientWidth);
+      const padding = parseFloat(getComputedStyle(body).paddingRight) || 0;
+      saved = { x: window.scrollX, y: window.scrollY,
+        body: capture(body.style, ['position', 'top', 'left', 'width', 'overflow', 'padding-right']),
+        root: capture(root.style, ['overflow', 'scroll-behavior']) };
+      root.style.setProperty('overflow', 'hidden');
+      root.style.setProperty('scroll-behavior', 'auto');
+      for (const [name, value] of Object.entries({position:'fixed', top:`-${saved.y}px`, left:`-${saved.x}px`, width:'100%', overflow:'hidden', 'padding-right':`${padding + gap}px`})) body.style.setProperty(name, value);
+    }
+    active.add(dialog);
+  }
+  function unlock(dialog) {
+    if (!active.delete(dialog) || active.size || !saved) return;
+    const previous = saved; saved = null;
+    restore(document.body.style, previous.body);
+    restore(document.documentElement.style, previous.root);
+    // Avoid the template's smooth scrolling while restoring the exact position.
+    window.scrollTo({left:previous.x, top:previous.y, behavior:'instant'});
+  }
+  function open(dialog) {
+    if (dialog.open) return;
+    lock(dialog);
+    try { dialog.showModal(); } catch (error) { unlock(dialog); throw error; }
+  }
+  function close(dialog) { dialog.close(); unlock(dialog); }
+  function watch(dialog) {
+    // Native Escape/close() also release the lock. Ignore delayed close events
+    // from a dialog that has already been reopened.
+    dialog.addEventListener('close', () => { if (!dialog.open) unlock(dialog); });
+  }
+  return Object.freeze({open, close, watch});
+})();
+
       // Reusable Promise-based confirmation API. Canonical source: components/confirm-dialog.html.
       const AppConfirm = (() => {
         const dialog = $('#appConfirmDialog');
+        AppDialog.watch(dialog);
         const title = $('#appConfirmTitle');
         const message = $('#appConfirmMessage');
         const closeButton = $('#appConfirmClose');
@@ -13,7 +65,7 @@
           if (!dialog.open) return;
           const currentResolver = resolver;
           resolver = null;
-          dialog.close();
+          AppDialog.close(dialog);
           if (restoreFocus instanceof HTMLElement && restoreFocus.isConnected) restoreFocus.focus({ preventScroll: true });
           restoreFocus = null;
           if (currentResolver) currentResolver(result);
@@ -30,7 +82,7 @@
           restoreFocus = document.activeElement;
           return new Promise(resolve => {
             resolver = resolve;
-            dialog.showModal();
+            AppDialog.open(dialog);
             requestAnimationFrame(() => cancelButton.focus({ preventScroll: true }));
           });
         }

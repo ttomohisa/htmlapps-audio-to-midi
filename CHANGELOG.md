@@ -2,6 +2,8 @@
 
 ## 0.1.0 — development milestone (2026-10-16)
 
+- Updated the descriptive header subtitle, restored canonical framed workspaces, and locked background scrolling while Help or Reset confirmation is open.
+
 - Implement local short-audio decoding, mono/resampling, embedded Basic Pitch inference and standard MIDI export.
 - Add generation-safe cancellation/input changes, no-note and error recovery, editable output names and bilingual responsive UI.
 - Preserve offline single-HTML builds, restrictive CSP and model/runtime license disclosures.

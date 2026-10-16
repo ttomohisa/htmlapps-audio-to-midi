@@ -282,3 +282,9 @@ interface Note {
 - Browser Kitty template: https://github.com/ttomohisa/htmlapps-template
 - Music Practice Kit: https://github.com/ttomohisa/htmlapps-music-practice-kit
 - Web Audio decodeAudioData: https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/decodeAudioData
+
+### PR preview UI refinement (2026-10-16)
+
+- Header subtitle: “音声から音符を見つけてMIDIに” / “Find notes in audio and turn them into MIDI”.
+- Input and MIDI output use the canonical white workspace surface, border, corner radius and responsive spacing.
+- Help and reset confirmation keep the background fixed at its previous scroll position. Close, Escape, backdrop and native dialog closure restore scrolling; opening failures must not leave a lock.

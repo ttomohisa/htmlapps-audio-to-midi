@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0 — 2026-10-16
+
+- Add an explicit MIDI/CSV selector with one editable filename and format-specific extension.
+- Export current edited notes as stable UTF-8 CSV with exact seconds, MIDI pitch and fixed velocity 96.
+- Normalize repeated/mixed output extensions and preserve safe Japanese filenames.
+- Verify MIDI event/readback behavior for consecutive notes, overlaps, sub-tick notes and the full pitch range.
+- Explain same-pitch overlap ambiguity, fixed timing tempo and instrument differences; pitch bends remain absent.
+
 ## 0.7.0 — 2026-10-16
 
 - Bound inference input tensors to one window while preserving pinned model alignment.

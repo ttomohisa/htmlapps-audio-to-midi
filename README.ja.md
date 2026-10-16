@@ -15,7 +15,7 @@ Spotify Basic Pitchで短い録音から音符を検出し、端末内だけでM
 - 小区間に分けた推論と、完了後の端末内モデル再利用
 - 音符の追加・削除、半音/時刻の修正、音名/秒数の直接入力、削除を元に戻す操作
 - 元音声/簡易合成音の聴き比べ、再生・一時停止・停止・シーク
-- 保存名の編集と標準MIDIタイプ1出力
+- 保存名の編集、標準MIDIタイプ1と秒数を保つCSV音符表の出力
 - 日本語/英語、PC/スマートフォン向けの明色UI
 
 ## 使い方
@@ -33,7 +33,7 @@ Spotify Basic Pitchで短い録音から音符を検出し、端末内だけでM
 
 ## 対応環境・制限
 
-現在は **v0.7の開発段階**です。Web Audio・Worker・DecompressionStream対応のChrome/Edge/Firefox/Safariを対象にしています。Windows・Android・iOS実機での受け入れ確認は未完了です。[検証記録](docs/VERIFICATION.md)を参照してください。
+現在は **v0.8の開発段階**です。Web Audio・Worker・DecompressionStream対応のChrome/Edge/Firefox/Safariを対象にしています。Windows・Android・iOS実機での受け入れ確認は未完了です。[検証記録](docs/VERIFICATION.md)を参照してください。
 
 採譜は推定です。複数楽器の楽曲、雑音、倍音などで誤検出があります。MIDIは音声ではありません。時間を保持するための固定120 BPM、チャンネル1、ピアノ音色0、ベロシティ96で保存します。テンポ・強弱は推定せず、ピッチベンドも出力しません。
 
@@ -56,3 +56,5 @@ Windowsでは `build-standalone.bat` を実行します。PowerShellの構文検
 アプリはMIT。Basic Pitchとモデル、TensorFlow.jsはApache-2.0、Tonejs MIDIはMITです。[第三者告知](THIRD_PARTY_NOTICES.md)とアプリ内ヘルプの全文を参照してください。
 
 解析中にページを隠すと処理を中止します。戻ってから明示的に解析し直してください。再解析を中止しても前の完成済み音符は保持します。実機の性能ゲートは未完了のため、入力上限は60秒を維持しています。
+
+同じ音高の重なったMIDI音符は音楽アプリによって長さの解釈が異なる場合があります。CSVは各音符の開始・終了秒数をそのまま保持します。CSV/MIDIのどちらにも元音声は含みません。

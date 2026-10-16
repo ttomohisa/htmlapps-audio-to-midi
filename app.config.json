@@ -3,7 +3,7 @@
   "name": "Audio to MIDI",
   "nameJa": "音声→MIDI",
   "slug": "audio-to-midi",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Convert short audio recordings to MIDI, entirely on your device.",
   "descriptionJa": "短い音声を端末内だけで解析し、MIDIへ変換します。",
   "defaultLanguage": "auto",

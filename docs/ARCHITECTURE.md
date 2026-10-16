@@ -151,3 +151,7 @@ Inference creates only one overlapping input window at a time instead of a tenso
 Timeline geometry remains the full source-time/pitch space, while rendered SVG rows, ticks, waveform bins and notes are selected near the current viewport. Detached indexes are view-only; the editor remains the sole authoritative note list.
 
 Cancellation invalidates pending decode/resample results but browser decodeAudioData/OfflineAudioContext work is not generally abortable. No canceled result is installed. Whole-file decoding still occurs before duration validation; longer inputs remain disabled.
+
+## v0.8 dual-format export
+
+The pure audio core validates and formats numeric CSV rows alongside its existing SMF encoder. No dependency or runtime network path is added. The app owns one format selector and basename; at the click boundary it reads only the active result list, creates a format-specific Blob and uses the existing URL cleanup/saved-content fingerprint flow. CSV contains exact numeric intervals; SMF emits fixed-timing note events and cannot assign identity to nested notes sharing channel/pitch. That limitation is disclosed instead of silently changing the score.

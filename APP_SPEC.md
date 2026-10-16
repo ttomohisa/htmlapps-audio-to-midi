@@ -341,3 +341,11 @@ interface Note {
 - Each worker response carries its job ID and must match both the active worker and current source generation. Model bootstrap data is posted only on first use.
 - Waveform and piano content are drawn only near the viewport with overscan; scroll geometry and all editing/export data remain in original seconds. Selecting an offscreen note reveals it.
 - Input remains 0.5–60 seconds / 50 MiB, recording 59 seconds. Whole-file decodeAudioData is still required before duration validation; compressed-file size does not bound decoded PCM memory. Android/iOS low-memory and longer-duration acceptance is unverified, so no five-minute expansion is enabled.
+
+### v0.8 implementation boundary (2026-10-16)
+
+- Export has a MIDI/CSV format selector and one editable basename. MIDI is the initial and reset default; switching format or language preserves the current basename and notes. Input replacement resets the basename from the source but retains the selected format.
+- CSV is UTF-8 without BOM, header start_seconds,end_seconds,pitch_midi,velocity, CRLF rows/final newline, ordered by start/pitch/end. It preserves finite source seconds without MIDI tick rounding, fixed velocity 96 and no filenames/provenance/audio metadata in cells.
+- Both formats require a current nonempty completed result and use the same edited notes. Either initiated download marks the current content saved; subsequent edits are dirty again. A browser download start does not prove storage completed.
+- MIDI remains SMF 1, PPQ 480, fixed 120 BPM solely for seconds-to-ticks conversion, channel 1/program 0/velocity 96, no bends. Start/end round to ticks with at least one tick duration. Nested same-pitch overlaps on one channel have no per-note identity and cannot guarantee interval pairing in other software; CSV retains exact intervals. No automatic deletion/merging/channel redistribution is performed.
+- Actual DAW listening and pitch-bend/channel validation remain unverified; pitch bends are not offered. The same 60-second/50 MiB limit, pinned model and offline boundary remain.

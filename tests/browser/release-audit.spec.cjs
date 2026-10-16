@@ -249,8 +249,20 @@ for(const variant of variants){
     expect(geometry.lastTop).toBeGreaterThanOrEqual(geometry.bodyTop-1);expect(geometry.lastBottom).toBeLessThanOrEqual(geometry.bodyBottom+1);
     expect(geometry.dialogTop).toBeGreaterThanOrEqual(0);expect(geometry.dialogBottom).toBeLessThanOrEqual(geometry.height);
     await expect(page.locator('#closeHelpButton')).toBeInViewport();
-    // Native modal focus must stay inside the dialog while tabbing.
-    for(let step=0;step<4;step++){await page.keyboard.press('Tab');expect(await page.evaluate(()=>!!document.activeElement.closest('#helpDialog'))).toBe(true);}
+    // Native Tab navigation may visit browser chrome, represented by body as
+    // activeElement (observed in Chromium CI). Background controls must never
+    // receive focus, and a bounded keyboard cycle must return to Close.
+    await expect(page.locator('#closeHelpButton')).toBeFocused();
+    let returnedToClose=false;
+    for(let step=0;step<8;step++){
+     await page.keyboard.press('Tab');
+     const focus=await page.evaluate(()=>{const active=document.activeElement;return {allowed:active===document.body||!!active.closest('#helpDialog'),close:active.id==='closeHelpButton',tag:active.tagName,id:active.id};});
+     expect(focus.allowed,`Modal Tab reached ${focus.tag}#${focus.id}`).toBe(true);
+     await expect(page.locator('#helpDialog')).toBeVisible();
+     if(focus.close){returnedToClose=true;break;}
+    }
+    expect(returnedToClose,'Modal Tab must return from browser chrome/dialog content to Close').toBe(true);
+    await expect(page.locator('#closeHelpButton')).toBeFocused();
     await page.keyboard.press('Escape');await expect(page.locator('#helpDialog')).toBeHidden();await expect(page.locator('body')).not.toHaveCSS('position','fixed');await expect(page.locator('#helpButton')).toBeFocused();
     await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(before.y);
     await page.mouse.move(width-2,240);await page.mouse.wheel(0,60);await expect.poll(()=>page.evaluate(()=>scrollY)).toBeGreaterThan(before.y);

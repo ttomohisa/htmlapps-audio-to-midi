@@ -2,7 +2,7 @@
 
 Spotify Basic Pitchで短い録音から音符を検出し、端末内だけでMIDIへ変換します。
 
-![v0.5の実際のプレビュー。合成C4のマイク録音と検出された音符](assets/screenshot.png)
+![v0.9リリース候補の実画面。合成メロディーと検出された音符](assets/screenshot-ja.png)
 
 ## 主な機能
 

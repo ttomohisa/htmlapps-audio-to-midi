@@ -22,7 +22,9 @@ test('silence, corrupt input, duration boundaries and retry',async({page})=>{
  await open(page);await upload(page,makeWav({notes:[],duration:1}),'silence.wav');await phase(page,'ready');await page.locator('#analyzeButton').click();await phase(page,'no-notes');await expect(page.locator('#downloadButton')).toBeDisabled();
  for(const duration of [.4,60.1]){await upload(page,makeWav({duration,notes:[],sampleRate:8000}));await phase(page,'error');await expect(page.locator('#statusHint')).toContainText(/0.5/);}
  await upload(page,Buffer.from('not an audio file'),'broken.wav');await phase(page,'error');
- await upload(page,makeWav({duration:.5,notes:[],sampleRate:48000,channels:2}),'retry.wav');await phase(page,'ready');await expect(page.locator('#sourceMeta')).toContainText('0.50');
+ // The contract is decoded duration: avoid a source-rate conversion rounding this boundary below 0.5 s.
+ const nativeRate=await page.evaluate(async()=>{const context=new AudioContext();const rate=context.sampleRate;await context.close();return rate;});
+ await upload(page,makeWav({duration:.5,notes:[],sampleRate:nativeRate,channels:2}),'retry.wav');await phase(page,'ready');await expect(page.locator('#sourceMeta')).toContainText('0.50');
 });
 test('cancel during inference, change source, reject stale result and repeated clicks',async({page})=>{
  await open(page);await upload(page,makeWav({duration:10,notes:[{pitch:60,start:.25,end:9.75}]}),'old.wav');await phase(page,'ready');await page.locator('#analyzeButton').dblclick();await phase(page,'analyzing');
@@ -30,9 +32,10 @@ test('cancel during inference, change source, reject stale result and repeated c
  await page.locator('#analyzeButton').click();await phase(page,'analyzing');await upload(page,makeWav({duration:1,notes:[]}),'replacement.wav');await phase(page,'ready');await expect(page.locator('#sourceName')).toHaveText('replacement.wav');
  await page.locator('#analyzeButton').click();await phase(page,'no-notes');await expect(page.locator('#downloadButton')).toBeDisabled();
 });
-test('invalid replacement preserves result; reset cancellation and language keep state',async({page})=>{
+test('invalid replacement preserves result; reset cancellation and language keep state',async({page},testInfo)=>{
  await open(page);await upload(page,makeWav());await phase(page,'ready');await page.locator('#analyzeButton').click();await phase(page,'result');const count=await page.locator('#noteCount').textContent();
- await upload(page,Buffer.alloc(50*1024*1024+1),'oversized.wav');await phase(page,'result');await expect(page.locator('#inputError')).toBeVisible();await expect(page.locator('#downloadButton')).toBeEnabled();
+ const oversized=testInfo.outputPath('oversized.wav'),fd=fs.openSync(oversized,'w');fs.ftruncateSync(fd,50*1024*1024+1);fs.closeSync(fd);
+ try{await page.locator('#audioFile').setInputFiles(oversized);}finally{fs.unlinkSync(oversized);}await phase(page,'result');await expect(page.locator('#inputError')).toBeVisible();await expect(page.locator('#downloadButton')).toBeEnabled();
  await page.locator('#languageButton').click();await expect(page.locator('#noteCount')).toHaveText(count);
  await page.locator('#resetButton').click();await page.locator('#appConfirmCancel').click();await phase(page,'result');
  await page.locator('#resetButton').click();await page.locator('#appConfirmOk').click();await phase(page,'empty');

@@ -1,6 +1,11 @@
 /* Pure, shared audio input/note/MIDI contracts. No browser, model, or network side effects. */
 const AudioMidiCore = (() => {
   const SAMPLE_RATE = 22050, PPQ = 480, TICKS_PER_SECOND = 960;
+  function buildWorkerSource(tfSource,midiSource,postSource,inferenceSource) {
+    // TF.js 3.21's legacy regenerator assigns this name in strict mode. Declare it
+    // first so it never takes its Function-constructor fallback under our CSP.
+    return 'var regeneratorRuntime;\n'+tfSource+'\n'+midiSource+'\nconst BasicPitchPostprocess=(()=>{const exports={};const require=id=>{if(id!=="@tonejs/midi")throw new Error("Unknown module");return {Midi:self.Midi};};\n'+postSource+'\nreturn exports;})();\n'+inferenceSource;
+  }
   function validateFile(file) {
     if (!file || !Number.isFinite(file.size) || file.size <= 0) return 'emptyFile';
     if (file.size > 50 * 1024 * 1024) return 'fileTooLarge';
@@ -67,6 +72,6 @@ const AudioMidiCore = (() => {
     track.push(0,255,47,0);
     return new Uint8Array([...ascii('MThd'),...be32(6),...be16(1),...be16(2),...be16(PPQ),...tempo,...chunk('MTrk',track)]);
   }
-  return Object.freeze({SAMPLE_RATE,PPQ,validateFile,validateDuration,mixChannels,normalizeNotes,createGeneration,safeMidiName,defaultMidiName,encodeMidi});
+  return Object.freeze({SAMPLE_RATE,PPQ,buildWorkerSource,validateFile,validateDuration,mixChannels,normalizeNotes,createGeneration,safeMidiName,defaultMidiName,encodeMidi});
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports=AudioMidiCore;

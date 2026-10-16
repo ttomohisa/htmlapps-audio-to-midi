@@ -72,3 +72,5 @@ test('overlapping same-pitch notes retain balanced events without deduplication'
  let tick=0;const on=[],off=[];for(const event of midi.tracks[1]){tick+=event.deltaTime;if(event.noteNumber===60){if(event.type==='noteOn')on.push(tick);if(event.type==='noteOff')off.push(tick);}}
  assert.deepEqual(on,[0,240]);assert.deepEqual(off,[960,1200]);
 });
+
+test('worker bootstrap declares legacy runtime without permitting string evaluation',()=>{const source=core.buildWorkerSource('/* tf */','/* midi */','exports.ok=true;','/* worker */');assert.ok(source.startsWith('var regeneratorRuntime;\n'));assert.ok(source.includes('return {Midi:self.Midi}'));});

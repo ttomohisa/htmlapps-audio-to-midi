@@ -82,7 +82,7 @@ async function analyze(){
    const assets=StandaloneAssets;
    const [tfSource,midiSource,postSource,modelText,weights]=await Promise.all([assets.textAsync('tfjs','runtime'),assets.textAsync('tone-midi','runtime'),assets.textAsync('basic-pitch','postprocess'),assets.textAsync('basic-pitch','model'),assets.bytesAsync('basic-pitch','weights')]);
    if(!generation.isCurrent(token))return;
-   const bootstrap=tfSource+'\n'+midiSource+'\nconst BasicPitchPostprocess=(()=>{const exports={};const require=id=>{if(id!=="@tonejs/midi")throw new Error("Unknown module");return {Midi:self.Midi};};\n'+postSource+'\nreturn exports;})();\n'+INFERENCE_WORKER_SOURCE;
+   const bootstrap=core.buildWorkerSource(tfSource,midiSource,postSource,INFERENCE_WORKER_SOURCE);
    workerUrl=URL.createObjectURL(new Blob([bootstrap],{type:'text/javascript'}));worker=new Worker(workerUrl);
    worker.modelJson=JSON.parse(modelText);worker.modelWeights=weights;
   }

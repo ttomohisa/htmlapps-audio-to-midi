@@ -6,6 +6,12 @@ const Midi=require(path.join(cache,'-tonejs-midi-2.0.28/extracted/package/build/
 const post={exports:{}};vm.runInNewContext(fs.readFileSync(path.join(cache,'-spotify-basic-pitch-1.0.1/extracted/package/cjs/toMidi.js'),'utf8'),{exports:post.exports,require:id=>{assert.equal(id,'@tonejs/midi');return Midi;},Buffer});
 const {runBasicPitch}=require('../src/inference-worker.js'),core=require('../src/audio-core.js');
 const {parseMidi}=require('midi-file');
+// Reproduce the browser's no-unsafe-eval contract before invoking the model.
+const workerContext={self:null,console,TextEncoder,TextDecoder,setTimeout,clearTimeout,performance};workerContext.self=workerContext;
+vm.createContext(workerContext,{codeGeneration:{strings:false,wasm:false}});
+vm.runInContext(core.buildWorkerSource(fs.readFileSync(path.join(cache,'-tensorflow-tfjs-3.21.0/extracted/package/dist/tf.min.js'),'utf8'),fs.readFileSync(path.join(cache,'-tonejs-midi-2.0.28/extracted/package/build/Midi.js'),'utf8'),fs.readFileSync(path.join(cache,'-spotify-basic-pitch-1.0.1/extracted/package/cjs/toMidi.js'),'utf8'),fs.readFileSync(path.join(root,'src/inference-worker.js'),'utf8')),workerContext);
+assert.equal(vm.runInContext('typeof BasicPitchPostprocess.outputToNotesPoly',workerContext),'function');
+
 const modelRoot=path.join(cache,'-spotify-basic-pitch-1.0.1/extracted/package/model');
 (async()=>{
  await tf.setBackend('cpu');await tf.ready();

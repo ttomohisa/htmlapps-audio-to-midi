@@ -1,4 +1,79 @@
 {
   "$schema": "./schemas/dependencies.schema.json",
-  "dependencies": []
+  "dependencies": [
+    {
+      "id": "tfjs",
+      "package": "@tensorflow/tfjs",
+      "version": "3.21.0",
+      "license": "Apache-2.0",
+      "homepage": "https://github.com/tensorflow/tfjs",
+      "updates": {
+        "policy": "manual"
+      },
+      "assets": [
+        {
+          "key": "runtime",
+          "path": "dist/tf.min.js",
+          "compression": "gzip",
+          "stripSourceMapComment": true
+        }
+      ]
+    },
+    {
+      "id": "basic-pitch",
+      "package": "@spotify/basic-pitch",
+      "version": "1.0.1",
+      "license": "Apache-2.0",
+      "homepage": "https://github.com/spotify/basic-pitch-ts",
+      "updates": {
+        "policy": "manual"
+      },
+      "assets": [
+        {
+          "key": "postprocess",
+          "path": "cjs/toMidi.js",
+          "compression": "gzip",
+          "stripSourceMapComment": true
+        },
+        {
+          "key": "model",
+          "path": "model/model.json",
+          "compression": "gzip"
+        },
+        {
+          "key": "weights",
+          "path": "model/group1-shard1of1.bin",
+          "compression": "gzip"
+        },
+        {
+          "key": "license",
+          "path": "LICENSE",
+          "compression": "gzip"
+        }
+      ]
+    },
+    {
+      "id": "tone-midi",
+      "package": "@tonejs/midi",
+      "version": "2.0.28",
+      "license": "MIT",
+      "homepage": "https://github.com/Tonejs/Midi",
+      "updates": {
+        "policy": "manual"
+      },
+      "assets": [
+        {
+          "key": "runtime",
+          "path": "build/Midi.js",
+          "compression": "gzip",
+          "stripSourceMapComment": true
+        },
+        {
+          "key": "license",
+          "path": "LICENSE.md",
+          "compression": "gzip"
+        }
+      ]
+    }
+  ]
 }

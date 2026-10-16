@@ -1,0 +1,72 @@
+/* Pure, shared audio input/note/MIDI contracts. No browser, model, or network side effects. */
+const AudioMidiCore = (() => {
+  const SAMPLE_RATE = 22050, PPQ = 480, TICKS_PER_SECOND = 960;
+  function validateFile(file) {
+    if (!file || !Number.isFinite(file.size) || file.size <= 0) return 'emptyFile';
+    if (file.size > 50 * 1024 * 1024) return 'fileTooLarge';
+    if (!/\.(wav|mp3|m4a|aac|ogg|flac)$/i.test(file.name)) return 'unsupportedFormat';
+    return null;
+  }
+  function validateDuration(duration) {
+    return Number.isFinite(duration) && duration >= 0.5 && duration <= 60 ? null : 'invalidDuration';
+  }
+  function mixChannels(channels) {
+    if (!channels.length || !channels[0].length || channels.some(c => c.length !== channels[0].length)) throw new Error('Invalid PCM channels');
+    const output = new Float32Array(channels[0].length);
+    for (let i = 0; i < output.length; i++) {
+      let total = 0;
+      for (const channel of channels) {
+        if (!Number.isFinite(channel[i])) throw new Error('Invalid PCM sample');
+        total += channel[i];
+      }
+      output[i] = total / channels.length;
+    }
+    return output;
+  }
+  function validNote(n) {
+    return Number.isInteger(n.pitchMidi) && n.pitchMidi >= 0 && n.pitchMidi <= 127 &&
+      Number.isFinite(n.startSeconds) && Number.isFinite(n.endSeconds) &&
+      n.startSeconds >= 0 && n.endSeconds > n.startSeconds;
+  }
+  function normalizeNotes(rows, duration) {
+    if (!Number.isFinite(duration) || duration <= 0) return [];
+    return rows.filter(validNote).map(n => ({...n, endSeconds:Math.min(n.endSeconds,duration)}))
+      .filter(n => n.endSeconds > n.startSeconds)
+      .sort((a,b) => a.startSeconds-b.startSeconds || a.pitchMidi-b.pitchMidi || a.endSeconds-b.endSeconds)
+      .map((n,i) => ({id:`detected-${i}`,pitchMidi:n.pitchMidi,startSeconds:n.startSeconds,endSeconds:n.endSeconds,velocity:96,origin:'detected'}));
+  }
+  function createGeneration() {
+    let generation = 0;
+    return Object.freeze({next:() => ++generation,capture:() => generation,isCurrent:token => token === generation});
+  }
+  function safeMidiName(value) {
+    let base = String(value || '').replace(/[\x00-\x1f\x7f/\\:*?"<>|]/g,'').trim().replace(/(?:\.mid)+$/i,'').replace(/[. ]+$/g,'');
+    if (!base) base = 'audio-to-midi-notes';
+    if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(base)) base = '_' + base;
+    return Array.from(base).slice(0,120).join('') + '.mid';
+  }
+  function defaultMidiName(name) { return safeMidiName(String(name).replace(/\.[^.]+$/,'') + '-notes'); }
+  function encodeMidi(notes) {
+    if (!notes.length || notes.some(n => !validNote(n) || n.endSeconds > 60)) throw new Error('No valid notes to export');
+    const be16 = n => [n >>> 8 & 255,n & 255];
+    const be32 = n => [n >>> 24 & 255,n >>> 16 & 255,n >>> 8 & 255,n & 255];
+    function vlq(n) { const bytes=[n & 127]; while ((n=Math.floor(n/128))) bytes.unshift((n & 127)|128); return bytes; }
+    const ascii = value => Array.from(value,c=>c.charCodeAt(0));
+    function chunk(type,body) { return [...ascii(type),...be32(body.length),...body]; }
+    const tempo = chunk('MTrk',[0,255,81,3,7,161,32,0,255,47,0]);
+    const events=[];
+    for(const note of notes) {
+      const start=Math.round(note.startSeconds*TICKS_PER_SECOND);
+      const end=Math.max(start+1,Math.round(note.endSeconds*TICKS_PER_SECOND));
+      events.push({tick:start,off:false,pitch:note.pitchMidi},{tick:end,off:true,pitch:note.pitchMidi});
+    }
+    // Note-off precedes note-on at a shared tick, retaining consecutive same-pitch notes.
+    events.sort((a,b)=>a.tick-b.tick || Number(b.off)-Number(a.off) || a.pitch-b.pitch);
+    const track=[0,192,0]; let previous=0;
+    for(const e of events) {track.push(...vlq(e.tick-previous),e.off?128:144,e.pitch,e.off?0:96);previous=e.tick;}
+    track.push(0,255,47,0);
+    return new Uint8Array([...ascii('MThd'),...be32(6),...be16(1),...be16(2),...be16(PPQ),...tempo,...chunk('MTrk',track)]);
+  }
+  return Object.freeze({SAMPLE_RATE,PPQ,validateFile,validateDuration,mixChannels,normalizeNotes,createGeneration,safeMidiName,defaultMidiName,encodeMidi});
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports=AudioMidiCore;

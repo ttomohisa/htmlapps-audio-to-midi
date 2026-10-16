@@ -7,6 +7,9 @@ on:
       - main
     paths:
       - "src/**"
+      - "tests/**"
+      - "package*.json"
+      - "playwright.config.cjs"
       - "scripts/**"
       - "app.config.json"
       - "dependencies.json"
@@ -37,6 +40,34 @@ jobs:
       - name: Build and verify standalone HTML
         shell: pwsh
         run: ./scripts/check-repository.ps1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install test dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Pure contract and real model tests
+        run: |
+          npm test
+          npm run test:model
+
+      - name: Install Chromium
+        run: npx playwright install chromium
+
+      - name: Offline browser acceptance tests
+        run: npm run test:browser
+
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: audio-midi-test-evidence-${{ github.event.pull_request.head.sha || github.sha }}
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Upload standalone artifact
         uses: actions/upload-artifact@v7

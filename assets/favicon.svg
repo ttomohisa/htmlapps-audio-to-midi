@@ -1,5 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="App icon">
-  <rect width="64" height="64" rx="16" fill="#16624F"/>
-  <path d="M18 16h20l8 8v24H18z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M38 16v10h10M25 34h14M25 42h10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#16624F"/><g stroke="white" stroke-width="3" stroke-linecap="round"><path d="M13 29v6m6-14v22m6-18v14m8-20v26m6-18v10"/><path d="M44 20v24m0-24 9-2v8l-9 2"/></g><ellipse cx="40" cy="44" rx="6" ry="4" fill="white"/></svg>

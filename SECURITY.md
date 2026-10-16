@@ -18,39 +18,16 @@ Include:
 
 ## Trust model
 
-The default template is a static browser application with no backend. Its primary protections are:
+Audio to MIDI is a static, local-first application. Audio and note data never leave the device. The restrictive CSP retains connect-src 'none'; all model/runtime/worker assets are embedded and integrity-checked at build time. Only the language setting is persisted. Downloads require an explicit user action.
 
-- No ordinary runtime CDN/API connection (`connect-src 'none'`). Optional peer-to-peer WebRTC must be explicit in the product specification and must not introduce hidden signaling/STUN/TURN services.
-- Explicitly pinned and embedded third-party files.
-- Committed `dependencies.lock.json` tarball SHA-256 values verified before embedding.
-- SHA-256 records in the generated dependency manifest.
-- No analytics, telemetry, remote fonts, or silent update checks.
-- User-initiated downloads rather than automatic uploads.
+## Input files and resource limits
 
-A generated HTML file is executable code. Distribute it through a trusted channel and verify hashes for high-trust workflows.
+Accept one audio file up to 50 MiB. The browser decoder validates audio; the decoded duration must be 0.5–60 seconds before resampling/inference. A compressed file can still require substantial decode memory before its duration is known. Device/browser memory limits remain a risk and are not represented as fully mitigated by the file-size cap.
 
-If an app uses `components/webrtc-qr-pairing.html`, treat the paired browser as an explicit data recipient. “No server upload” does not mean “data never leaves this device.” Keep the manual signaling and `iceServers: []` boundary visible in the UI/help text, and do not silently add STUN/TURN later.
+Each accepted source change invalidates old async work. Cancel terminates the CPU worker; decode promises are guarded by a generation token. Source PCM and notes are kept only in session memory. Blob URLs, decoders, workers and temporary tensors are released at their lifecycle boundaries. Filesystem paths and audio contents are never logged.
 
-## Input files
+The HTML is executable code. Obtain it from the repository's trusted release/preview and check generated hashes when needed.
 
-Applications created from this template may parse untrusted local files. Implementations should:
+## Dependencies
 
-- Validate type, size, and structure before expensive processing.
-- Avoid unbounded allocation or recursion.
-- Handle malformed data without exposing stack traces to users.
-- Release Blob URLs, workers, canvas resources, and large buffers.
-- Make destructive transformations reversible where practical.
-- Never upload a selected file unless the product explicitly requires it and the user is clearly informed.
-
-## Dependency review
-
-Before adding or upgrading a package:
-
-- Confirm the package identity and exact version.
-- Review the scheduled dependency Issue; never treat an available update as an automatic approval to upgrade.
-- Review its license and required notices.
-- Inspect the browser bundle and package scripts.
-- Confirm every runtime support asset is embedded.
-- Refresh the selected lock entry with the dependency scripts; never hand-edit a lock hash to bypass a mismatch.
-- Rebuild with a clean cache.
-- Test with the network disabled.
+Exact npm package versions and tarball SHA-256 values are committed. Build scripts reject mismatch; do not hand-edit lock hashes to bypass verification. Review upstream license/security changes before upgrades. Browser tests must verify model inference with runtime networking blocked, not just inspect CSP text.

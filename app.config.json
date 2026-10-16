@@ -1,15 +1,15 @@
 {
   "$schema": "./schemas/app-config.schema.json",
-  "name": "Single HTML App Starter",
-  "nameJa": "単一HTMLアプリ スターター",
-  "slug": "single-html-app-starter",
-  "version": "1.3.0",
-  "description": "A reusable starter for privacy-friendly, fully self-contained browser apps.",
-  "descriptionJa": "プライバシーに配慮した完全内包型ブラウザーアプリの再利用テンプレートです。",
+  "name": "Audio to MIDI",
+  "nameJa": "音声→MIDI",
+  "slug": "audio-to-midi",
+  "version": "0.1.0",
+  "description": "Convert short audio recordings to MIDI, entirely on your device.",
+  "descriptionJa": "短い音声を端末内だけで解析し、MIDIへ変換します。",
   "defaultLanguage": "auto",
   "repository": {
-    "owner": "OWNER",
-    "name": "single-html-app-template"
+    "owner": "ttomohisa",
+    "name": "htmlapps-audio-to-midi"
   },
   "build": {
     "output": "dist/index.html",

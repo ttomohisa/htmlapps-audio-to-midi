@@ -7,6 +7,10 @@ const translations={
 };
 Object.assign(translations.en,{"stepReview": "02 / REVIEW", "reviewTitle": "See and compare the notes", "reviewHint": "Compare the original recording with a simple synthesized preview. Notes are read-only in this version.", "playbackSource": "Listen to", "originalAudio": "Original audio", "synthAudio": "Synthesized notes", "play": "Play", "pause": "Pause", "stop": "Stop", "playbackPosition": "Position", "playbackControls": "Playback controls", "timelineEmpty": "Choose an audio file to see its waveform.", "timelineUnits": "Time in seconds · Pitch", "zoomOut": "Zoom out", "zoomIn": "Zoom in", "waveformLabel": "Wave", "waveformDescription": "Original audio waveform and seconds timeline. Click to seek.", "pianoScrollLabel": "Piano roll. Scroll horizontally for time and vertically for pitch.", "pianoDescription": "Detected notes by pitch and source time.", "timelineGuide": "Scroll the note area to move in time or pitch. Tap a note or choose one below.", "selectedNote": "Selected note", "noNoteSelected": "Analyze audio to see the detected notes. No note editing in v0.2.", "playbackFailed": "Audio could not start. Press Play to retry, or try a current browser.", "playback_empty": "No audio loaded", "playback_stopped": "Stopped", "playback_starting": "Preparing playback…", "playback_playing": "Playing", "playback_paused": "Paused", "playback_ended": "Playback finished", "playback_disposed": "Playback stopped"});
 Object.assign(translations.ja,{"stepReview": "02 / 音符を確認", "reviewTitle": "音符を見て、聴き比べる", "reviewHint": "元音声と簡易合成音を切り替えて確認できます。この版では音符の変更はできません。", "playbackSource": "試聴する音", "originalAudio": "元音声", "synthAudio": "音符の合成音", "play": "再生", "pause": "一時停止", "stop": "停止", "playbackPosition": "再生位置", "playbackControls": "再生の操作", "timelineEmpty": "音声を選ぶと波形を表示します。", "timelineUnits": "時間（秒）・音高", "zoomOut": "縮小", "zoomIn": "拡大", "waveformLabel": "波形", "waveformDescription": "元音声の波形と秒数。押すと再生位置を移動します。", "pianoScrollLabel": "ピアノロール。横に時間、縦に音高をスクロールできます。", "pianoDescription": "検出した音符の音高と元音声上の時刻。", "timelineGuide": "音符の領域をスクロールして時間・音高を移動できます。音符を押すか、下の一覧から選んでください。", "selectedNote": "選択した音符", "noNoteSelected": "解析すると検出した音符を表示します。v0.2では音符を編集できません。", "playbackFailed": "再生を開始できませんでした。「再生」で再試行するか、最新のブラウザーでお試しください。", "playback_empty": "音声がありません", "playback_stopped": "停止中", "playback_starting": "再生を準備中…", "playback_playing": "再生中", "playback_paused": "一時停止中", "playback_ended": "再生が終わりました", "playback_disposed": "再生を終了しました"});
+Object.assign(translations.en,{"recordingTitle": "Or record a melody", "recordingHint": "Microphone access starts only when you press Record. Up to 59 seconds.", "recordingLevel": "Microphone level", "recordingDuration": "Recording duration", "record": "Record", "stopRecording": "Stop recording", "listenRecording": "Listen", "discardRecording": "Discard recording", "saveRecordingOptional": "Save original recording (optional)", "recordingFilename": "Recording filename", "downloadRecording": "Download recording", "recordingDownloaded": "Recording download started", "recordingLocalHint": "Microphone access from a local HTML file depends on your browser. If unavailable, open the HTTPS app or choose an audio file.", "recordingReadyHint": "Listen before analyzing. Recording does not start analysis automatically.", "recording_idle": "Microphone off", "recording_requesting": "Waiting for microphone permission…", "recording_recording": "Recording", "recording_stopping": "Finishing recording…", "recording_recorded": "Recording stopped", "recording_error": "Recording unavailable", "recording_disposed": "Microphone off", "recording_preparing": "Checking recorded audio…", "discardRecordingTitle": "Discard this recording?", "discardActiveRecordingBody": "Recording will stop and this take will be discarded. Cancel to keep recording.", "discardRecordingBody": "This recording has not been downloaded. Continuing will remove it and its detected notes.", "stopRecordingTitle": "Stop recording and continue?", "stopRecordingBody": "The microphone will turn off. This take will stay available to listen to or analyze.", "mobileNavigation": "Workflow pages", "tabInput": "Input", "tabNotes": "Notes", "tabExport": "Export", "recordingDecodeFailed": "This browser could not decode its recorded audio. Save the recording if needed, then choose a WAV or MP3 file.", "helpRecording": "To record, press Record and allow microphone access. Stop, listen, then explicitly press Analyze audio. Recording stops at 59 seconds or when the page is hidden; the microphone never plays through speakers. You can download the original take. Replacement/reset asks before discarding an unsaved take. On phones, use Input / Notes / Export tabs. Local-file microphone support varies; use the HTTPS app or file input if unavailable.", "scopeNote": "v0.3 supports file input and microphone recording. Notes are read-only. The simple synth does not reproduce the original instrument.", "noNoteSelected": "Analyze audio to see the detected notes. Notes are read-only.", "formatHint": "WAV / MP3. M4A, AAC, OGG, FLAC and WebM depend on your browser.", "unsupportedFormat": "Choose WAV, MP3, M4A, AAC, OGG, FLAC or WebM. Your browser must support the format.", "helpNoteStorage": "Audio and notes exist only in this page session. Reloading or closing the page loses them. Download your MIDI and any original recording first; mobile browsers may not show an exit warning.", "recordingError_insecureContext": "Microphone access needs a secure browser context. Open the HTTPS app or choose an audio file.", "recordingError_microphoneUnavailable": "Microphone access is unavailable here. Choose an audio file instead.", "recordingError_recorderUnavailable": "This browser cannot record audio. Choose an audio file instead.", "recordingError_audioContextUnavailable": "This browser is missing audio support. Try a current browser or choose a file.", "recordingError_recordingUnsupported": "No supported recording format was found. Choose an audio file instead.", "recordingError_permissionDenied": "Microphone permission was denied. You can retry after changing browser permission, or choose an audio file.", "recordingError_noMicrophone": "No microphone was found. Connect one and retry, or choose an audio file.", "recordingError_microphoneBusy": "The microphone could not start. Check other apps or your device, then retry or choose a file.", "recordingError_microphoneLost": "The microphone disconnected. The incomplete take was discarded. Reconnect and record again, or choose a file.", "recordingError_recordingFailed": "Recording failed. Try again or choose an audio file.", "recordingError_recordingTooLarge": "Recording exceeded 50 MiB and was discarded. Try a shorter take or choose a file.", "recordingError_recordingEmpty": "No audio was recorded. Record at least half a second, or choose a file.", "recordingError_recordingStopTimeout": "Recording did not finish in time. The microphone is off. Try again or choose a file."});
+Object.assign(translations.ja,{"recordingTitle": "または、その場で録音", "recordingHint": "「録音」を押したときだけマイクを許可します。最大59秒。", "recordingLevel": "マイクの音量", "recordingDuration": "録音時間", "record": "録音", "stopRecording": "録音を停止", "listenRecording": "試聴", "discardRecording": "録音を破棄", "saveRecordingOptional": "元の録音を保存（任意）", "recordingFilename": "録音の保存ファイル名", "downloadRecording": "録音を保存", "recordingDownloaded": "録音の保存を開始しました", "recordingLocalHint": "ローカルHTMLからのマイク利用はブラウザーによります。使えない場合はHTTPS版を開くか、音声ファイルを選んでください。", "recordingReadyHint": "試聴してから解析できます。録音停止だけでは解析は始まりません。", "recording_idle": "マイクは停止中", "recording_requesting": "マイクの許可を待っています…", "recording_recording": "録音中", "recording_stopping": "録音を仕上げています…", "recording_recorded": "録音を停止しました", "recording_error": "録音できませんでした", "recording_disposed": "マイクは停止中", "recording_preparing": "録音した音声を確認中…", "discardRecordingTitle": "この録音を破棄しますか？", "discardActiveRecordingBody": "録音を停止して、今回の録音を破棄します。キャンセルすると録音を続けます。", "discardRecordingBody": "この録音はまだ保存していません。続けると録音と検出した音符を消去します。", "stopRecordingTitle": "録音を停止して移動しますか？", "stopRecordingBody": "マイクを停止します。録音した音声は保持し、試聴や解析に使えます。", "mobileNavigation": "作業ページ", "tabInput": "入力", "tabNotes": "音符", "tabExport": "保存", "recordingDecodeFailed": "このブラウザーで録音を読み取れませんでした。必要なら録音を保存し、WAVまたはMP3ファイルを選んでください。", "helpRecording": "「録音」を押してマイクを許可し、停止・試聴してから「音声を解析」を押します。最大59秒、またはページが非表示になると録音を停止します。マイク音声をスピーカーに流すことはありません。元の録音も任意で保存できます。未保存の録音を入力変更やリセットで破棄する前に確認します。スマートフォンは「入力・音符・保存」タブで切り替えます。ローカルHTMLで録音できない場合はHTTPS版かファイル入力をご利用ください。", "scopeNote": "v0.3はファイル入力とマイク録音に対応しています。音符の編集はできません。簡易合成音は元の楽器の音色を再現しません。", "noNoteSelected": "解析すると検出した音符を表示します。音符の編集はできません。", "formatHint": "WAV / MP3。M4A・AAC・OGG・FLAC・WebMはブラウザーの対応によります。", "unsupportedFormat": "WAV・MP3・M4A・AAC・OGG・FLAC・WebMを選んでください。ブラウザーの対応も必要です。", "helpNoteStorage": "音声と音符はこのページを開いている間だけ保持します。再読み込みや終了で失われるため、MIDIと必要な元の録音を先に保存してください。スマートフォンでは終了前の警告が出ない場合があります。", "recordingError_insecureContext": "マイク利用には安全な接続が必要です。HTTPS版を開くか、音声ファイルを選んでください。", "recordingError_microphoneUnavailable": "ここではマイクを利用できません。音声ファイルを選んでください。", "recordingError_recorderUnavailable": "このブラウザーは録音に対応していません。音声ファイルを選んでください。", "recordingError_audioContextUnavailable": "音声処理に対応していません。最新のブラウザーかファイル入力をお試しください。", "recordingError_recordingUnsupported": "録音に使える形式がありません。音声ファイルを選んでください。", "recordingError_permissionDenied": "マイクの許可がありません。ブラウザーの許可設定を変更して再試行するか、音声ファイルを選んでください。", "recordingError_noMicrophone": "マイクが見つかりません。接続して再試行するか、音声ファイルを選んでください。", "recordingError_microphoneBusy": "マイクを開始できません。他のアプリや端末の状態を確認して再試行するか、ファイルを選んでください。", "recordingError_microphoneLost": "マイクとの接続が切れ、未完成の録音を破棄しました。接続して録音し直すか、ファイルを選んでください。", "recordingError_recordingFailed": "録音に失敗しました。再試行するか、音声ファイルを選んでください。", "recordingError_recordingTooLarge": "録音が50 MiBを超えたため破棄しました。短く録音するか、ファイルを選んでください。", "recordingError_recordingEmpty": "音声を録音できませんでした。0.5秒以上録音するか、ファイルを選んでください。", "recordingError_recordingStopTimeout": "録音の終了に時間がかかりすぎました。マイクは停止しています。再試行するか、ファイルを選んでください。"});
+Object.assign(translations.en,{resetRecordingBody:'The current audio, unsaved recording and detected notes will be removed. The microphone will stop. Download anything you need first.'});
+Object.assign(translations.ja,{resetRecordingBody:'音声・未保存の録音・検出した音符を消去して、マイクを停止します。必要なものは先に保存してください。'});
 const languageKey=APP_CONFIG.slug+':language';
 function readStorage(key){try{return localStorage.getItem(key);}catch{return null;}}
 function writeStorage(key,value){try{localStorage.setItem(key,value);}catch{}}
@@ -15,9 +19,9 @@ if(!translations[language])language='en';
 function translate(key){return translations[language][key]||translations.en[key]||key;}
 __UI_COMPONENTS__
 const generation=core.createGeneration();
-const state={phase:'empty',file:null,duration:0,samples:null,originalBuffer:null,notes:[],progress:0,error:null,inputError:null,elapsed:0};
+const state={phase:'empty',file:null,duration:0,samples:null,originalBuffer:null,notes:[],progress:0,error:null,inputError:null,elapsed:0,sourceKind:null};
 const review=AudioMidiReview.create({translate});
-let worker=null,workerUrl=null,decodeContext=null;
+let worker=null,workerUrl=null,decodeContext=null,recording=null,mobile=null;
 const busy=()=>['decoding','loading-model','analyzing','postprocessing'].includes(state.phase);
 function stopWorker(){if(worker){worker.terminate();worker=null;}if(workerUrl){URL.revokeObjectURL(workerUrl);workerUrl=null;}}
 function closeDecoder(){const context=decodeContext;decodeContext=null;if(context&&context.state!=='closed')context.close().catch(()=>{});}
@@ -28,9 +32,9 @@ function render(){
  $('#inputError').hidden=!state.inputError;$('#inputError').textContent=state.inputError?translate(state.inputError):'';
  $('#sourceInfo').hidden=!state.file;$('#sourceName').textContent=state.file?.name||'';
  $('#sourceMeta').textContent=state.file?`${translate('size')}: ${(state.file.size/1048576).toFixed(2)} MiB${state.duration?' · '+translate('duration')+': '+state.duration.toFixed(2)+' '+translate('seconds'):''}`:'';
- $('#analyzeButton').disabled=busy()||!state.samples;
- $('#cancelButton').hidden=!busy();$('#resetButton').disabled=state.phase==='empty';
- $('#downloadButton').disabled=state.phase!=='result'||!state.notes.length;
+ $('#analyzeButton').disabled=busy()||!state.samples||recording?.active()||recording?.preparing();
+ $('#cancelButton').hidden=!busy();$('#resetButton').disabled=state.phase==='empty'&&!recording?.active()&&!recording?.hasRecording();
+ $('#downloadButton').disabled=state.phase!=='result'||!state.notes.length||recording?.active();
  $('#statusText').textContent=translate(state.phase);
  $('#statusHint').textContent=translate(state.error||state.phase+'Hint');
  $('#progressBar').hidden=!busy();
@@ -40,7 +44,13 @@ function render(){
  $('#notesDetails').hidden=!state.notes.length;
  $('#noteRows').replaceChildren(...state.notes.slice(0,100).map(n=>{const row=document.createElement('div');row.className='note-row';[`${pitchName(n.pitchMidi)} (${n.pitchMidi})`,n.startSeconds.toFixed(3),n.endSeconds.toFixed(3)].forEach(text=>{const cell=document.createElement('span');cell.textContent=text;row.append(cell);});return row;}));
  $('#noteLimit').textContent=state.notes.length>100?translate('noteLimit'):'';
- review.setSession(state.originalBuffer,state.notes);review.render();
+ review.setSession(state.originalBuffer,state.notes);review.setLocked(!!recording?.active());review.render();
+ recording?.render();
+ if(mobile){
+  mobile.setEnabled('notes',!!state.originalBuffer||!!recording?.active());
+  mobile.setEnabled('export',state.phase==='result'&&!!state.notes.length&&!recording?.active());
+  if(mobile.button(mobile.currentPage())?.disabled)mobile.showPage('input',{scroll:false});
+ }
 }
 function applyLanguage(){
  document.documentElement.lang=language;
@@ -52,11 +62,12 @@ function applyLanguage(){
  $('#languageButton').textContent=language==='ja'?'EN':'JA';$('#languageButton').setAttribute('aria-label',language==='ja'?'英語に切り替え':'Switch to Japanese');
  document.title=language==='ja'?APP_CONFIG.nameJa:APP_CONFIG.name;$('#brandName').textContent=document.title;$('#footerName').textContent=document.title;render();
 }
-async function selectFiles(files){
+async function selectFiles(files,{recorded=false}={}){
  if(files.length!==1){if(files.length){state.inputError='multipleFiles';render();}return;}
  const file=files[0],error=core.validateFile(file);
- if(error){state.inputError=error;render();return;}
- const token=invalidate();Object.assign(state,{phase:'decoding',file,duration:0,samples:null,originalBuffer:null,notes:[],error:null,inputError:null,progress:0,elapsed:0});
+ if(error){state.inputError=error;render();return false;}
+ if(!recorded&&!await recording.replace())return false;
+ const token=invalidate();Object.assign(state,{phase:'decoding',file,duration:0,samples:null,originalBuffer:null,notes:[],error:null,inputError:null,progress:0,elapsed:0,sourceKind:recorded?'recording':'file'});
  outputFilename.value=core.defaultMidiName(file.name).replace(/\.mid$/,'');render();
  let context;
  try{
@@ -76,12 +87,12 @@ async function selectFiles(files){
    const rendered=await offline.startRendering();source.disconnect();samples=new Float32Array(rendered.getChannelData(0));
   }
   if(!generation.isCurrent(token))return;
-  state.samples=samples;state.originalBuffer=audio;state.phase='ready';render();
- }catch(error){if(generation.isCurrent(token)){state.phase='error';state.error=['invalidDuration','browserUnsupported'].includes(error.message)?error.message:'decodeFailed';render();}}
+  state.samples=samples;state.originalBuffer=audio;state.phase='ready';render();return true;
+ }catch(error){if(generation.isCurrent(token)){state.phase='error';state.error=['invalidDuration','browserUnsupported'].includes(error.message)?error.message:(recorded?'recordingDecodeFailed':'decodeFailed');render();}return false;}
  finally{if(decodeContext===context)closeDecoder();}
 }
 async function analyze(){
- if(busy()||!state.samples)return;
+ if(busy()||!state.samples||recording.active()||recording.preparing())return;
  const token=generation.next();Object.assign(state,{phase:'loading-model',notes:[],error:null,inputError:null,progress:0});render();
  try{
   if(!worker){
@@ -108,6 +119,18 @@ async function analyze(){
   activeWorker.postMessage({samples:copy,modelJson:activeWorker.modelJson,weights:activeWorker.modelWeights.buffer},[copy.buffer]);
  }catch(error){console.error('Audio runtime preparation failed:',error);if(generation.isCurrent(token)){stopWorker();state.phase='error';state.error='analysisFailed';render();}}
 }
+function clearSource(){
+ invalidate();Object.assign(state,{phase:'empty',file:null,samples:null,originalBuffer:null,notes:[],duration:0,error:null,inputError:null,sourceKind:null});outputFilename.value='audio-to-midi-notes';render();
+}
+recording=AudioMidiRecordingUI.create({translate,onChange:render,isBusy:busy,confirm:options=>AppConfirm.ask(options),toast:showToast,
+ onStart:()=>{review.pause();if(state.sourceKind==='recording')clearSource();},onRecording:file=>selectFiles([file],{recorded:true}),
+ onDiscard:()=>{if(state.sourceKind==='recording')clearSource();},
+ onListen:()=>{mobile.showPage('notes');review.playOriginal();}
+});
+mobile=AppMobileBottomBar.mount($('#mobileBottomBar'),{initialPage:'input',pageTopOffset:90,
+ beforePageChange:async key=>{if(!await recording.leave())return false;return key==='input'||(key==='notes'?!!state.originalBuffer:state.phase==='result');},
+ onPageChange:({key})=>{if(key==='notes')review.reveal();else review.pause();}
+});
 $('#audioFile').addEventListener('change',event=>{const files=Array.from(event.target.files);event.target.value='';selectFiles(files);});
 const drop=$('#dropZone');
 for(const type of ['dragenter','dragover'])drop.addEventListener(type,event=>{event.preventDefault();drop.classList.add('dragging');});
@@ -118,12 +141,12 @@ $('#analyzeButton').addEventListener('click',analyze);
 $('#cancelButton').addEventListener('click',()=>{invalidate();state.phase='cancelled';state.notes=[];state.error=null;render();});
 $('#resetButton').addEventListener('click',async()=>{
  const token=generation.capture(); // A cancelled dialog must not invalidate an active job.
- if(!await AppConfirm.ask({title:translate('resetTitle'),message:translate('resetBody'),confirmLabel:translate('reset'),tone:'danger'}))return;
+ if(!await AppConfirm.ask({title:translate('resetTitle'),message:translate(recording.active()||recording.unsaved()?'resetRecordingBody':'resetBody'),confirmLabel:translate('reset'),tone:'danger'}))return;
  if(!generation.isCurrent(token))return;
- invalidate();Object.assign(state,{phase:'empty',file:null,samples:null,originalBuffer:null,notes:[],duration:0,error:null,inputError:null});outputFilename.value='audio-to-midi-notes';render();
+ recording.clear();clearSource();
 });
 $('#downloadButton').addEventListener('click',()=>{
- if(state.phase!=='result'||!state.notes.length)return;
+ if(state.phase!=='result'||!state.notes.length||recording.active())return;
  const filename=core.safeMidiName(outputFilename.value);outputFilename.value=filename.replace(/\.mid$/,'');
  const url=URL.createObjectURL(new Blob([core.encodeMidi(state.notes)],{type:'audio/midi'}));blobUrls.add(url);
  const anchor=document.createElement('a');anchor.href=url;anchor.download=filename;document.body.append(anchor);anchor.click();anchor.remove();
@@ -135,12 +158,14 @@ helpDialog.addEventListener('click',event=>{const r=helpDialog.getBoundingClient
 $('#licensesDetails').addEventListener('toggle',()=>{if($('#licensesDetails').open)$('#licenseText').textContent=THIRD_PARTY_NOTICES;});
 window.addEventListener('pagehide',event=>{
  const wasBusy=busy();invalidate();review.pause();
+ if(event.persisted)recording.suspend();else recording.dispose();
  if(event.persisted){
   // BFCache restores this same document: keep completed data, cancel interrupted work coherently.
   if(wasBusy){state.phase='cancelled';state.notes=[];state.error=null;}
  }else{review.dispose();state.samples=null;state.originalBuffer=null;state.notes=[];state.phase='empty';}
 });
-document.addEventListener('visibilitychange',()=>{if(document.hidden)review.pause();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){review.pause();recording.suspend();}});
+window.addEventListener('beforeunload',event=>{if(recording.active()||recording.unsaved()){event.preventDefault();event.returnValue='';}});
 window.addEventListener('pageshow',event=>{if(event.persisted)render();});
 $('#versionBadge').textContent='v'+APP_CONFIG.version;$('#buildVersion').textContent=APP_CONFIG.version;$('#builtAt').textContent=BUILD_MANIFEST.generatedAtUtc;$('#dependencyCount').textContent=BUILD_MANIFEST.dependencies.length;
 applyLanguage();

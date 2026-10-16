@@ -45,11 +45,16 @@ test('reset dialog cancellation during analysis does not strand job',async({page
 });
 test('320px bilingual layout, help scroll, keyboard and stereo input',async({page},testInfo)=>{
  await page.setViewportSize({width:320,height:640});await open(page);await upload(page,makeWav({sampleRate:48000,channels:2}), '長いファイル名'.repeat(12)+'.wav');await phase(page,'ready');
+ // Establish a desktop viewport, then analyze while that same Notes view is hidden.
+ await page.setViewportSize({width:1360,height:900});await expect(page.locator('#waveform text').first()).toBeVisible();await page.setViewportSize({width:320,height:640});
  for(let i=0;i<2;i++){
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await page.locator('#helpButton').click();await expect(page.locator('#helpDialog')).toBeVisible();await page.locator('#licensesDetails').scrollIntoViewIfNeeded();await page.keyboard.press('Escape');await expect(page.locator('#helpDialog')).not.toBeVisible();await page.locator('#languageButton').click();
  }
- await page.locator('#analyzeButton').focus();await page.keyboard.press('Enter');await phase(page,'result');await expect(page.locator('#noteRows')).toContainText('C4 (60)');
+ await page.locator('#analyzeButton').focus();await page.keyboard.press('Enter');await phase(page,'result');await page.locator('[data-mobile-key="export"]').click();await expect(page.locator('#noteRows')).toContainText('C4 (60)');
  await page.screenshot({path:testInfo.outputPath('mobile-result.png'),fullPage:true});
+ // A hidden Notes page must also recover its selected pitch when returning to desktop.
+ await page.setViewportSize({width:1360,height:900});
+ await expect.poll(()=>page.locator('#pianoRoll [data-pitch="60"]').first().evaluate(note=>{const n=note.getBoundingClientRect(),v=document.querySelector('#pianoScroll').getBoundingClientRect();return n.top>=v.top&&n.bottom<=v.bottom;})).toBe(true);
 });
 
 test('BFCache lifecycle keeps completed MIDI and cancels interrupted analysis coherently',async({page})=>{

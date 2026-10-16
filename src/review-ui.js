@@ -5,7 +5,7 @@ const AudioMidiReview = (() => {
     const card=$('reviewCard'), panel=$('timelinePanel'), piano=$('pianoScroll'), wave=$('waveScroll');
     const svg=$('pianoRoll'), waveform=$('waveform'), pitchLabels=$('pitchLabels'), picker=$('notePicker');
     const seek=$('seekPosition'), mode=$('playbackMode');
-    let buffer=null, notes=[], peaks=[], selected=null, zoom=80, view=null, lastWidth=0, error=false, player=null;
+    let buffer=null, notes=[], peaks=[], selected=null, zoom=80, view=null, lastWidth=0, error=false, player=null, locked=false, needsReveal=false;
     function node(name,attributes={},text){const el=document.createElementNS('http://www.w3.org/2000/svg',name);for(const [key,value] of Object.entries(attributes))el.setAttribute(key,String(value));if(text!==undefined)el.textContent=text;return el;}
     function selectedDetails(){
       const note=notes.find(n=>n.id===selected);
@@ -21,8 +21,13 @@ const AudioMidiReview = (() => {
       if(r.x<piano.scrollLeft||r.x>piano.scrollLeft+piano.clientWidth-20)piano.scrollLeft=Math.max(0,r.x-piano.clientWidth/3);
       syncScroll();
     }
+    function revealPosition(){
+      if(!needsReveal||!buffer||piano.clientWidth<=0||piano.clientHeight<=0)return;
+      if(selected)showSelection();else{piano.scrollTop=(127-72)*22-44;syncScroll();}
+      needsReveal=false;
+    }
     function updateTransport(){
-      if(!player)return;const state=player.snapshot(),available=!!buffer,hasNotes=!!notes.length;
+      if(!player)return;const state=player.snapshot(),available=!!buffer&&!locked,hasNotes=!!notes.length;
       card.dataset.playback=state.status;card.dataset.mode=state.mode;card.dataset.position=state.position.toFixed(6);card.dataset.activeSources=String(state.activeSources);
       mode.value=state.mode;mode.disabled=!available;mode.querySelector('[value="synth"]').disabled=!hasNotes;
       $('playButton').disabled=!available||['starting','playing'].includes(state.status)||(state.mode==='synth'&&!hasNotes);
@@ -38,10 +43,10 @@ const AudioMidiReview = (() => {
         if(state.status==='playing'&&(x<piano.scrollLeft||x>piano.scrollLeft+piano.clientWidth-24)){piano.scrollLeft=Math.max(0,x-40);syncScroll();}
       }
     }
-    function guard(action){try{error=false;const result=action();if(result&&typeof result.catch==='function')result.catch(()=>{error=true;updateTransport();});}catch(_){error=true;}updateTransport();}
+    function guard(action){if(locked)return;try{error=false;const result=action();if(result&&typeof result.catch==='function')result.catch(()=>{error=true;updateTransport();});}catch(_){error=true;}updateTransport();}
     player=AudioMidiPlayback.createPlayer({onChange:updateTransport});
     function draw(){
-      if(!buffer)return;
+      if(!buffer||piano.clientWidth<=0)return;
       // Reserve the real piano viewport, including non-overlay scrollbar width.
       // A wider waveform viewport would clamp its right-edge scroll too early.
       svg.setAttribute('height',128*t.ROW_HEIGHT);
@@ -78,8 +83,8 @@ const AudioMidiReview = (() => {
       if(!notes.some(n=>n.id===selected))selected=notes[0]?.id||null;
       picker.replaceChildren(...notes.map((n,i)=>{const option=document.createElement('option');option.value=n.id;option.textContent=`${i+1}. ${t.pitchName(n.pitchMidi)} · ${n.startSeconds.toFixed(3)}–${n.endSeconds.toFixed(3)} s`;return option;}));
       picker.disabled=!notes.length;panel.hidden=!buffer;$('timelineEmpty').hidden=!!buffer;
-      if(buffer){draw();if(sourceChanged||notesChanged){piano.scrollTop=(127-(notes.length?Math.max(...notes.map(n=>n.pitchMidi)):72))*22-44;syncScroll();}}
-      else{view=null;svg.replaceChildren();waveform.replaceChildren();pitchLabels.replaceChildren();selectedDetails();}
+      if(buffer){needsReveal=sourceChanged||notesChanged;draw();revealPosition();}
+      else{needsReveal=false;view=null;svg.replaceChildren();waveform.replaceChildren();pitchLabels.replaceChildren();selectedDetails();}
       updateTransport();
     }
     function render(){selectedDetails();updateTransport();}
@@ -94,8 +99,8 @@ const AudioMidiReview = (() => {
     svg.addEventListener('click',event=>{const note=event.target.closest('[data-note-id]');if(note){selected=note.dataset.noteId;selectedDetails();}});
     waveform.addEventListener('click',event=>{if(view)guard(()=>player.seek(t.xToTime(event.clientX-waveform.getBoundingClientRect().left,view)));});
     piano.addEventListener('scroll',syncScroll,{passive:true});
-    const observer=new ResizeObserver(()=>{if(buffer&&Math.abs(piano.clientWidth-lastWidth)>1)draw();});observer.observe(piano);
-    return Object.freeze({setSession,render,pause:()=>guard(()=>player.pause()),dispose:()=>{observer.disconnect();player.dispose();buffer=null;notes=[];peaks=[];},snapshot:()=>player.snapshot()});
+    const observer=new ResizeObserver(()=>{if(buffer&&piano.clientWidth>0&&(needsReveal||Math.abs(piano.clientWidth-lastWidth)>1)){draw();revealPosition();}});observer.observe(piano);
+    return Object.freeze({setSession,render,reveal:()=>{draw();revealPosition();},setLocked:value=>{locked=!!value;if(locked)player.pause();updateTransport();},playOriginal:()=>guard(()=>{player.setMode('original');return player.play();}),pause:()=>guard(()=>player.pause()),dispose:()=>{observer.disconnect();player.dispose();buffer=null;notes=[];peaks=[];},snapshot:()=>player.snapshot()});
   }
   return Object.freeze({create});
 })();

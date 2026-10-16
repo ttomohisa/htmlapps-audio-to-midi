@@ -296,3 +296,14 @@ interface Note {
 - Short-lookahead Web Audio synthesis uses a simple triangle tone; it is not a piano sample or an instrument estimate. Playback uses an explicit Play gesture and pauses on hidden/pagehide.
 - The review workspace keeps waveform, transport, piano roll and selection details together. The dedicated piano viewport scrolls both axes; note selection also has a native keyboard-accessible list.
 - Physical audible-device and touch interaction gates remain explicitly unverified until tested.
+
+### v0.3 implementation boundary (2026-10-16)
+
+- Explicit Record is the only microphone permission trigger. Native MediaRecorder selects a supported and playable MIME type at runtime; the complete Blob must also pass the same actual decode/duration validation as file input before use. Stop never starts inference.
+- Recording stops at 59 seconds, leaving margin below the 60-second decoded input limit; encoded capture is capped at 50 MiB. Native chunks are retained only in session memory. An incomplete take is discarded on capture errors/device loss with a clear retry/file fallback.
+- Stop/cancel/discard release tracks and the analysis-only meter graph. Pending permission grants are generation-checked and late tracks stopped. The meter is never connected to a speaker destination.
+- Unsaved take replacement/reset uses the canonical confirmation. Mobile navigation away from active capture asks to stop and keep the take. Hidden/pagehide stops capture for privacy; native unload warning is best effort and not guaranteed on mobile.
+- The optional original-recording download has its own editable filename and actual MIME extension. A generated recording defaults to audio-to-midi-YYYYMMDD-HHmmss; its MIDI uses the same base. Downloading MIDI does not mark the original recording as saved.
+- At <=600px the canonical bottom bar switches Input / Notes / Export pages; desktop retains all framed workspaces. Notes and export use real disabled states until available. Header, hero, fully-local badge and modal scroll-position restoration are retained.
+- WebM is accepted for reloading browser recordings when the browser can decode it. File conversion remains usable if microphone permission/API/MIME/secure-context support is unavailable. file:// availability varies by browser; HTTPS is the recording fallback.
+- No additional model/library dependency or runtime network access is introduced. Physical device permission prompts, microphone quality, audible listening, mobile touch and Safari/Firefox codecs remain manual acceptance gates.

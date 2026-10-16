@@ -254,3 +254,7 @@ mobileBar.setEnabled('save', true);
 ## WebRTCの接続成立ルール
 
 `webrtc-qr-pairing.html` ではPeerConnectionの `connected` だけをアプリ接続済みとして扱いません。指定した準備完了DataChannelが `open` になって初めて `onConnected` を発火します。独自Channel構成ではreliableな制御Channelを `readyChannelLabel` に指定します。
+
+## Audio to MIDIのモバイル適用
+
+標準mobile-bottom-barのCSS・HTML・ヘルパーを単一HTMLへ内包しています。「入力・音符・保存」タブには録音停止を確認する非同期beforePageChangeを追加し、未準備のページはdisabledにします。PCは全ワークスペースを表示し、確認・ヘルプは既存のスクロールロックを共有します。

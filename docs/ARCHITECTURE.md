@@ -121,3 +121,11 @@ The worker bootstrap concatenates only declared, hash-verified TF.js and Tonejs 
 ## v0.2 review and playback
 
 `timeline-core.js` provides immutable source-seconds geometry and combined-channel waveform bins. `review-ui.js` owns only view/selection state and renders SVG axes, notes and synchronized playheads inside dedicated scroll regions. `playback-engine.js` owns Web Audio nodes, its monotonic resume generation and a short-lookahead synth scheduler. It retains the decoded original AudioBuffer without mono/resampling changes. Pause/stop/end/source replacement close the playback graph and release timers; hidden/pagehide never auto-resumes audio. The source UI retains separate model PCM, original playback buffer and normalized notes.
+
+## v0.3 capture and mobile pages
+
+- `recording-engine.js`: browser-native MediaRecorder/getUserMedia state machine with injectable clocks/devices for deterministic tests. Statuses are idle, requesting, recording, stopping, recorded, error and disposed; native final dataavailable precedes completed-Blob acceptance. Microphone graphs never connect to an output destination.
+- `recording-ui.js`: session Blob ownership, explicit record/stop/listen/discard, save name/extension, async confirmation and stale decode guards. Completed recordings enter `selectFiles(..., {recorded:true})`; no separate inference path.
+- `mobile-nav.js`: canonical mobile-bottom-bar adaptation, adding an async pre-navigation guard for recording. Existing desktop workspaces remain visible; phones switch one input/review/export page at a time.
+- Stop on hidden and pagehide is a privacy boundary. Persisted pagehide keeps coherent session data, but real BFCache eligibility remains a separate browser gate.
+- New native recording APIs add no package/license dependency. CSP and embedded model assets are unchanged.

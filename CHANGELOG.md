@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 — development milestone (2026-10-16)
+
+- Add explicit, local-only microphone capture with native format checks, a level meter, Stop / Listen / Discard, and an editable original-recording filename/download.
+- Decode complete recordings through the same guarded file-input path; analysis remains an explicit action.
+- Release microphone tracks on stop, cancellation, errors and page lifecycle changes; confirm unsaved replacement/reset and active-recording mobile navigation.
+- Add canonical Input / Notes / Export smartphone tabs with safe areas, disabled-state gating and preserved modal scroll locking.
+- Limit recording to 59 seconds (below the 60-second decoded cap) and 50 MiB; add WebM file reloading and keep file conversion available on unsupported/denied microphone paths.
+- No new runtime dependencies. Physical microphone/listening/touch and non-Chromium device gates remain unverified.
+
 ## 0.2.0 — development milestone (2026-10-16)
 
 - Add a read-only piano roll and waveform with seconds/pitch axes, zoom, scrolling and note selection.

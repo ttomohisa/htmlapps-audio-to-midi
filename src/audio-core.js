@@ -9,7 +9,7 @@ const AudioMidiCore = (() => {
   function validateFile(file) {
     if (!file || !Number.isFinite(file.size) || file.size <= 0) return 'emptyFile';
     if (file.size > 50 * 1024 * 1024) return 'fileTooLarge';
-    if (!/\.(wav|mp3|m4a|aac|ogg|flac)$/i.test(file.name)) return 'unsupportedFormat';
+    if (!/\.(wav|mp3|m4a|aac|ogg|flac|webm)$/i.test(file.name)) return 'unsupportedFormat';
     return null;
   }
   function validateDuration(duration) {

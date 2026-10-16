@@ -2,12 +2,14 @@
 
 Convert a short recording into MIDI using Spotify Basic Pitch, entirely on your device.
 
-![Actual v0.1 preview: synthetic C4 analyzed locally and exported as MIDI](assets/screenshot.png)
+![Actual v0.3 preview: a synthetic C4 microphone recording and its detected note](assets/screenshot.png)
 
 ## Features
 
 - One audio file, 0.5–60 seconds and up to 50 MiB
-- WAV/MP3, plus M4A/AAC/OGG/FLAC when your browser can decode them
+- WAV/MP3, plus M4A/AAC/OGG/FLAC/WebM when your browser can decode them
+- Microphone recording with a level meter, Stop / Listen / Discard, and optional original-audio download
+- Input / Notes / Export page tabs on smartphones
 - On-device CPU inference, progress and immediate cancellation
 - Read-only piano roll, waveform, zoom, scrolling and selectable note timing
 - Original-audio / simple-synth comparison with play, pause, stop and seek
@@ -17,7 +19,7 @@ Convert a short recording into MIDI using Spotify Basic Pitch, entirely on your 
 ## How to use
 
 1. Open the generated `audio-to-midi.html` or `dist/index.html`.
-2. Choose a short recording of a melody or one instrument.
+2. Choose a short audio file, or press **Record** and allow microphone access. Press **Stop recording**, then **Listen** before analyzing. Recording is limited to 59 seconds; file input allows up to 60 seconds.
 3. Press **Analyze audio**. Processing speed depends on your device.
 4. Compare **Original audio** and **Synthesized notes**, then zoom/scroll and select a note to inspect it.
 5. Edit the filename and **Download MIDI**.
@@ -29,11 +31,11 @@ Audio, notes and model inference stay in your browser. There are no runtime down
 
 ## Browser support and limits
 
-This is the **v0.2 development milestone**. Chrome/Edge/Firefox/Safari with Web Audio, Workers and DecompressionStream are target browsers. Real Windows, Android and iOS device acceptance is not yet complete; see [verification](docs/VERIFICATION.md).
+This is the **v0.3 development milestone**. Chrome/Edge/Firefox/Safari with Web Audio, Workers and DecompressionStream are target browsers. Real Windows, Android and iOS device acceptance is not yet complete; see [verification](docs/VERIFICATION.md).
 
 Transcription is approximate. Mixed songs, noise and harmonics can create wrong notes. MIDI is note data, not audio. Output uses 120 BPM only to preserve seconds, channel 1, piano program 0 and fixed velocity 96. No tempo/loudness estimation or pitch bends.
 
-The piano roll is read-only. Microphone recording and note editing are future milestones. The simple synth does not reproduce the original instrument. Playback stops when the page is hidden; use Play to resume. Review or correct a bad note in your music app.
+The piano roll is read-only; note editing is a later milestone. Recording requires MediaRecorder and a browser-supported, locally decodable format. If permission is denied, no microphone is present, or recording is unsupported, file conversion remains available. Local-file microphone access varies; use the HTTPS app if needed. The simple synth does not reproduce the original instrument. Playback pauses and recording stops when the page is hidden. Stop releases all microphone tracks; there is no live speaker monitoring. Unsaved recordings require confirmation before replacement/reset. Closing or reloading loses session data; mobile browsers may omit the exit warning. Review or correct a bad note in your music app.
 
 ## Offline single HTML
 

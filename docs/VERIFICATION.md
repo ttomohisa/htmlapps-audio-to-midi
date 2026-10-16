@@ -14,7 +14,7 @@ The served HTML exactly matched that run's validated standalone artifact: SHA-25
 - Name the progress indicator, identify/focus invalid detection settings and strengthen visible focus contrast.
 - Avoid repeatedly announcing unchanged playback status.
 - Add short-screen bilingual help-tail/focus/reduced-motion and recoverable-state/export browser audits.
-- Run the bounded offline audit against Firefox and WebKit engines as well as the existing full Chromium suite; engine runs do not certify branded Safari, Edge or physical devices.
+- Run the bounded network-blocked audit against Firefox and WebKit engines as well as the existing full Chromium suite; engine runs do not certify branded Safari, Edge or physical devices.
 - Update bilingual usage, real screenshots and evidence mapping. Full model/license/CSP/asset-integrity and build gates remain mandatory.
 
 Final-head CI counts and artifact links belong in the PR body. New checks are not PASS until that head succeeds.
@@ -23,7 +23,8 @@ Final-head CI counts and artifact links belong in the PR body. New checks are no
 
 - Head 54a1617 passed 246 unit tests, actual-model smoke, 40 offline Chromium tests and 12 HTTPS tests. Firefox completed edited-note CSV/MIDI output but failed the zero-console-error gate on the pinned runtime's optional long-integer WebAssembly optimization; CPU inference itself completed. CSP is not relaxed to permit that optimization.
 - Native dialog keyboard navigation differs between engines. The audit must reject focus on background controls and verify keyboard return/close, without assuming a fixed forward-Tab cycle through browser chrome.
-- WebKit's initial local-file navigation failed when Playwright offline mode was set before navigation. The corrected harness installs an abort rule for every HTTP(S) resource before loading local HTML, then enables offline mode for the entire app workflow. It does not convert a network-enabled load into an offline claim. Initial deployed HTML is the only allowed HTTP navigation.
+- WebKit's protocol-offline emulation rejected initial local-file navigation and then internal blob reads after navigation. The WebKit audit blocks every HTTP(S) request before loading local HTML and records any attempted request as a failure. An isolated synthetic input-file read probe records offline-off/on/off behavior separately from the app's strict console-error gate. WebKit uses protocol-offline mode only if the isolated offline read succeeds; otherwise the report explicitly records route-blocked-only coverage, not protocol-offline coverage. Chromium/Firefox additionally enable protocol-offline mode after document loading. Initial deployed HTML is the only allowed HTTP navigation. Physical offline Safari/iOS remains unverified.
+- WebKit suppressed the native file input's custom outline despite keyboard focus. A file-input-only solid focus shadow now provides an independently checked indicator. Firefox's fractional scroll restoration is checked within one CSS pixel, together with the restored content position.
 - Runtime/test corrections require fresh exact-head CI; prior failures remain evidence, not passes. Engine CI is still distinct from physical Safari/Edge/device acceptance.
 
 ## Release blockers

@@ -22,6 +22,42 @@ async function bilingual(page,check){
  for(const value of ['en','ja']){await language(page,value);await check(copy[value],value);}
  await language(page,'en');
 }
+async function webkitOfflineProbe(browser){
+ // This isolated diagnostic deliberately tests an engine-emulation limitation.
+ // Its console is attached separately; main-page console errors still fail.
+ const probe=await browser.newContext(),outcomes=[],consoleMessages=[],requests=[];
+ try{
+  await probe.route(/^https?:/,route=>route.abort('blockedbyclient'));
+  probe.on('request',request=>{if(/^https?:/.test(request.url()))requests.push(request.url());});
+  const page=await probe.newPage();
+  page.on('console',message=>consoleMessages.push({type:message.type(),text:message.text()}));
+  page.on('pageerror',error=>consoleMessages.push({type:'pageerror',text:error.message}));
+  await page.setContent('<input type="file" id="probeFile">');
+  for(const offline of [false,true,false]){
+   await probe.setOffline(offline);
+   // Match the app's browser-backed file-selection path, not an in-page File.
+   await page.locator('#probeFile').setInputFiles({name:'probe.txt',mimeType:'text/plain',buffer:Buffer.from('synthetic-offline-probe')});
+   const result=await page.evaluate(async()=>{
+    let timer;
+    try{
+     return await Promise.race([
+      document.querySelector('#probeFile').files[0].arrayBuffer().then(bytes=>({ok:true,bytes:bytes.byteLength}),error=>({ok:false,name:error.name,message:error.message})),
+      new Promise(resolve=>{timer=setTimeout(()=>resolve({ok:false,timedOut:true}),2000);})
+     ]);
+    }finally{clearTimeout(timer);}
+   });
+   outcomes.push({offline,...result});
+  }
+ }finally{
+  await probe.close();
+  await test.info().attach('webkit-protocol-offline-file-probe',{body:Buffer.from(JSON.stringify({outcomes,consoleMessages,requests},null,2)),contentType:'application/json'});
+ }
+ expect(requests,'Synthetic File probe must not request HTTP(S)').toEqual([]);
+ expect(outcomes[0],'Network-blocked synthetic File read').toMatchObject({offline:false,ok:true,bytes:23});
+ expect(outcomes[1].timedOut,'Protocol-offline probe must settle within two seconds').not.toBe(true);
+ expect(outcomes[2],'Synthetic File read must recover after disabling protocol offline').toMatchObject({offline:false,ok:true,bytes:23});
+ return outcomes[1].ok;
+}
 async function openAudit(page,context,variant){
  test.skip(variant==='deployed'&&!process.env.PREVIEW_URL,'Run after the existing preview workflow returns PREVIEW_URL.');
  let url=pathToFileURL(path.join(__dirname,'../../dist',variant)).href;
@@ -36,14 +72,17 @@ async function openAudit(page,context,variant){
  const isEntryDocument=request=>variant==='deployed'&&!documentLoaded&&request.isNavigationRequest()&&request.frame()===page.mainFrame()&&request.url()===url;
  page.on('pageerror',error=>errors.push(error.message));
  page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
- // Deny network before any app code runs. WebKit's offline emulation also
- // rejects file:// navigation, so enable it only after the local HTML loads.
+ // Deny network before any app code runs. WebKit's offline emulation can reject
+ // file:// navigation and internal Blob reads; a separate probe records that.
  // Only the exact initial deployed document is allowed through the guard.
  await context.route(/^https?:/,route=>isEntryDocument(route.request())?route.continue():route.abort('blockedbyclient'));
  page.on('request',request=>{
   if(/^https?:/.test(request.url())&&!isEntryDocument(request))requests.push(request.url());
  });
- await page.goto(url);documentLoaded=true;await phase(page,'empty');await context.setOffline(true);
+ const protocolOffline=context.browser().browserType().name()==='webkit'?await webkitOfflineProbe(context.browser()):true;
+ test.info().annotations.push({type:'network-isolation',description:protocolOffline?'Protocol offline after HTML load, with HTTP(S) blocked before app code runs.':'WebKit HTTP(S)-route-blocked coverage only: isolated synthetic File probe failed with protocol offline and recovered without it. Physical offline-device behavior is not verified.'});
+ await page.goto(url);documentLoaded=true;await phase(page,'empty');
+ if(protocolOffline)await context.setOffline(true);
  await language(page,'en');
  return ()=>{expect(errors,'Browser console/page errors').toEqual([]);expect(requests,'Runtime HTTP(S) requests').toEqual([]);};
 }
@@ -54,10 +93,17 @@ async function tabTo(page,selector){
   await page.keyboard.press('Tab');
   if(await page.locator(selector).evaluate(node=>node===document.activeElement)){
    await expect(page.locator(selector)).toBeFocused();
-   const focus=await page.locator(selector).evaluate(node=>({visible:node.matches(':focus-visible'),width:parseFloat(getComputedStyle(node).outlineWidth),style:getComputedStyle(node).outlineStyle}));
+   const focus=await page.locator(selector).evaluate(node=>({visible:node.matches(':focus-visible'),width:parseFloat(getComputedStyle(node).outlineWidth),style:getComputedStyle(node).outlineStyle,shadow:getComputedStyle(node).boxShadow}));
    expect(focus.visible,`${selector} keyboard focus`).toBe(true);
-   expect(focus.width,`${selector} focus outline`).toBeGreaterThan(0);
-   expect(focus.style).not.toBe('none');
+   if(selector==='#audioFile'){
+    // Native file controls can suppress their outer outline in WebKit. Require
+    // the explicit 3px solid dark-green shadow ring supplied by the app instead.
+    expect(focus.shadow,`${selector} focus-ring color`).toContain('rgb(22, 98, 79)');
+    expect(focus.shadow,`${selector} focus-ring geometry`).toMatch(/0px 0px 0px 3px/);
+   }else{
+    expect(focus.width,`${selector} focus outline`).toBeGreaterThan(0);
+    expect(focus.style).not.toBe('none');
+   }
    return;
   }
  }
@@ -236,6 +282,7 @@ for(const variant of variants){
   await expect(page.locator('#inputError')).toHaveAttribute('role','alert');await expect(page.locator('#noteEditError')).toHaveAttribute('aria-live','polite');await expect(page.locator('#appToast')).toHaveAttribute('aria-live','polite');
   await tabTo(page,'#languageButton');await page.keyboard.press('Enter');await expect(page.locator('html')).toHaveAttribute('lang','ja');
   await tabTo(page,'#audioFile');await expect(page.locator('#audioFile')).toHaveAccessibleName(/音声/);
+  await test.info().attach('file-keyboard-focus',{body:await page.locator('#dropZone').screenshot(),contentType:'image/png'});
   for(const width of [1360,320]){
    await page.setViewportSize({width,height:480});
    for(const value of ['en','ja']){
@@ -273,7 +320,9 @@ for(const variant of variants){
     expect(returnedToClose,'Modal Tab/Shift+Tab must return from browser chrome/dialog content to Close').toBe(true);
     await expect(page.locator('#closeHelpButton')).toBeFocused();
     await page.keyboard.press('Escape');await expect(page.locator('#helpDialog')).toBeHidden();await expect(page.locator('body')).not.toHaveCSS('position','fixed');await expect(page.locator('#helpButton')).toBeFocused();
-    await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(before.y);
+    // Engines may round a fractional CSS scroll position on restoration.
+    await expect.poll(async()=>Math.abs(await page.evaluate(()=>scrollY)-before.y)).toBeLessThanOrEqual(1);
+    expect(Math.abs(await page.locator('#inputTitle').evaluate(node=>node.getBoundingClientRect().top)-before.top)).toBeLessThanOrEqual(1);
     await page.mouse.move(width-2,240);await page.mouse.wheel(0,60);await expect.poll(()=>page.evaluate(()=>scrollY)).toBeGreaterThan(before.y);
    }
   }

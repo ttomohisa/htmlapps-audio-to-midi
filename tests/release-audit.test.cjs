@@ -10,6 +10,6 @@ test('detection UI preserves offending fields including both inverted bounds and
  const h=harness();h.elements['#minimumPitch'].value='109';assert.equal(h.read(),null);assert.deepEqual(h.fields(),['minimumPitch','maximumPitch']);h.elements['#minimumPitch'].value='21';assert.ok(h.read());assert.deepEqual(h.fields(),[]);
 });
 test('progress is named and focus rings are solid; effective bilingual help describes both compressed variants',()=>{
- const html=fs.readFileSync(require('node:path').join(__dirname,'../src/index.template.html'),'utf8');assert.match(html,/id="progressBar" aria-labelledby="statusText" aria-describedby="statusHint"/);assert.doesNotMatch(html,/--focus\) 55%/);assert.match(html,/--focus: #16624f/);
+ const html=fs.readFileSync(require('node:path').join(__dirname,'../src/index.template.html'),'utf8');assert.match(html,/id="progressBar" aria-labelledby="statusText" aria-describedby="statusHint"/);assert.doesNotMatch(html,/--focus\) 55%/);assert.match(html,/--focus: #16624f/);assert.match(html,/#audioFile:focus-visible \{ box-shadow:0 0 0 3px var\(--focus\); \}/);
  const t=vm.runInNewContext(source.slice(source.indexOf('const translations='),source.indexOf('const languageKey='))+';translations');assert.match(t.en.helpOffline,/Both require DecompressionStream/);assert.match(t.ja.helpOffline,/どちらも/);assert.match(t.en.postprocessingHint,/selected/);
 });

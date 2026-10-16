@@ -108,7 +108,7 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install browser engine
         run: npx playwright install --with-deps ${{ matrix.engine }}
-      - name: Offline release audit (engine coverage, not physical-device acceptance)
+      - name: Network-blocked release audit (engine coverage, not physical-device acceptance)
         env:
           BROWSER_ENGINE: ${{ matrix.engine }}
         run: npx playwright test release-audit.spec.cjs --grep-invert deployed

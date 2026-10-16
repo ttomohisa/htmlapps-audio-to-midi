@@ -93,13 +93,17 @@ async function tabTo(page,selector){
   await page.keyboard.press('Tab');
   if(await page.locator(selector).evaluate(node=>node===document.activeElement)){
    await expect(page.locator(selector)).toBeFocused();
-   const focus=await page.locator(selector).evaluate(node=>({visible:node.matches(':focus-visible'),width:parseFloat(getComputedStyle(node).outlineWidth),style:getComputedStyle(node).outlineStyle,shadow:getComputedStyle(node).boxShadow}));
+   const focus=await page.locator(selector).evaluate(node=>({visible:node.matches(':focus-visible'),width:parseFloat(getComputedStyle(node).outlineWidth),style:getComputedStyle(node).outlineStyle}));
    expect(focus.visible,`${selector} keyboard focus`).toBe(true);
    if(selector==='#audioFile'){
-    // Native file controls can suppress their outer outline in WebKit. Require
-    // the explicit 3px solid dark-green shadow ring supplied by the app instead.
-    expect(focus.shadow,`${selector} focus-ring color`).toContain('rgb(22, 98, 79)');
-    expect(focus.shadow,`${selector} focus-ring geometry`).toMatch(/0px 0px 0px 3px/);
+    // Native file controls can suppress outlines and shadows in WebKit. The
+    // containing drop zone must visibly indicate the same real keyboard focus.
+    const zone=page.locator('#dropZone');
+    expect(await zone.evaluate(node=>node.matches(':focus-within'))).toBe(true);
+    await expect(zone).toHaveCSS('outline-width','3px');
+    await expect(zone).toHaveCSS('outline-style','solid');
+    await expect(zone).toHaveCSS('outline-color','rgb(22, 98, 79)');
+    await expect(zone).toHaveCSS('outline-offset','2px');
    }else{
     expect(focus.width,`${selector} focus outline`).toBeGreaterThan(0);
     expect(focus.style).not.toBe('none');
@@ -108,6 +112,17 @@ async function tabTo(page,selector){
   }
  }
  throw new Error(`${selector} was not reachable in 90 Tab presses`);
+}
+async function expectVisiblePianoNote(note){
+ await expect(note).toBeVisible();
+ // WebKit can report an SVG rect's IntersectionObserver ratio as zero while
+ // painting it. Check its actual geometry against both clipping viewports.
+ await expect.poll(()=>note.evaluate(node=>{
+  const rect=node.getBoundingClientRect(),scroll=node.closest('#pianoScroll'),clip=scroll.getBoundingClientRect();
+  const left=Math.max(rect.left,clip.left+scroll.clientLeft,0),top=Math.max(rect.top,clip.top+scroll.clientTop,0);
+  const right=Math.min(rect.right,clip.left+scroll.clientLeft+scroll.clientWidth,innerWidth),bottom=Math.min(rect.bottom,clip.top+scroll.clientTop+scroll.clientHeight,innerHeight);
+  return right>left&&bottom>top;
+ }),{message:'The piano note must intersect both its scroll viewport and the browser viewport'}).toBe(true);
 }
 async function download(page){
  const pending=page.waitForEvent('download');await page.locator('#downloadButton').click();const result=await pending;
@@ -211,7 +226,7 @@ for(const variant of variants){
     await language(page,value);
     await page.evaluate(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
     await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(0);
-    await expect(page.locator('#pianoRoll [data-note-id]').first()).toBeInViewport();
+    await expectVisiblePianoNote(page.locator('#pianoRoll [data-note-id]').first());
     const screenshot=info.outputPath(`release-desktop-${value}.png`);
     await page.screenshot({path:screenshot,fullPage:false});
     await info.attach(`release-desktop-${value}`,{path:screenshot,contentType:'image/png'});
@@ -282,7 +297,7 @@ for(const variant of variants){
   await expect(page.locator('#inputError')).toHaveAttribute('role','alert');await expect(page.locator('#noteEditError')).toHaveAttribute('aria-live','polite');await expect(page.locator('#appToast')).toHaveAttribute('aria-live','polite');
   await tabTo(page,'#languageButton');await page.keyboard.press('Enter');await expect(page.locator('html')).toHaveAttribute('lang','ja');
   await tabTo(page,'#audioFile');await expect(page.locator('#audioFile')).toHaveAccessibleName(/音声/);
-  await test.info().attach('file-keyboard-focus',{body:await page.locator('#dropZone').screenshot(),contentType:'image/png'});
+  await test.info().attach('file-keyboard-focus',{body:await page.locator('#dropZone').locator('..').screenshot(),contentType:'image/png'});
   for(const width of [1360,320]){
    await page.setViewportSize({width,height:480});
    for(const value of ['en','ja']){

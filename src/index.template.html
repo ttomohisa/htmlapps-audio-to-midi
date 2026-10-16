@@ -454,8 +454,8 @@
     .drop-zone.dragging { border-color:var(--accent); background:var(--accent-soft); }
     .drop-zone svg { width:36px; height:36px; color:var(--accent); display:block; margin:0 auto 12px; }
     #audioFile { max-width:100%; margin:12px 0; }
-    /* Native file controls may suppress outlines in WebKit. */
-    #audioFile:focus-visible { box-shadow:0 0 0 3px var(--focus); }
+    /* Paint the keyboard indicator outside the native file-control renderer. */
+    .drop-zone:focus-within { outline:3px solid var(--focus); outline-offset:2px; }
     .source-info { padding:14px; border-radius:8px; background:var(--accent-soft); margin-bottom:18px; }
     #sourceName { display:block; overflow-wrap:anywhere; }
     .status-panel { min-height:100px; margin:18px 0; padding:16px; border:1px solid var(--line); border-radius:10px; }

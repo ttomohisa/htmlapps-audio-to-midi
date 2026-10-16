@@ -332,3 +332,12 @@ interface Note {
 - Short-note removal proposes all current notes strictly shorter than the chosen0.01–2 second threshold, including manual notes. It is not an automatic confidence judgment.
 - Grid correction starts OFF and resets OFF on input/reset. It uses a0.01–1 second grid anchored at0, with nearest rounding of start/end/both. No tempo is inferred or auto-filled. Invalid zero/reversed/out-of-clip intervals are skipped, not clamped or deleted. Existing legal overlaps remain legal.
 - Each applied cleanup batch consumes one of100 Undo steps. Previews are tied to their original editor/revision and cannot overwrite later edits. A parameter change or another edit dismisses the pending preview. The same updated notes feed drawing, synthesis and MIDI.
+
+### v0.7 implementation boundary (2026-10-16)
+
+- CPU inference allocates one padded window at a time, retaining the existing official overlap/trim/time alignment. The model and postprocessing are unchanged.
+- Successful analysis leaves an idle reusable worker. Input replacement retains only an idle worker, not previous audio/notes. Active replacement, Cancel, error, Reset and page exit terminate it. Hiding the page cancels active work without restarting on return; interrupted reanalysis retains the previous complete notes/history.
+- Concurrent valid file selections share one pending discard decision; only the latest request in the current generation may load. Cancelling the decision preserves the existing session.
+- Each worker response carries its job ID and must match both the active worker and current source generation. Model bootstrap data is posted only on first use.
+- Waveform and piano content are drawn only near the viewport with overscan; scroll geometry and all editing/export data remain in original seconds. Selecting an offscreen note reveals it.
+- Input remains 0.5–60 seconds / 50 MiB, recording 59 seconds. Whole-file decodeAudioData is still required before duration validation; compressed-file size does not bound decoded PCM memory. Android/iOS low-memory and longer-duration acceptance is unverified, so no five-minute expansion is enabled.

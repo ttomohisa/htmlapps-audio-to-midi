@@ -1,14 +1,15 @@
-# v0.6 verification record
+# v0.7 verification record
 
-Development milestone, 2026-10-16. Previous record: [v0.5](VERIFICATION-v05.md).
+Development milestone, 2026-10-16. Previous record: [v0.6](VERIFICATION-v06.md).
 
-## Gates
+## Required gates
 
-- Pure editing tests cover split/merge eligibility, immutable/detached previews, stale/foreign/tampered plan rejection, short-note and grid validation, atomic Undo/Redo, source bounds and saved fingerprints.
-- Browser acceptance covers explicit previews/Cancel/Apply, split and merge extents, short-note removal, opt-in grid with skipped invalid results, stale parameter previews, edited MIDI independent readback, JA/EN and320/360/390px controls.
-- Existing settings, reanalysis retention, recording, playback, modal, invalid-input and offline normal/self-extract tests remain required.
-- Standard PowerShell build/integrity, real-model smoke, independent review and final exact-head CI/HTTPS preview must pass before Ready. Exact run links/counts will be recorded in the PR description/checks to avoid evidence-only CI cycles.
+- Exact window samples/alignment, tensor disposal on success/error/cancellation, boundary-note equivalence and actual pinned-model 10/30/60-second measurements.
+- 100 short real-model analysis/cancellation cycles, plus browser worker lifecycle stress and real-model recovery/reuse. Memory measurements distinguish tensor bytes from process memory and do not claim browser/device peak memory.
+- Viewport geometry, long crossing notes, dense timelines, scrolling/zoom/keyboard reveal and immutable note data.
+- Existing settings, cleanup, editor/MIDI readback, recording, playback, modal and offline normal/self-extract regressions.
+- PowerShell syntax/build/integrity, independent review, exact-head CI and HTTPS preview before Ready. Final counts/run links and benchmark measurements belong in the PR evidence, avoiding evidence-only rebuilds.
 
-## Remaining manual gates
+## Limits and manual gates
 
-Physical Windows/Android/iOS permissions, audible listening, touch, Safari/Firefox codecs and real BFCache are unverified. Session data is not persisted; native unload warning is best effort. No long-audio/model/performance claim is added in this milestone.
+Input remains 60 seconds / 50 MiB; recording 59 seconds. Whole compressed files are decoded by decodeAudioData; duration is validated only after decode. A 50 MiB compressed file may need substantially more decoded memory. Physical Windows/Android/iOS timings, peak memory, low-memory behavior, permissions, audible listening, touch, Safari/Firefox codecs and actual BFCache are unverified. Cloud CPU and automated Chromium results are not physical-device acceptance. The five-minute expansion gate is not passed and remains disabled.

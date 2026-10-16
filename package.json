@@ -1,11 +1,12 @@
 {
   "name": "htmlapps-audio-to-midi",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "scripts": {
     "test": "node --test tests/*.test.cjs",
     "test:browser": "playwright test",
-    "test:model": "node tests/model-smoke.cjs"
+    "test:model": "node tests/model-smoke.cjs",
+    "test:performance": "node tests/inference-performance.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.57.0",

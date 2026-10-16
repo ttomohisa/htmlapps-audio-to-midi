@@ -23,7 +23,7 @@ for(const variant of ['index.html','index.self-extract.html','deployed'])test(`$
  // Cancel terminates the native worker so the following fault injection is used by a new worker.
  await page.locator('#analyzeButton').click();await page.locator('#cancelButton').click();await phase(page,'result');
  // A worker failure also retains the last complete result. Replace only the browser test worker.
- await page.evaluate(()=>{const NativeWorker=window.Worker;window.Worker=class extends NativeWorker{postMessage(){setTimeout(()=>this.onmessage({data:{phase:'error'}}),0);}};});
+ await page.evaluate(()=>{const NativeWorker=window.Worker;window.Worker=class extends NativeWorker{postMessage(input){setTimeout(()=>this.onmessage({data:{jobId:input.jobId,phase:'error'}}),0);}};});
  await page.locator('#analyzeButton').click();await expect(page.locator('#statusHint')).toContainText(/failed|失敗/);await phase(page,'result');expect(await notes(page)).toEqual(original);await expect(page.locator('#redoNoteButton')).toBeEnabled();
  for(const width of [320,360,390]){await page.setViewportSize({width,height:760});await page.locator('[data-mobile-key="input"]').click();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
  await page.locator('#languageButton').click();await expect(page.locator('#minimumNoteSeconds')).toHaveValue('0.059');await page.screenshot({path:info.outputPath('mobile-detection-settings.png'),fullPage:true});

@@ -143,3 +143,11 @@ The worker bootstrap concatenates only declared, hash-verified TF.js and Tonejs 
 ## v0.6 reviewed cleanup transactions
 
 The editing core owns cleanup previews and validates their private session/revision identity before applying. Public before/after rows are detached; split/merge/batch changes become one atomic history command. Ordinary edit commands remain compact. UI previews contain no independent editable score: app state installs only `editor.snapshot()` after a successful Apply/Undo/Redo. Parameter or session changes discard UI previews, and the core independently rejects stale plans. Seconds-grid correction is explicit and off by default; no tempo estimator or new processing dependency is introduced.
+
+## v0.7 bounded work and viewport rendering
+
+Inference creates only one overlapping input window at a time instead of a tensor containing all windows. Output frame arrays remain duration-proportional for unchanged official global postprocessing; this is not streaming audio decoding. The idle worker/model is reused until cancellation, active replacement, reset, background interruption or page exit. Job IDs supplement the source generation and worker-identity checks. Model JSON/weights are sent only for initial worker bootstrap.
+
+Timeline geometry remains the full source-time/pitch space, while rendered SVG rows, ticks, waveform bins and notes are selected near the current viewport. Detached indexes are view-only; the editor remains the sole authoritative note list.
+
+Cancellation invalidates pending decode/resample results but browser decodeAudioData/OfflineAudioContext work is not generally abortable. No canceled result is installed. Whole-file decoding still occurs before duration validation; longer inputs remain disabled.

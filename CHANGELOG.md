@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.0-rc.1 — 2026-10-16
+
+- Audit bilingual state/help copy, correct both-variant decompression requirements, and synchronize Japanese usage with MIDI/CSV and full Undo/Redo.
+- Improve progress naming, invalid detection-field focus and visible keyboard focus; reduce repeated playback-status announcements.
+- Add bounded release audits and offline Firefox/WebKit engine coverage beside full Chromium tests.
+- Record acceptance evidence and unresolved physical-device, audible DAW and assistive-technology gates; release qualification remains incomplete.
+
+
 ## 0.8.0 — 2026-10-16
 
 - Add an explicit MIDI/CSV selector with one editable filename and format-specific extension.

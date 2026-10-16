@@ -349,3 +349,9 @@ interface Note {
 - Both formats require a current nonempty completed result and use the same edited notes. Either initiated download marks the current content saved; subsequent edits are dirty again. A browser download start does not prove storage completed.
 - MIDI remains SMF 1, PPQ 480, fixed 120 BPM solely for seconds-to-ticks conversion, channel 1/program 0/velocity 96, no bends. Start/end round to ticks with at least one tick duration. Nested same-pitch overlaps on one channel have no per-note identity and cannot guarantee interval pairing in other software; CSV retains exact intervals. No automatic deletion/merging/channel redistribution is performed.
 - Actual DAW listening and pitch-bend/channel validation remain unverified; pitch bends are not offered. The same 60-second/50 MiB limit, pinned model and offline boundary remain.
+
+### v0.9 release-candidate audit boundary (2026-10-16)
+
+- Version 0.9.0-rc.1 is a bounded audit candidate, not a claim that all release acceptance gates passed. Physical-device/DAW/assistive-technology gaps remain in the acceptance results and prevent final release qualification.
+- Progress has a localized accessible name/description; invalid detection fields are marked and exposed/focused on execution without discarding existing notes. Playback status announcements change only when the displayed status changes.
+- Both offline HTML variants require DecompressionStream for embedded assets. Firefox/WebKit engine CI supplements Chromium; no engine emulation is represented as physical Safari/iOS/Android certification.

@@ -25,6 +25,8 @@ Object.assign(translations.en,{helpPerformance:'Analysis uses bounded input wind
 Object.assign(translations.ja,{helpPerformance:'解析は入力を小さな区間に分け、完了後は端末内のモデルを再利用します。キャンセル・解析中の入力変更・ページを隠す操作・リセットで処理を停止します。戻っても自動再開しないため、もう一度「音声を解析」を押してください。再解析を中止しても前の完成済み音符は残ります。波形と音符はスクロールに合わせて表示範囲を描画します。入力上限は60秒のままで、それより長い音声には対応していません。',scopeNote:'v0.7は小区間での端末内解析・モデル再利用・可視範囲のタイムライン描画に対応しています。簡易合成音は元の楽器の音色を再現しません。'});
 Object.assign(translations.en,{outputFormat:'File format',formatMidi:'MIDI (.mid)',formatCsv:'Note table (.csv)',downloadCsv:'Download CSV',csvDownloaded:'CSV download started',stepOutput:'03 / EXPORT',csvNote:'CSV saves the current note table: start/end in seconds, MIDI pitch and fixed velocity 96. It contains no audio. Times are not rounded to MIDI ticks.',midiNote:'MIDI contains notes, not audio. Fixed 120 BPM preserves timing in seconds; it is not an estimated tempo. Velocity is fixed at 96. Your music app chooses the sound, which can differ from this preview. Overlapping notes of the same pitch may play differently between apps.',discardEditsBody:'Your current note edits have not been downloaded. Continuing will discard them. Cancel to keep editing or save first.',helpExport:'Choose MIDI for a music app or CSV for a note table, edit the filename, then Download. Both use the current edited notes and contain no audio. CSV preserves the exact note times in seconds. MIDI uses fixed 120 BPM only to convert seconds to ticks, with fixed velocity 96 and no pitch bends. Same-pitch overlaps can be interpreted differently by music apps; CSV retains their exact individual times. The downloaded instrument sound may differ from this simple preview.',scopeNote:'Record, review and correct notes, then save MIDI or a CSV note table. The simple synth does not reproduce the original instrument.'});
 Object.assign(translations.ja,{outputFormat:'保存形式',formatMidi:'MIDI（.mid）',formatCsv:'音符の表（.csv）',downloadCsv:'CSVを保存',csvDownloaded:'CSVの保存を開始しました',stepOutput:'03 / 書き出し',csvNote:'現在の音符を開始・終了の秒数、MIDI音高、固定ベロシティ96の表として保存します。音声は含まず、時刻をMIDIの刻みに丸めません。',midiNote:'MIDIは音符のデータで、音声ではありません。120 BPMは秒数を保つための固定値で、推定テンポではありません。ベロシティは96固定です。音色は再生する音楽アプリによって変わり、この試聴音とは異なる場合があります。同じ音高の重なった音符はアプリによって再生が異なることがあります。',discardEditsBody:'現在の音符編集はまだ保存していません。続けると編集を破棄します。編集を続けるには中止するか、先に保存してください。',helpExport:'音楽アプリにはMIDI、音符の表にはCSVを選び、保存名を編集して保存します。どちらも現在の編集済み音符から作られ、音声は含みません。CSVは各音符の秒数をそのまま保存します。MIDIの120 BPMは秒数をtickに換算するための固定値で、ベロシティは96固定、ピッチベンドは含みません。同じ音高の重なりは音楽アプリによって解釈が異なりますが、CSVには個々の時刻をそのまま残します。再生する音色はこの簡易試聴と異なる場合があります。',scopeNote:'録音・確認・音符の修正から、MIDIやCSVの音符表の保存まで対応しています。簡易合成音は元の楽器の音色を再現しません。'});
+Object.assign(translations.en,{helpOffline:'Both normal and self-extracting HTML work offline in compatible browsers. Both require DecompressionStream to unpack embedded assets.',accuracyNote:'Transcription is an estimate. Review the notes and check exported MIDI in your music app.',postprocessingHint:'Applying your selected detection settings.'});
+Object.assign(translations.ja,{helpOffline:'通常版と自己展開版は対応ブラウザーでオフライン利用できます。どちらも内包資産の展開にDecompressionStream対応が必要です。',accuracyNote:'採譜は推定です。音符を確認し、保存したMIDIも音楽アプリで確認してください。',postprocessingHint:'選択した検出設定を適用しています。'});
 // Keep shared loss/help guidance correct for either supported note export.
 for(const key of ['resultHint','resetBody','helpStep3','helpNoteStorage','noteLimit','helpEditing']){
  translations.en[key]=translations.en[key].replaceAll('MIDI','MIDI or CSV');
@@ -45,8 +47,9 @@ const settingsKeys={onsetThreshold:'onsetThreshold',frameThreshold:'frameThresho
 let settingsError=false;
 function readDetectionSettings(){
  const values=Object.fromEntries(settingsFields.map(key=>[settingsKeys[key],$('#'+key).value.trim()===''?NaN:Number($('#'+key).value)]));
- try{const settings=AudioMidiSettings.validate(values);settingsError=false;return settings;}catch{settingsError=true;return null;}
+ try{const settings=AudioMidiSettings.validate(values);settingsError=false;return settings;}catch(error){settingsError=error.field||'settings';return null;}
 }
+function invalidSettingsFields(){return settingsError==='pitchRange'?['minimumPitch','maximumPitch']:settingsFields.filter(key=>settingsKeys[key]===settingsError);}
 function fillDetectionSettings(values){for(const key of settingsFields)$('#'+key).value=String(values[settingsKeys[key]]);settingsError=false;}
 const review=AudioMidiReview.create({translate,onEdit:editNotes,onSelection:()=>{editError=null;clearCleanup();review.setEditing({mergeCandidates:editor?.mergeCandidates(review.selectedId())||[]});renderCleanup();}});
 function editingEnabled(){return !!editor&&!busy()&&!recording?.active()&&!recording?.preparing();}
@@ -120,7 +123,9 @@ function invalidate({keepIdleWorker=false}={}){const token=generation.next();if(
 function pitchName(pitch){return ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][pitch%12]+(Math.floor(pitch/12)-1);}
 function render(){
  document.body.dataset.phase=state.phase;
- $('#detectionSettingsError').hidden=!settingsError;$('#detectionSettingsError').textContent=settingsError?translate('invalidDetectionSettings'):'';
+ const invalidFields=invalidSettingsFields();
+ $('#detectionSettingsError').hidden=!settingsError;$('#detectionSettingsError').textContent=settingsError?[...invalidFields.map(translate),translate('invalidDetectionSettings')].join(' · '):'';
+ for(const key of settingsFields)$('#'+key).setAttribute('aria-invalid',String(invalidFields.includes(key)));
  $('#detectionWarning').hidden=!state.detectionWarning;$('#detectionWarning').textContent=translate('detectionWarning');
  for(const key of [...settingsFields,'sensitivityPreset'])$('#'+key).disabled=busy()||!!recording?.active();
  $('#inputError').hidden=!state.inputError;$('#inputError').textContent=state.inputError?translate(state.inputError):'';
@@ -202,7 +207,7 @@ async function selectFiles(files,{recorded=false}={}){
 }
 async function analyze(){
  if(busy()||!state.samples||recording.active()||recording.preparing())return;
- const settings=readDetectionSettings();if(!settings){render();return;}
+ const settings=readDetectionSettings();if(!settings){render();$('#detectionAdvanced').open=true;const invalidField=invalidSettingsFields()[0];if(invalidField)$('#'+invalidField).focus();return;}
  if(!await confirmEdits())return;
  if(busy()||!state.samples||recording.active()||recording.preparing())return;
  clearCleanup();AppToast.dismiss();review.pause();

@@ -23,7 +23,7 @@
       --accent-hover: #0e503f;
       --accent-soft: #e1f0ea;
       --danger: #b3261e;
-      --focus: #4d8bc7;
+      --focus: #16624f;
       --shadow-sm: 0 1px 2px rgba(25, 28, 24, .08), 0 1px 6px rgba(25, 28, 24, .04);
       --shadow-md: 0 12px 34px rgba(25, 28, 24, .10);
       --radius: 12px;
@@ -44,7 +44,7 @@
     button, textarea, input { font: inherit; }
     button { color: inherit; }
     button:focus-visible, textarea:focus-visible, input:focus-visible, summary:focus-visible {
-      outline: 3px solid color-mix(in srgb, var(--focus) 55%, transparent);
+      outline: 3px solid var(--focus);
       outline-offset: 2px;
     }
     .app-header {
@@ -383,7 +383,7 @@
     .app-confirm-button.primary:hover { border-color: var(--accent-hover); background: var(--accent-hover); }
     .app-confirm-button.danger { border-color: var(--danger); background: var(--danger); color: #fff; }
     .app-confirm-button:focus-visible, .app-confirm-close:focus-visible {
-      outline: 3px solid color-mix(in srgb, var(--focus) 55%, transparent);
+      outline: 3px solid var(--focus);
       outline-offset: 2px;
     }
 
@@ -476,7 +476,7 @@
     .transport { display:grid; gap:10px; padding-bottom:12px; border-bottom:1px solid var(--line); }
     .control-field { display:grid; gap:5px; min-width:0; color:var(--muted); font-size:12px; }
     select { width:100%; min-width:0; max-width:100%; min-height:40px; padding:8px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--text); font:inherit; }
-    select:focus-visible, .piano-scroll:focus-visible { outline:3px solid color-mix(in srgb,var(--focus) 55%,transparent); outline-offset:2px; }
+    select:focus-visible, .piano-scroll:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
     .seek-field { display:grid; grid-template-columns:1fr auto; gap:4px 10px; color:var(--muted); font-size:12px; }
     .seek-field input { grid-column:1 / -1; grid-row:2; width:100%; margin:3px 0; accent-color:var(--accent); }
     .seek-field output { font-variant-numeric:tabular-nums; }
@@ -554,7 +554,7 @@
     .cleanup-preview h3 { margin:0 0 8px; font-size:14px; }
     .cleanup-preview p { margin:8px 0; font-size:12px; overflow-wrap:anywhere; }
     .cleanup-table-scroll { max-width:100%; max-height:280px; margin:10px 0; overflow:auto; border:1px solid var(--line); border-radius:8px; overscroll-behavior:contain; }
-    .cleanup-table-scroll:focus-visible { outline:3px solid color-mix(in srgb,var(--focus) 55%,transparent); outline-offset:2px; }
+    .cleanup-table-scroll:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
     .cleanup-table { width:100%; border-collapse:collapse; font-size:12px; font-variant-numeric:tabular-nums; }
     .cleanup-table th, .cleanup-table td { min-width:100px; padding:8px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line); overflow-wrap:anywhere; white-space:pre-line; }
     .cleanup-table th { position:sticky; top:0; background:var(--surface-muted); }
@@ -767,7 +767,7 @@
           <button id="resetButton" class="button" type="button" disabled data-i18n="reset">Reset</button>
         </div>
         <div class="status-panel" role="status" aria-live="polite" aria-atomic="true">
-          <p id="statusText"></p><progress id="progressBar" max="1" value="0" hidden></progress><p id="statusHint" class="muted"></p>
+          <p id="statusText"></p><progress id="progressBar" aria-labelledby="statusText" aria-describedby="statusHint" max="1" value="0" hidden></progress><p id="statusHint" class="muted"></p>
         </div>
         <p class="compact-note" data-i18n="privacyNote">Your audio stays on this device. The model is included in this HTML.</p>
       </section>

@@ -2,9 +2,11 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const timeline=require('../src/timeline-core.js');
 const source=fs.readFileSync(path.join(__dirname,'../src/review-ui.js'),'utf8');
 
-function harness(){
+function harness({translate=key=>key}={}){
  class Element {
-  constructor(name='div'){this.name=name;this.attrs={};this.dataset={};this.style={};this.children=[];this.events={};this.value='';this.checked=false;this.clientWidth=900;this.clientHeight=264;this.scrollLeft=0;this.scrollTop=0;this.replacements=0;this.textContent='';this.classList={toggle:(name,enabled)=>{const values=(this.attrs.class||'').split(' ').filter(Boolean).filter(value=>value!==name);if(enabled)values.push(name);this.attrs.class=values.join(' ');}};}
+  constructor(name='div'){this.name=name;this.attrs={};this.dataset={};this.style={};this.children=[];this.events={};this.value='';this.checked=false;this.clientWidth=900;this.clientHeight=264;this.scrollLeft=0;this.scrollTop=0;this.replacements=0;this.textWrites=0;this._textContent='';this.classList={toggle:(name,enabled)=>{const values=(this.attrs.class||'').split(' ').filter(Boolean).filter(value=>value!==name);if(enabled)values.push(name);this.attrs.class=values.join(' ');}};}
+  get textContent(){return this._textContent;}
+  set textContent(value){this.textWrites++;this._textContent=String(value);}
   setAttribute(key,value){this.attrs[key]=String(value);if(key.startsWith('data-'))this.dataset[key.slice(5).replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]=String(value);}
   getAttribute(key){return this.attrs[key]??null;}
   append(...children){this.children.push(...children);}
@@ -28,7 +30,7 @@ function harness(){
   player={snapshot:()=>({...playback}),load:buffer=>update({duration:buffer?.duration||0,position:0,status:buffer?'stopped':'empty'}),setNotes:()=>{},setMode:mode=>update({mode}),seek:position=>update({position}),play:()=>update({status:'playing'}),pause:()=>update({status:'paused'}),stop:()=>update({status:'stopped',position:0}),dispose:()=>update({status:'disposed'})};return player;
  }}};
  const edits=[],selections=[];vm.runInNewContext(source+';this.Review=AudioMidiReview;',sandbox);
- const review=sandbox.Review.create({translate:key=>key,onEdit:action=>edits.push(action),onSelection:id=>selections.push(id)});
+ const review=sandbox.Review.create({translate,onEdit:action=>edits.push(action),onSelection:id=>selections.push(id)});
  function flush(){const pending=[...frames.values()];frames.clear();for(const callback of pending)callback();}
  return {review,get,svg,waveform,piano,wave,frames,flush,resize:()=>observerCallback(),edits,selections,player:()=>player,disconnected:()=>disconnected};
 }
@@ -61,6 +63,22 @@ test('ordinary progress renders preserve editor drafts and exact model; playback
  h.get('applyNoteButton').fire('click');assert.equal(h.edits[0].patch.startSeconds,.0123456789);assert.equal(notes[0].startSeconds,0);
  h.player().seek(200);h.player().play();assert.ok(h.piano.scrollLeft>=15900);h.flush();assert.equal(h.wave.scrollLeft,h.piano.scrollLeft);
  const heads=h.get('reviewCard').querySelectorAll('.playhead');assert.equal(heads.length,2);for(const head of heads)assert.equal(+head.getAttribute('x1'),16000);
+});
+
+test('transport live status changes only for a new status or translation, not playback ticks',()=>{
+ let language='en';const h=harness({translate:key=>`${language}:${key}`}),{buffer,notes}=fixture(4);
+ h.review.setSession(buffer,notes);const status=h.get('transportStatus'),initialWrites=status.textWrites;
+ assert.equal(status.textContent,'en:playback_stopped');h.player().play();
+ assert.equal(status.textContent,'en:playback_playing');assert.equal(status.textWrites,initialWrites+1);
+ const playingWrites=status.textWrites;
+ for(let i=1;i<=10;i++){h.player().seek(i*.025);h.review.render();}
+ assert.equal(status.textWrites,playingWrites,'unchanged status must not create repeated live-region mutations');
+ assert.equal(h.get('seekPosition').value,'0.25');assert.equal(h.get('reviewCard').dataset.position,'0.250000');
+ h.review.pause();assert.equal(status.textContent,'en:playback_paused');assert.equal(status.textWrites,playingWrites+1);
+ h.review.pause();assert.equal(status.textWrites,playingWrites+1);
+ language='ja';h.review.render();assert.equal(status.textContent,'ja:playback_paused');assert.equal(status.textWrites,playingWrites+2);
+ h.review.render();assert.equal(status.textWrites,playingWrites+2);
+ h.player().stop();assert.equal(status.textContent,'ja:playback_stopped');assert.equal(status.textWrites,playingWrites+3);
 });
 
 test('hidden/mobile resize, note replacement, reset and dispose reject stale visible content',()=>{

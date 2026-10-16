@@ -38,13 +38,25 @@ async function checkRecording(page,context,testInfo,{mobile=false}={}){
  const expected=await page.locator('#noteRows .note-row').evaluateAll(rows=>rows.map(row=>({pitch:Number(row.children[0].textContent.match(/\((\d+)\)/)[1]),start:Number(row.children[1].textContent),end:Number(row.children[2].textContent)})));
  let ticks=0;const starts=new Map(),notes=[];for(const event of midi.tracks[1]){ticks+=event.deltaTime;if(event.type==='noteOn')starts.set(event.noteNumber,ticks/960);if(event.type==='noteOff')notes.push({pitch:event.noteNumber,start:starts.get(event.noteNumber),end:ticks/960});}
  for(const note of expected)expect(notes.some(n=>n.pitch===note.pitch&&Math.abs(n.start-note.start)<.002&&Math.abs(n.end-note.end)<.002)).toBe(true);
- expect(notes.some(n=>n.pitch===60&&n.start<.3&&n.end>decoded.duration-.4)).toBe(true);
+ // Basic Pitch may split a steady encoded tone into adjacent retriggers.
+ // Verify the expected pitch/time coverage, independently of the number of inferred notes.
+ const c4=notes.filter(n=>n.pitch===60).sort((a,b)=>a.start-b.start);
+ expect(c4.length).toBeGreaterThan(0);expect(c4[0].start).toBeLessThan(.3);expect(c4.at(-1).end).toBeGreaterThan(decoded.duration-.4);
+ let coverage=0,end=0;for(const note of c4){expect(note.start-end).toBeLessThan(.3);coverage+=Math.max(0,note.end-Math.max(end,note.start));end=Math.max(end,note.end);}
+ expect(coverage/decoded.duration).toBeGreaterThan(.8);
+ await testInfo.attach('recording-note-measurements',{body:Buffer.from(JSON.stringify({decoded,notes})),contentType:'application/json'});
  if(mobile){
   for(const width of [320,360,390]){await page.setViewportSize({width,height:560});for(const tab of ['input','notes','export']){await page.locator(`[data-mobile-key="${tab}"]`).click();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await expect(page.locator('.app-mobile-page:visible')).toHaveCount(1);await expect(page.locator(`[data-mobile-key="${tab}"]`)).toHaveAttribute('aria-current','page');}await page.screenshot({path:testInfo.outputPath(`recording-export-${width}.png`)});}
   await page.locator('[data-mobile-key="input"]').click();await page.locator('#languageButton').click();await page.screenshot({path:testInfo.outputPath('recording-input-ja.png'),fullPage:true});await page.locator('[data-mobile-key="notes"]').click();await page.screenshot({path:testInfo.outputPath('recording-notes-ja.png'),fullPage:true});await page.locator('[data-mobile-key="input"]').click();
  }
+ // Capture the actual recording/result UI in both languages, with normal user controls.
+ await page.setViewportSize({width:1360,height:900});
+ if(await page.locator('html').getAttribute('lang')!=='en')await page.locator('#languageButton').click();
+ if(await page.locator('.recording-export').getAttribute('open')!==null)await page.locator('.recording-export summary').click();
+ await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await expect(page.locator('#appToast')).not.toHaveClass(/show/,{timeout:10000});
+ await page.screenshot({path:testInfo.outputPath('recording-desktop-en.png')});await page.locator('#languageButton').click();await page.screenshot({path:testInfo.outputPath('recording-desktop-ja.png')});
  // Downloaded format must return through the ordinary file decoder and inference path.
- await page.locator('#audioFile').setInputFiles({name:recording.suggestedFilename(),mimeType:'audio/'+(recording.suggestedFilename().endsWith('m4a')?'mp4':'webm'),buffer:original});await expect(page.locator('body')).toHaveAttribute('data-phase','ready');await expect(page.locator('#sourceName')).toHaveText(recording.suggestedFilename());await expect(page.locator('#recordingResult')).not.toBeVisible();
+ await page.locator('#audioFile').setInputFiles({name:recording.suggestedFilename(),mimeType:'audio/'+(recording.suggestedFilename().endsWith('m4a')?'mp4':recording.suggestedFilename().endsWith('ogg')?'ogg':'webm'),buffer:original});await expect(page.locator('body')).toHaveAttribute('data-phase','ready');await expect(page.locator('#sourceName')).toHaveText(recording.suggestedFilename());await expect(page.locator('#recordingResult')).not.toBeVisible();
  expect(errors).toEqual([]);expect(requests).toEqual([]);
 }
 module.exports={instrumentMicrophone,checkRecording};

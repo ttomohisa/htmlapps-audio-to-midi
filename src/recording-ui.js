@@ -12,7 +12,8 @@ const AudioMidiRecordingUI=(()=>{
   function render(){
    if(!capture)return;
    $('recordingPanel').dataset.recording=capture.status;
-   $('recordingStatus').textContent=translate(preparing?'recording_preparing':'recording_'+capture.status);
+   const statusText=translate(preparing?'recording_preparing':'recording_'+capture.status);
+   if($('recordingStatus').textContent!==statusText)$('recordingStatus').textContent=statusText;
    $('recordingClock').textContent=`${capture.elapsedSeconds.toFixed(1)} / 59 s`;
    $('recordingClock').setAttribute('aria-label',translate('recordingDuration'));
    $('recordingMeter').value=capture.level;

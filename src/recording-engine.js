@@ -190,7 +190,8 @@
       notify();
       if (live(session)) {
         // The only permission request in this module is made from explicit start().
-        try {Promise.resolve(getUserMedia({audio:true, video:false})).then(stream => acquire(session, stream), reason => fail(session, microphoneError(reason)));}
+        // Prefer unprocessed musical input; unsupported ideal constraints may be ignored.
+        try {Promise.resolve(getUserMedia({audio:{echoCancellation:{ideal:false},noiseSuppression:{ideal:false},autoGainControl:{ideal:false}}, video:false})).then(stream => acquire(session, stream), reason => fail(session, microphoneError(reason)));}
         catch (reason) {fail(session, microphoneError(reason));}
       }
       return session.startPromise;

@@ -88,7 +88,7 @@ test('construction is silent and exposes an immutable snapshot copy',()=>{
 
 test('explicit start requests audio only, chooses a playable MIME, and does not monitor to speakers',async()=>{
   const h=harness(); const result=h.recorder.start(); assert.equal(h.requests.length,1);
-  assert.deepEqual(JSON.parse(JSON.stringify(h.requests[0])),{audio:true,video:false});
+  assert.deepEqual(JSON.parse(JSON.stringify(h.requests[0])),{audio:{echoCancellation:{ideal:false},noiseSuppression:{ideal:false},autoGainControl:{ideal:false}},video:false});
   assert.equal(await result,true); assert.equal(h.recorder.snapshot().status,'recording');
   assert.equal(h.recorder.snapshot().mimeType,'audio/webm;codecs=opus');
   const c=h.contexts[0]; assert.equal(c.nodes.length,2); assert.equal(c.nodes.find(n=>n.kind==='source').connections[0],c.nodes.find(n=>n.kind==='analyser'));

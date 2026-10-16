@@ -39,3 +39,9 @@ test('active recording reset cancellation, discard, hidden and late permission c
 test('deployed recording preview works offline with native virtual microphone',async({page,context},testInfo)=>{
  test.skip(!process.env.PREVIEW_URL,'Ordinary preview workflow only');await instrumentMicrophone(page);await page.goto(process.env.PREVIEW_URL);await expect(page.locator('body')).toHaveAttribute('data-phase','empty');await checkRecording(page,context,testInfo,{mobile:true});
 });
+
+test('insecure microphone context clearly falls back to local audio input',async({page})=>{
+ await page.addInitScript(()=>Object.defineProperty(window,'isSecureContext',{configurable:true,value:false}));
+ await page.goto(file('index.html'));await page.locator('#recordButton').click();await expect(page.locator('#recordingError')).toContainText('HTTPS');
+ await page.locator('#audioFile').setInputFiles({name:'fallback.wav',mimeType:'audio/wav',buffer:makeWav()});await expect(page.locator('body')).toHaveAttribute('data-phase','ready');await expect(page.locator('#analyzeButton')).toBeEnabled();
+});

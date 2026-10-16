@@ -44,3 +44,7 @@ test('pending microphone permission does not block confirmed file replacement',a
  const h=harness({pendingStart:true});await h.element('recordButton').click();assert.equal(h.ui.active(),true);
  assert.equal(await h.ui.replace(),true);assert.equal(h.prompts.length,1);assert.equal(h.prompts[0].message,'discardActiveRecordingBody');assert.equal(h.ui.active(),false);
 });
+
+test('recording time does not repeatedly announce through a live region',()=>{
+ assert.match(html,/<output id="recordingClock" aria-live="off"/);
+});

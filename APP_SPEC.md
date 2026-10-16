@@ -288,3 +288,11 @@ interface Note {
 - Header subtitle: “音声から音符を見つけてMIDIに” / “Find notes in audio and turn them into MIDI”.
 - Input and MIDI output use the canonical white workspace surface, border, corner radius and responsive spacing.
 - Help and reset confirmation keep the background fixed at its previous scroll position. Close, Escape, backdrop and native dialog closure restore scrolling; opening failures must not leave a lock.
+
+### v0.2 implementation boundary (2026-10-16)
+
+- Original decoded AudioBuffer remains separate from model mono PCM. The original/synth comparison is read-only and shares the source-seconds timeline; selecting, zooming and scrolling do not change exported notes.
+- Waveform displays min/max energy across decoded channels, rather than modifying or exporting the original recording.
+- Short-lookahead Web Audio synthesis uses a simple triangle tone; it is not a piano sample or an instrument estimate. Playback uses an explicit Play gesture and pauses on hidden/pagehide.
+- The review workspace keeps waveform, transport, piano roll and selection details together. The dedicated piano viewport scrolls both axes; note selection also has a native keyboard-accessible list.
+- Physical audible-device and touch interaction gates remain explicitly unverified until tested.

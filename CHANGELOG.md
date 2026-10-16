@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 — development milestone (2026-10-16)
+
+- Add a read-only piano roll and waveform with seconds/pitch axes, zoom, scrolling and note selection.
+- Add original/synth comparison with shared-clock play, pause, stop and seek; stop old audio on input replacement/reset and pause when hidden.
+- Preserve original decoded channels/rate separately from model PCM and keep MIDI output unchanged by view/transport actions.
+- Preserve the approved subtitle, framed workspaces and modal background scroll lock.
+- Recording, note editing and physical-device acceptance remain outside this milestone.
+
 ## 0.1.0 — development milestone (2026-10-16)
 
 - Updated the descriptive header subtitle, restored canonical framed workspaces, and locked background scrolling while Help or Reset confirmation is open.

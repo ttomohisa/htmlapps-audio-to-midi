@@ -15,6 +15,7 @@ test('deployed HTTPS preview matches build and converts offline with MIDI readba
  await page.locator('#audioFile').setInputFiles({name:'synthetic-C4.wav',mimeType:'audio/wav',buffer:makeWav()});
  await expect(page.locator('body')).toHaveAttribute('data-phase','ready');await page.locator('#analyzeButton').click();
  await expect(page.locator('body')).toHaveAttribute('data-phase','result',{timeout:90000});await expect(page.locator('#noteRows')).toContainText('C4 (60)');
+ await require('./review-check.cjs').checkReview(page,testInfo);
  await page.locator('#outputFilename').fill('preview-C4');const pending=page.waitForEvent('download');await page.locator('#downloadButton').click();const download=await pending;
  expect(download.suggestedFilename()).toBe('preview-C4.mid');const bytes=fs.readFileSync(await download.path()),midi=parseMidi(bytes);expect(midi.header.format).toBe(1);expect(midi.tracks).toHaveLength(2);
  let tick=0,start,end;for(const event of midi.tracks[1]){tick+=event.deltaTime;if(event.noteNumber===60){if(event.type==='noteOn')start=tick/960;if(event.type==='noteOff')end=tick/960;}}

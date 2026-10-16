@@ -316,3 +316,11 @@ interface Note {
 - Delete uses the canonical Undo toast and a persistent deletion-undo button (up to 100 deleted notes). General edit Undo/Redo is reserved for v0.5.
 - Unsaved edited note content is fingerprinted against the latest download. Reanalysis, audio replacement, recording replacement and reset guard data loss. Download initiates browser saving; the app cannot establish that the file reached storage.
 - Edits are session-only. beforeunload is best effort; physical mobile/device acceptance remains unverified.
+
+### v0.5 implementation boundary (2026-10-16)
+
+- Explicit Analyze applies the selected sensitivity. Fixed onset/frame/minimum-second presets: Fewer 0.7/0.5/0.12, Standard 0.5/0.3/0.059, More 0.3/0.15/0.03; all default to MIDI21–108. Advanced values permit finite thresholds0–1, minimum0.01–2 seconds, integer pitch0–127 with low<=high. Model predictions remain A0–C8.
+- Settings drafts do not mutate existing notes. Reanalysis confirms unsaved edits and replaces the detection/editor only on success. Failure or cancel preserves previous notes, saved fingerprint and history.
+- Undo/Redo records each valid changed edit atomically, retains100 operations and clears Redo after a new edit. No-op/invalid edits do not consume history. Text controls keep native undo; elsewhere Ctrl/⌘+Z and Ctrl/⌘+Shift+Z apply note history (Ctrl+Y also supported).
+- Warn above1000 notes or above100 notes and three times the previous result count. This is a review hint, not an accuracy judgment or automatic deletion.
+- The exact supplied SVG is embedded in header, readable favicon and self-extract favicon. No extra dependency, persistence, network, duration or model change.

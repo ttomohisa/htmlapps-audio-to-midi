@@ -1,5 +1,5 @@
 /* Waveform/piano-roll view and selected-note controls. All positions are original
- * clip seconds. The caller owns note mutations, validation and deletion history. */
+ * clip seconds. The caller owns note mutations, validation and edit history. */
 const AudioMidiReview = (() => {
   function create({translate,onEdit,onSelection}) {
     const $=id=>document.getElementById(id), t=AudioMidiTimeline;
@@ -8,7 +8,7 @@ const AudioMidiReview = (() => {
     const seek=$('seekPosition'), mode=$('playbackMode');
     let buffer=null, notes=[], peaks=[], selected=null, zoom=80, view=null, lastWidth=0, error=false, player=null, locked=false, needsReveal=false;
     const editFields={pitch:$('editPitch'),start:$('editStart'),end:$('editEnd')};
-    const editing={enabled:false,dirty:false,canUndo:false,error:null};
+    const editing={enabled:false,dirty:false,canUndo:false,canRedo:false,error:null};
     let fieldSignature;
     function node(name,attributes={},text){const el=document.createElementNS('http://www.w3.org/2000/svg',name);for(const [key,value] of Object.entries(attributes))el.setAttribute(key,String(value));if(text!==undefined)el.textContent=text;return el;}
     function selectedNote(){return notes.find(n=>n.id===selected);}
@@ -16,6 +16,7 @@ const AudioMidiReview = (() => {
       const note=selectedNote(),enabled=!!buffer&&editing.enabled&&!locked&&typeof onEdit==='function';
       $('noteEditor').dataset.enabled=String(enabled);$('noteEditor').dataset.dirty=String(!!editing.dirty);
       $('addNoteButton').disabled=!enabled;$('undoNoteButton').disabled=!enabled||!editing.canUndo;
+      $('redoNoteButton').disabled=!enabled||!editing.canRedo;
       for(const id of ['deleteNoteButton','applyNoteButton','pitchDown','pitchUp','startEarlier','startLater','endEarlier','endLater'])$(id).disabled=!enabled||!note;
       for(const field of Object.values(editFields))field.disabled=!enabled||!note;
       $('noteDirty').hidden=!editing.dirty;$('noteDirty').textContent=translate('editsPending');
@@ -57,6 +58,7 @@ const AudioMidiReview = (() => {
       if(!buffer||locked||!editing.enabled||typeof onEdit!=='function')return;
       if((type==='update'||type==='delete')&&!selectedNote())return;
       if(type==='undo'&&!editing.canUndo)return;
+      if(type==='redo'&&!editing.canRedo)return;
       const action={type};if(type==='update'||type==='delete')action.id=selected;if(patch)action.patch=patch;
       onEdit(action);
     }
@@ -159,6 +161,7 @@ const AudioMidiReview = (() => {
     $('addNoteButton').addEventListener('click',()=>emitEdit('add'));
     $('deleteNoteButton').addEventListener('click',()=>emitEdit('delete'));
     $('undoNoteButton').addEventListener('click',()=>emitEdit('undo'));
+    $('redoNoteButton').addEventListener('click',()=>emitEdit('redo'));
     $('applyNoteButton').addEventListener('click',applyFields);
     for(const field of Object.values(editFields))field.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();applyFields();}});
     for(const [id,field,amount] of [['pitchDown','pitchMidi',-1],['pitchUp','pitchMidi',1],['startEarlier','startSeconds',-.05],['startLater','startSeconds',.05],['endEarlier','endSeconds',-.05],['endLater','endSeconds',.05]])$(id).addEventListener('click',()=>adjust(field,amount));

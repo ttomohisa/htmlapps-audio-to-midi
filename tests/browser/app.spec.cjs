@@ -60,12 +60,16 @@ test('320px bilingual layout, help scroll, keyboard and stereo input',async({pag
 test('BFCache lifecycle keeps completed MIDI and cancels interrupted analysis coherently',async({page})=>{
  await open(page);await upload(page,makeWav());await phase(page,'ready');await page.locator('#analyzeButton').click();await phase(page,'result');
  const count=await page.locator('#noteCount').textContent();
+ const notesBefore=await page.locator('#pianoRoll [data-note-id]').evaluateAll(nodes=>nodes.map(n=>[n.dataset.noteId,n.dataset.pitch,n.dataset.start,n.dataset.end]));
  await page.evaluate(()=>{dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true}));dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}));});
  await phase(page,'result');await expect(page.locator('#noteCount')).toHaveText(count);await expect(page.locator('#downloadButton')).toBeEnabled();
  const saved=page.waitForEvent('download');await page.locator('#downloadButton').click();expect(midiNotes(fs.readFileSync(await (await saved).path())).notes.length).toBe(Number(count));
  await page.locator('#analyzeButton').click();await phase(page,'analyzing');
  await page.evaluate(()=>{dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true}));dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}));});
- await phase(page,'cancelled');await expect(page.locator('#analyzeButton')).toBeEnabled();await expect(page.locator('#downloadButton')).toBeDisabled();
+ // v0.5 commits new results only after successful analysis; BFCache interruption keeps the completed result.
+ await phase(page,'result');await expect(page.locator('#analyzeButton')).toBeEnabled();await expect(page.locator('#downloadButton')).toBeEnabled();await expect(page.locator('#noteCount')).toHaveText(count);
+ expect(await page.locator('#pianoRoll [data-note-id]').evaluateAll(nodes=>nodes.map(n=>[n.dataset.noteId,n.dataset.pitch,n.dataset.start,n.dataset.end]))).toEqual(notesBefore);
+ const restored=page.waitForEvent('download');await page.locator('#downloadButton').click();expect(midiNotes(fs.readFileSync(await (await restored).path())).notes.length).toBe(Number(count));
 });
 test('MP3 decoding and drag-and-drop use the same real inference path',async({page})=>{
  await open(page);const buffer=fs.readFileSync(path.join(__dirname,'../fixtures/c4.mp3'));

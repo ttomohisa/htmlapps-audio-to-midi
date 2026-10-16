@@ -2,7 +2,7 @@
 
 Convert a short recording into MIDI using Spotify Basic Pitch, entirely on your device.
 
-![Actual v0.4 preview: a synthetic C4 microphone recording and its detected note](assets/screenshot.png)
+![Actual v0.5 preview: a synthetic C4 microphone recording and its detected note](assets/screenshot.png)
 
 ## Features
 
@@ -12,7 +12,8 @@ Convert a short recording into MIDI using Spotify Basic Pitch, entirely on your 
 - Input / Notes / Export page tabs on smartphones
 - On-device CPU inference, progress and immediate cancellation
 - Piano roll, waveform, zoom, scrolling and selectable note timing
-- Manual note add/delete, semitone and timing correction, direct pitch/second entry, and deletion Undo
+- Three detection presets and validated advanced threshold, duration and pitch-range settings
+- Manual note add/delete, semitone and timing correction, direct pitch/second entry, and 100-operation Undo/Redo
 - Original-audio / simple-synth comparison with play, pause, stop and seek
 - Editable filename and standard MIDI type 1 export
 - Japanese/English, responsive light interface
@@ -22,7 +23,7 @@ Convert a short recording into MIDI using Spotify Basic Pitch, entirely on your 
 1. Open the generated `audio-to-midi.html` or `dist/index.html`.
 2. Choose a short audio file, or press **Record** and allow microphone access. Press **Stop recording**, then **Listen** before analyzing. Recording is limited to 59 seconds; file input allows up to 60 seconds.
 3. Press **Analyze audio**. Processing speed depends on your device.
-4. Compare **Original audio** and **Synthesized notes**, then zoom/scroll and select a note to correct its pitch or timing. Add missing notes or delete unwanted notes; Undo deletion restores them.
+4. Compare **Original audio** and **Synthesized notes**, then zoom/scroll and select a note to correct its pitch or timing. Add missing notes or delete unwanted notes; Undo/Redo restores changes.
 5. Edit the filename and **Download MIDI**.
 6. Open the MIDI in a music app to review the transcription.
 
@@ -32,11 +33,11 @@ Audio, notes and model inference stay in your browser. There are no runtime down
 
 ## Browser support and limits
 
-This is the **v0.4 development milestone**. Chrome/Edge/Firefox/Safari with Web Audio, Workers and DecompressionStream are target browsers. Real Windows, Android and iOS device acceptance is not yet complete; see [verification](docs/VERIFICATION.md).
+This is the **v0.5 development milestone**. Chrome/Edge/Firefox/Safari with Web Audio, Workers and DecompressionStream are target browsers. Real Windows, Android and iOS device acceptance is not yet complete; see [verification](docs/VERIFICATION.md).
 
 Transcription is approximate. Mixed songs, noise and harmonics can create wrong notes. MIDI is note data, not audio. Output uses 120 BPM only to preserve seconds, channel 1, piano program 0 and fixed velocity 96. No tempo/loudness estimation or pitch bends.
 
-Select a note and correct it with nearby buttons or direct fields. C4 is MIDI 60; timing buttons step by 0.05 seconds. Add inserts a C4 note at the playback position. Deletion can be undone; general edit Undo/Redo is planned for v0.5. Unsaved edits require confirmation before reanalysis or audio replacement. Recording requires MediaRecorder and a browser-supported, locally decodable format. If permission is denied, no microphone is present, or recording is unsupported, file conversion remains available. Local-file microphone access varies; use the HTTPS app if needed. The simple synth does not reproduce the original instrument. Playback pauses and recording stops when the page is hidden. Stop releases all microphone tracks; there is no live speaker monitoring. Unsaved recordings require confirmation before replacement/reset. Closing or reloading loses session data; mobile browsers may omit the exit warning. Edited notes are used immediately for display, synthesized playback and MIDI export.
+Select a note and correct it with nearby buttons or direct fields. C4 is MIDI 60; timing buttons step by 0.05 seconds. Add inserts a C4 note at the playback position. Undo/Redo retains up to 100 operations. Ctrl/⌘+Z and Ctrl/⌘+Shift+Z work outside text fields. Choose Fewer/Standard/More sensitivity or expand advanced thresholds, minimum length and pitch range. Settings apply only on Analyze; failed or cancelled reanalysis keeps the previous result and history. Unsaved edits require confirmation before reanalysis or audio replacement. Recording requires MediaRecorder and a browser-supported, locally decodable format. If permission is denied, no microphone is present, or recording is unsupported, file conversion remains available. Local-file microphone access varies; use the HTTPS app if needed. The simple synth does not reproduce the original instrument. Playback pauses and recording stops when the page is hidden. Stop releases all microphone tracks; there is no live speaker monitoring. Unsaved recordings require confirmation before replacement/reset. Closing or reloading loses session data; mobile browsers may omit the exit warning. Edited notes are used immediately for display, synthesized playback and MIDI export.
 
 ## Offline single HTML
 

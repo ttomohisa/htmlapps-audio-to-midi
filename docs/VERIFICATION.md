@@ -1,24 +1,23 @@
-# v0.4 verification record
+# v0.5 verification record
 
-Development milestone, 2026-10-16. Earlier records: [v0.3](VERIFICATION-v03.md), [v0.2](VERIFICATION-v02.md).
+Development milestone, 2026-10-16. Previous record: [v0.4](VERIFICATION-v04.md).
 
-## Verified implementation
+## Local verification
 
-Source head `8c78a183a861920429c1e4ca31c68f5cf6d2ba4c`:
+- Standard PowerShell syntax/encoding, complete repository build, CSP/integrity, readable/root equality and self-extract byte restoration passed.
+- Pure settings tests use the pinned official Basic Pitch postprocessor: the same synthetic frame fixture gives fewer/standard/more counts1/2/3; silence stays zero. Tests cover bounds, inclusive MIDI filtering, immutable presets and exact standard compatibility across corrected time boundaries.
+- History tests cover all edit kinds, atomic fields,100-operation cap, branching Redo invalidation, no-op/errors, saved fingerprints, detached objects and800 mixed state transitions.
+- Actual CPU C4/silence model smoke passed with intermediate tensors released.
+- Supplied SVG inspected and copied unchanged. Builds embed identical source bytes in favicon/header and self-extract favicon.
+- Local Chromium could not launch because the cloud shell disallows its process-singleton socket; browser evidence will come from ordinary CI and HTTPS preview.
 
-- [Windows standard CI](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38931673059): PowerShell syntax/encoding and repository build; restrictive CSP/integrity; readable/root equality; self-extract restoration; **156 Node tests**, actual Basic Pitch C4/silence smoke and **22 offline Chromium cases** passed. Three preview-only tests are intentionally skipped there.
-- [Ordinary HTTPS preview](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38931673054): **3 browser cases passed**. The served HTML matched the workflow build before offline conversion. File, native virtual-microphone and manual editing flows then passed without runtime HTTP requests or page errors.
-- The editing tests change a detected pitch by one semitone, move its start by 0.05 s, apply direct Db4 and precise times, reject invalid/empty/out-of-clip fields atomically, add an overlapping manual note, delete and restore it, and independently parse downloaded MIDI against the current displayed notes and edited filename.
-- Zero-note deletion disables export while keeping Undo available. Cancelling reanalysis, file replacement, microphone replacement and reset preserves unsaved edited notes. Language switching preserves typed input. Controls are measured at 320/360/390 px and have at least 44 px height.
-- Pure editing tests cover immutable original detection, non-reused manual IDs, origin retention, finite bounds, duplicate/overlapping notes, fixed velocity, saved-content fingerprints, 100-deletion history, independent MIDI decoding and a deterministic 400-operation invariant sequence.
-- Existing recording, input, waveform/transport, hidden-page cleanup, modal scroll lock, stale generations and direct-file normal/self-extract regressions remain passing.
-- Actual English/Japanese deployed screenshots were inspected. `assets/screenshot.png` is a synthetic C4 recording in v0.4; no user audio is used.
-- Local PowerShell 7.6.7 build and Node tests passed. Local shell Chromium could not launch, so browser claims above come from the linked Windows CI and deployed HTTPS jobs.
+## Browser verification
 
-## Final polish verification
+- Source head7aa0d48: [HTTPS preview run38935040327](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38935040327) passed all4 browser cases. Includes actual configured pitch-range reanalysis, history/shortcuts, rejected invalid settings, failed/cancelled reanalysis preserving notes/history, exact favicon bytes, edited MIDI readback and native virtual microphone. No runtime HTTP requests or page errors.
+- [Initial offline run38935040418](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38935040418) passed184 unit tests, real-model smoke and23 browser cases. Its one failure was an outdated BFCache assertion expecting results to be discarded during interrupted reanalysis. v0.5 intentionally retains them; the assertion now requires exact prior notes and a working MIDI download. This final test/evidence commit requires green exact-head checks before Ready.
+- Actual English desktop and Japanese mobile settings/editor screenshots were inspected. README screenshot now shows v0.5 and the supplied icon; synthetic C4 recording only. Independent source review completed, including a corrected selection fallback after undoing additions/redoing deletions.
+- Exact final run links and completion status are in the PR description/checks, avoiding documentation-only CI loops.
 
-A subsequent documentation/presentation update refreshes the actual screenshot, adds the keyboard Enter editing check, and restores the build script's existing CRLF convention. Its exact-head CI must pass before review-ready status; see the PR checks for the final head. No model, dependency or runtime-network change is included.
+## Remaining manual gates
 
-## Remaining gates
-
-Physical Windows/Android/iOS microphone permissions, audible listening, touch behavior, Safari/Firefox codecs and actual BFCache navigation have **not been run**. Headless Chromium and synthetic lifecycle events do not establish those device behaviors. Full edit Undo/Redo remains v0.5; v0.4 restores deletions only. Downloads initiate browser saving and do not prove a file reached disk. Closing/reloading still loses session audio/notes and mobile unload warnings are best effort.
+Physical Windows/Android/iOS microphone permission prompts, audible listening, touch, Safari/Firefox codecs and real BFCache are unverified. Session data is not persisted; mobile unload warning is best effort. MIDI download initiation does not prove disk persistence.

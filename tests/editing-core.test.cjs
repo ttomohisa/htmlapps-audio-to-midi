@@ -68,6 +68,203 @@ test('unchanged and missing-note operations return null without dirtying the ses
   assert.equal(session.dirty(), false);
 });
 
+test('fresh sessions have no general history and unavailable Undo and Redo return null', () => {
+  const session = api().createSession([note()], 2);
+  assert.equal(session.canUndo(), false);
+  assert.equal(session.canRedo(), false);
+  assert.equal(session.undo(), null);
+  assert.equal(session.redo(), null);
+  assert.deepEqual(session.snapshot(), [note()]);
+  assert.equal(session.dirty(), false);
+});
+
+test('general history reverses atomic mixed operations and replays them in exact order', () => {
+  const initial = [note('a', 60, 0, 1), note('b', 64, .1, 1.1)];
+  const session = api().createSession(initial, 2);
+  const states = [session.snapshot()];
+  const updated = session.update('a', {pitchMidi: 61, startSeconds: .234567891, endSeconds: 1.876543219});
+  states.push(session.snapshot());
+  const added = session.add({pitchMidi: 72, startSeconds: 0, endSeconds: .5});
+  states.push(session.snapshot());
+  const removed = session.remove('b');
+  states.push(session.snapshot());
+
+  assert.deepEqual(session.undo(), removed);
+  assert.deepEqual(session.snapshot(), states[2]);
+  assert.deepEqual(session.undo(), added);
+  assert.deepEqual(session.snapshot(), states[1]);
+  assert.deepEqual(session.undo(), initial[0]);
+  assert.deepEqual(session.snapshot(), states[0], 'one Undo restores all three changed fields');
+  assert.equal(session.canUndo(), false);
+  assert.equal(session.canRedo(), true);
+  assert.equal(session.dirty(), false);
+  assert.equal(session.undo(), null);
+
+  assert.deepEqual(session.redo(), updated);
+  assert.deepEqual(session.snapshot(), states[1]);
+  assert.deepEqual(session.redo(), added);
+  assert.deepEqual(session.snapshot(), states[2]);
+  assert.deepEqual(session.redo(), removed);
+  assert.deepEqual(session.snapshot(), states[3]);
+  assert.equal(session.canRedo(), false);
+  assert.equal(session.redo(), null);
+  assert.deepEqual(session.originalNotes(), initial);
+});
+
+test('history notes are detached from input, snapshots, and every operation result', () => {
+  const initial = note();
+  const session = api().createSession([initial], 2);
+  const fields = {pitchMidi: 72, startSeconds: .2, endSeconds: 1.5};
+  const changed = session.update(initial.id, fields);
+  const expected = {...initial, ...fields};
+  initial.pitchMidi = 1;
+  fields.pitchMidi = 2;
+  changed.pitchMidi = 3;
+  session.snapshot()[0].pitchMidi = 4;
+  const undone = session.undo();
+  assert.deepEqual(undone, note());
+  undone.pitchMidi = 5;
+  assert.deepEqual(session.snapshot(), [note()]);
+  const redone = session.redo();
+  assert.deepEqual(redone, expected);
+  redone.pitchMidi = 6;
+  assert.deepEqual(session.snapshot(), [expected]);
+  const removed = session.remove(expected.id);
+  removed.pitchMidi = 7;
+  const restored = session.undo();
+  assert.deepEqual(restored, expected);
+  restored.pitchMidi = 8;
+  assert.deepEqual(session.redo(), expected);
+  assert.deepEqual(session.undo(), expected);
+  assert.deepEqual(session.originalNotes(), [note()]);
+
+  const added = session.add({pitchMidi: 127, startSeconds: 0, endSeconds: 2});
+  const expectedAdded = {...added};
+  added.pitchMidi = 9;
+  session.undo().pitchMidi = 10;
+  const replayed = session.redo();
+  assert.deepEqual(replayed, expectedAdded);
+  replayed.pitchMidi = 11;
+  assert.deepEqual(session.snapshot().find(n => n.id === expectedAdded.id), expectedAdded);
+});
+
+test('no-op and rejected operations preserve both Undo and Redo history', () => {
+  const session = api().createSession([note()], 2);
+  const changed = session.update('detected-0', {pitchMidi: 62});
+  const added = session.add({pitchMidi: 67, startSeconds: 0, endSeconds: 2});
+  session.undo();
+  session.markSaved();
+  for (const fields of [{}, {pitchMidi: 62}, {id: 'forged', velocity: 12, origin: 'manual'}]) {
+    assert.equal(session.update('detected-0', fields), null);
+  }
+  assert.equal(session.update('missing', {pitchMidi: 500}), null);
+  assert.equal(session.remove('missing'), null);
+  assert.equal(session.undoDelete(), null);
+  rejectsCode(() => session.update('detected-0', {pitchMidi: 70, endSeconds: 3}), 'time');
+  rejectsCode(() => session.update('detected-0', null), 'notes');
+  rejectsCode(() => session.add({pitchMidi: 128, startSeconds: 0, endSeconds: 1}), 'pitch');
+  rejectsCode(() => session.add(null), 'notes');
+  assert.deepEqual(session.snapshot(), [changed]);
+  assert.equal(session.dirty(), false);
+  assert.equal(session.canUndo(), true);
+  assert.equal(session.canRedo(), true);
+  assert.deepEqual(session.redo(), added);
+  assert.deepEqual(session.undo(), added);
+  assert.deepEqual(session.undo(), note());
+  assert.equal(session.canUndo(), false, 'no-op and invalid edits cannot create commands');
+});
+
+for (const edit of ['update', 'add', 'remove']) {
+  test(`a successful ${edit} after Undo clears the old Redo branch`, () => {
+    const session = api().createSession([note()], 2);
+    session.update('detected-0', {pitchMidi: 62});
+    session.update('detected-0', {pitchMidi: 64});
+    session.undo();
+    assert.equal(session.canRedo(), true);
+    if (edit === 'update') session.update('detected-0', {pitchMidi: 67});
+    else if (edit === 'add') session.add({pitchMidi: 67, startSeconds: 0, endSeconds: 1});
+    else session.remove('detected-0');
+    const branched = session.snapshot();
+    assert.equal(session.canRedo(), false);
+    assert.equal(session.redo(), null);
+    assert.deepEqual(session.snapshot(), branched);
+    session.undo();
+    assert.deepEqual(session.snapshot(), [{...note(), pitchMidi: 62}]);
+    session.undo();
+    assert.deepEqual(session.snapshot(), [note()]);
+    assert.equal(session.canUndo(), false);
+  });
+}
+
+test('mixed history keeps exactly the latest 100 atomic operations across Undo and Redo cycles', () => {
+  const session = api().createSession([note()], 2);
+  const states = [session.snapshot()];
+  let added;
+  for (let index = 0; index < 105; index++) {
+    if (index % 3 === 0) {
+      session.update('detected-0', {pitchMidi: 61 + (index / 3) % 2});
+    } else if (index % 3 === 1) {
+      added = session.add({pitchMidi: 70, startSeconds: 0, endSeconds: 1});
+    } else session.remove(added.id);
+    states.push(session.snapshot());
+  }
+  for (let index = 104; index >= 5; index--) {
+    assert.equal(session.canUndo(), true);
+    assert.notEqual(session.undo(), null);
+    assert.deepEqual(session.snapshot(), states[index]);
+  }
+  assert.equal(session.canUndo(), false);
+  assert.equal(session.undo(), null);
+  assert.deepEqual(session.snapshot(), states[5], 'older edits are intentionally no longer undoable');
+  for (let index = 6; index <= 105; index++) {
+    assert.equal(session.canRedo(), true);
+    assert.notEqual(session.redo(), null);
+    assert.deepEqual(session.snapshot(), states[index]);
+  }
+  assert.equal(session.canRedo(), false);
+  assert.equal(session.redo(), null);
+  for (let index = 0; index < 100; index++) assert.notEqual(session.undo(), null);
+  assert.equal(session.undo(), null);
+  assert.deepEqual(session.snapshot(), states[5]);
+});
+
+test('saved fingerprint follows exact content during Undo and Redo without clearing history', () => {
+  const session = api().createSession([note()], 2);
+  session.update('detected-0', {pitchMidi: 62, startSeconds: .123456788});
+  session.markSaved();
+  assert.equal(session.dirty(), false);
+  assert.equal(session.canUndo(), true);
+  session.update('detected-0', {endSeconds: 1.987654321});
+  assert.equal(session.dirty(), true);
+  session.undo();
+  assert.equal(session.dirty(), false);
+  session.undo();
+  assert.equal(session.dirty(), true);
+  session.redo();
+  assert.equal(session.dirty(), false);
+  session.redo();
+  assert.equal(session.dirty(), true);
+  session.undo();
+  session.markSaved();
+  assert.equal(session.canRedo(), true, 'saving never clears a valid redo branch');
+  session.redo();
+  assert.equal(session.dirty(), true);
+});
+
+test('general histories remain isolated when fresh or replacement sessions share note IDs', () => {
+  const first = api().createSession([note()], 2);
+  first.update('detected-0', {pitchMidi: 62});
+  first.undo();
+  const second = api().createSession([note('detected-0', 72)], 2);
+  assert.equal(second.canUndo(), false);
+  assert.equal(second.canRedo(), false);
+  assert.equal(second.undo(), null);
+  assert.equal(second.redo(), null);
+  first.redo();
+  assert.deepEqual(second.snapshot(), [note('detected-0', 72)]);
+  assert.equal(second.dirty(), false);
+});
+
 test('add generates a unique manual ID with fixed velocity and ignores supplied identity metadata', () => {
   const session = api().createSession([note('manual-1'), note('manual-2')], 3);
   const added = session.add({id: 'manual-1', pitchMidi: 72, startSeconds: 0, endSeconds: 3, velocity: 1, origin: 'detected', pitchBends: [1]});
@@ -84,13 +281,19 @@ test('add generates a unique manual ID with fixed velocity and ignores supplied 
   assert.equal(edited.velocity, 96);
 });
 
-test('deleted IDs stay reserved and Undo never collides with a newly added note', () => {
+test('deleted and undone IDs stay reserved when a new edit replaces the redo branch', () => {
   const session = api().createSession([], 2);
   const first = session.add({pitchMidi: 60, startSeconds: 0, endSeconds: 1});
   session.remove(first.id);
   const second = session.add({pitchMidi: 62, startSeconds: 0, endSeconds: 1});
   assert.notEqual(second.id, first.id);
+  assert.equal(session.undoDelete(), null, 'deletion Undo cannot skip the later addition');
+  assert.deepEqual(session.undo(), second);
   assert.deepEqual(session.undoDelete(), first);
+  const third = session.add({pitchMidi: 64, startSeconds: 0, endSeconds: 1});
+  assert.notEqual(third.id, first.id);
+  assert.notEqual(third.id, second.id);
+  assert.equal(session.canRedo(), false);
   assert.equal(new Set(session.snapshot().map(n => n.id)).size, 2);
 });
 
@@ -176,7 +379,7 @@ test('unsupported bends or source velocity are not carried into the fixed-veloci
   assert.equal(source.velocity, 32);
 });
 
-test('delete Undo restores exact note data in LIFO order while preserving intervening edits', () => {
+test('delete Undo restores exact note data only when deletion is the latest operation', () => {
   const first = note('a', 60, 0, 1), second = note('b', 64, .1, 1.1), third = note('c', 67, .2, 1.2);
   const session = api().createSession([first, second, third], 2);
   session.update('b', {pitchMidi: 65});
@@ -185,13 +388,19 @@ test('delete Undo restores exact note data in LIFO order while preserving interv
   const removedSecond = session.remove('b');
   removedSecond.startSeconds = .7;
   session.update('c', {pitchMidi: 68});
+  assert.equal(session.canUndoDelete(), false);
+  assert.equal(session.undoDelete(), null);
+  assert.deepEqual(session.undo(), third);
   assert.equal(session.canUndoDelete(), true);
   const restored = session.undoDelete();
   assert.deepEqual(restored, {...second, pitchMidi: 65});
   restored.pitchMidi = 11;
   assert.deepEqual(session.undoDelete(), first);
   assert.equal(session.canUndoDelete(), false);
-  assert.deepEqual(session.snapshot(), [first, {...second, pitchMidi: 65}, {...third, pitchMidi: 68}]);
+  assert.deepEqual(session.snapshot(), [first, {...second, pitchMidi: 65}, third]);
+  assert.equal(session.canUndo(), true, 'the earlier update remains in general history');
+  assert.deepEqual(session.undo(), second);
+  assert.deepEqual(session.snapshot(), [first, second, third]);
 });
 
 test('delete Undo is isolated to its originating session and fresh sessions are clean', () => {
@@ -345,36 +554,71 @@ test('deleting all notes and adding a fresh note supports recovery from an empty
   assert.equal(added.pitchMidi, 66);
   assert.equal(added.origin, 'manual');
   assert.deepEqual(session.snapshot(), [added]);
+  assert.equal(session.undoDelete(), null);
+  assert.deepEqual(session.undo(), added);
+  assert.deepEqual(session.snapshot(), []);
   assert.deepEqual(session.undoDelete(), note());
-  assert.equal(session.snapshot().length, 2);
+  assert.deepEqual(session.snapshot(), [note()]);
 });
 
-test('fixed-seed edit sequences preserve note invariants, unique IDs, originals, and saved baselines', () => {
+test('fixed-seed edit and history sequences match a detached snapshot model and saved baselines', () => {
   const original = [note()];
   const session = api().createSession(original, 2);
+  const past = [], future = [];
+  const content = notes => JSON.stringify(notes.map(n => [n.pitchMidi, n.startSeconds, n.endSeconds]).sort());
+  let saved = content(session.snapshot());
   let seed = 731;
   const random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
-  for (let step = 0; step < 400; step++) {
+  for (let step = 0; step < 800; step++) {
     const before = session.snapshot();
     const target = before[Math.floor(random() * before.length)];
-    const operation = Math.floor(random() * 5);
-    if (operation === 0 || !target) {
+    const operation = Math.floor(random() * 8);
+    let changed, type;
+    if (operation === 0 || (!target && operation < 3)) {
       const startSeconds = random() * 1.5;
-      session.add({pitchMidi: Math.floor(random() * 128), startSeconds, endSeconds: startSeconds + .5});
+      changed = session.add({pitchMidi: Math.floor(random() * 128), startSeconds, endSeconds: startSeconds + .5});
+      type = 'add';
     } else if (operation === 1) {
-      session.update(target.id, {pitchMidi: Math.floor(random() * 128)});
+      changed = session.update(target.id, {pitchMidi: Math.floor(random() * 128)});
+      type = 'update';
     } else if (operation === 2) {
-      session.remove(target.id);
+      changed = session.remove(target.id);
+      type = 'remove';
     } else if (operation === 3) {
-      session.undoDelete();
-    } else {
+      const command = past.pop();
+      assert.equal(session.undo() !== null, !!command);
+      if (command) future.push(command);
+      assert.deepEqual(session.snapshot(), command ? command.before : before);
+    } else if (operation === 4) {
+      const command = future.pop();
+      assert.equal(session.redo() !== null, !!command);
+      if (command) past.push(command);
+      assert.deepEqual(session.snapshot(), command ? command.after : before);
+    } else if (operation === 5) {
+      const command = past.length && past[past.length - 1].type === 'remove' ? past.pop() : null;
+      assert.equal(session.undoDelete() !== null, !!command);
+      if (command) future.push(command);
+      assert.deepEqual(session.snapshot(), command ? command.before : before);
+    } else if (operation === 6) {
       session.markSaved();
+      saved = content(before);
       assert.equal(session.dirty(), false);
-      rejectsCode(() => session.update(target.id, {endSeconds: 3}), 'time');
-      assert.equal(session.dirty(), false);
+    } else {
+      if (target) rejectsCode(() => session.update(target.id, {endSeconds: 3}), 'time');
+      rejectsCode(() => session.add({pitchMidi: 60, startSeconds: 0, endSeconds: 3}), 'time');
       assert.deepEqual(session.snapshot(), before);
     }
+    if (changed) {
+      past.push({before, after: session.snapshot(), type});
+      if (past.length > 100) past.shift();
+      future.length = 0;
+      changed.pitchMidi = -99;
+    }
     const current = session.snapshot();
+    assert.equal(session.canUndo(), past.length > 0);
+    assert.equal(session.canRedo(), future.length > 0);
+    assert.equal(session.canUndoDelete(), past.length > 0 && past[past.length - 1].type === 'remove');
+    assert.equal(session.dirty(), content(current) !== saved);
     assert.equal(new Set(current.map(n => n.id)).size, current.length);
     for (const n of current) {
       assert.ok(Number.isInteger(n.pitchMidi) && n.pitchMidi >= 0 && n.pitchMidi <= 127);

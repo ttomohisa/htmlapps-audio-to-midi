@@ -1,6 +1,6 @@
 /* Pure session-owned note editing. Source seconds are never rounded or clamped. */
 const AudioMidiEditing = (() => {
-  const VELOCITY = 96, DELETE_HISTORY_LIMIT = 100;
+  const VELOCITY = 96, HISTORY_LIMIT = 100;
   const EDITABLE_FIELDS = ['pitchMidi', 'startSeconds', 'endSeconds'];
   const owns = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
   const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -39,7 +39,7 @@ const AudioMidiEditing = (() => {
   }
 
   function copyNote(note) {
-    // v0.4 has fixed velocity and no pitch-bend support. Do not carry stale bends
+    // The editing model has fixed velocity and no pitch-bend support. Do not carry stale bends
     // or arbitrary source metadata into the editable/exported note model.
     return {id: note.id, pitchMidi: note.pitchMidi, startSeconds: note.startSeconds,
       endSeconds: note.endSeconds, velocity: VELOCITY, origin: note.origin};
@@ -72,7 +72,40 @@ const AudioMidiEditing = (() => {
     }));
     const working = original.slice();
     let nextManualId = 1, saved = fingerprint(working);
-    const deleted = [];
+    const undoHistory = [], redoHistory = [];
+
+    function record(type, index, before, after) {
+      // Each command retains only its affected immutable note versions, rather
+      // than copying the whole score. A multi-field update is one atomic edit.
+      undoHistory.push(Object.freeze({type, index, before, after}));
+      if (undoHistory.length > HISTORY_LIMIT) undoHistory.shift();
+      redoHistory.length = 0;
+    }
+
+    function replay(command, reverse) {
+      const before = reverse ? command.after : command.before;
+      const after = reverse ? command.before : command.after;
+      // Strict LIFO application keeps the original internal index valid, even
+      // when the public snapshot is sorted differently after a time/pitch edit.
+      working.splice(command.index, before ? 1 : 0, ...(after ? [after] : []));
+      return copyNote(after || before);
+    }
+
+    function undo() {
+      if (!undoHistory.length) return null;
+      const command = undoHistory.pop();
+      const changed = replay(command, true);
+      redoHistory.push(command);
+      return changed;
+    }
+
+    function redo() {
+      if (!redoHistory.length) return null;
+      const command = redoHistory.pop();
+      const changed = replay(command, false);
+      undoHistory.push(command);
+      return changed;
+    }
 
     function update(id, fields) {
       const index = working.findIndex(note => note.id === id);
@@ -83,6 +116,7 @@ const AudioMidiEditing = (() => {
       validateNote(changed, duration);
       if (EDITABLE_FIELDS.every(field => current[field] === changed[field])) return null;
       working[index] = Object.freeze(changed);
+      record('update', index, current, working[index]);
       return copyNote(changed);
     }
 
@@ -94,6 +128,7 @@ const AudioMidiEditing = (() => {
       issuedIds.add(id);
       const added = Object.freeze(copyNote({...fields, id, origin: 'manual'}));
       working.push(added);
+      record('add', working.length - 1, null, added);
       return copyNote(added);
     }
 
@@ -101,23 +136,21 @@ const AudioMidiEditing = (() => {
       const index = working.findIndex(note => note.id === id);
       if (index < 0) return null;
       const removed = working.splice(index, 1)[0];
-      deleted.push(removed);
-      if (deleted.length > DELETE_HISTORY_LIMIT) deleted.shift();
+      record('remove', index, removed, null);
       return copyNote(removed);
     }
 
-    function undoDelete() {
-      if (!deleted.length) return null;
-      const restored = deleted.pop();
-      working.push(restored);
-      return copyNote(restored);
-    }
+    // Legacy deletion Undo must never jump over a newer edit in the shared
+    // history. Callers needing general Undo should use undo()/canUndo().
+    const canUndoDelete = () => undoHistory.length > 0 && undoHistory[undoHistory.length - 1].type === 'remove';
+    const undoDelete = () => canUndoDelete() ? undo() : null;
 
     return Object.freeze({
       snapshot: () => working.slice().sort(compareNotes).map(copyNote),
       originalNotes: () => original,
-      update, add, remove, undoDelete,
-      canUndoDelete: () => deleted.length > 0,
+      update, add, remove, undo, redo, undoDelete, canUndoDelete,
+      canUndo: () => undoHistory.length > 0,
+      canRedo: () => redoHistory.length > 0,
       markSaved: () => { saved = fingerprint(working); },
       dirty: () => fingerprint(working) !== saved
     });

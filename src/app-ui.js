@@ -13,6 +13,10 @@ Object.assign(translations.en,{resetRecordingBody:'The current audio, unsaved re
 Object.assign(translations.ja,{resetRecordingBody:'音声・未保存の録音・検出した音符を消去して、マイクを停止します。必要なものは先に保存してください。'});
 Object.assign(translations.en,{"editNotes": "Edit selected note", "addNote": "Add note", "deleteNote": "Delete note", "undoDeletion": "Undo deletion", "undoDelete": "Undo deletion", "editPitch": "Pitch", "editPitchHint": "C4 = MIDI 60 · C♯4 / Db4 or 0–127", "editStart": "Start (s)", "editEnd": "End (s)", "applyNote": "Apply values", "pitchDown": "Pitch −1", "pitchUp": "Pitch +1", "startEarlier": "Start −0.05 s", "startLater": "Start +0.05 s", "endEarlier": "End −0.05 s", "endLater": "End +0.05 s", "editsPending": "Unsaved note edits", "originManual": "Manually added", "originDetected": "From automatic detection", "editingHint": "Select a note to correct its pitch or timing. Overlapping notes are allowed. Add inserts C4 at the playback position.", "helpEditing": "Select a note, then use the nearby pitch and timing buttons or type values and Apply. C4 is MIDI 60; timing steps are 0.05 seconds. Add inserts C4 at the playback position. Delete can be undone with Undo deletion. Display, synthesized playback and MIDI use the edited notes. Reanalysis or replacing the audio discards edits after confirmation. Full edit Undo/Redo is planned for v0.5.", "scopeNote": "v0.4: record, review and manually correct notes. The simple synth does not reproduce the original instrument.", "noNoteSelected": "No note selected. After analysis, you can add a note even when none were detected.", "noteDeleted": "Note deleted", "invalidPitch": "Enter a note name such as C4 or Db4, or an integer MIDI number from 0 to 127.", "invalidNoteTime": "Use finite seconds: 0 ≤ start < end ≤ audio duration. The note has not changed.", "discardEditsTitle": "Discard unsaved note edits?", "discardEditsBody": "Your current note edits have not been downloaded as MIDI. Continuing will discard them. Cancel to keep editing or save first.", "discardEdits": "Discard edits", "resetEditsBody": "The current audio, recording and unsaved note edits will be removed. Download anything you need first.", "resultTitle": "Save your notes", "noteDetails": "Current note details", "noteLimit": "Showing up to 100 notes. All current notes are included in MIDI."});
 Object.assign(translations.ja,{"editNotes": "選択した音符を編集", "addNote": "音符を追加", "deleteNote": "音符を削除", "undoDeletion": "削除を元に戻す", "undoDelete": "削除を元に戻す", "editPitch": "音高", "editPitchHint": "C4 = MIDI 60・C♯4 / Db4 または0〜127", "editStart": "開始（秒）", "editEnd": "終了（秒）", "applyNote": "入力値を適用", "pitchDown": "音程 −1", "pitchUp": "音程 +1", "startEarlier": "開始 −0.05秒", "startLater": "開始 +0.05秒", "endEarlier": "終了 −0.05秒", "endLater": "終了 +0.05秒", "editsPending": "未保存の音符編集があります", "originManual": "手動で追加した音符", "originDetected": "自動検出した音符", "editingHint": "音符を選んで音程や時刻を修正できます。音符の重なりも保存します。追加すると再生位置にC4を置きます。", "helpEditing": "音符を選び、近くの音程・時刻ボタンで修正するか、値を入力して「入力値を適用」を押します。C4はMIDI 60、時刻の刻みは0.05秒です。追加すると再生位置にC4を置きます。削除は「削除を元に戻す」で戻せます。表示・簡易合成音・MIDIには編集後の音符を使います。再解析や音声の変更で編集が消える前に確認します。すべての編集のUndo/Redoはv0.5で追加予定です。", "scopeNote": "v0.4は録音・確認・音符の手動修正に対応しています。簡易合成音は元の楽器の音色を再現しません。", "noNoteSelected": "音符を選択してください。解析後は検出が0音でも音符を追加できます。", "noteDeleted": "音符を削除しました", "invalidPitch": "C4・Db4などの音名、または0〜127の整数のMIDI番号を入力してください。", "invalidNoteTime": "0 ≤ 開始 < 終了 ≤ 音声の長さとなる秒数を入力してください。音符は変更していません。", "discardEditsTitle": "未保存の音符編集を破棄しますか？", "discardEditsBody": "編集後の音符はまだMIDIに保存していません。続けると編集を破棄します。残す場合はキャンセルし、先に保存してください。", "discardEdits": "編集を破棄", "resetEditsBody": "音声・録音・未保存の音符編集を消去します。必要なものは先に保存してください。", "resultTitle": "音符を保存", "noteDetails": "現在の音符の詳細", "noteLimit": "最大100音を表示しています。MIDIには現在の全音符を含みます。"});
+Object.assign(translations.en,{"undoEdit": "Undo", "redoEdit": "Redo", "sensitivityPreset": "Detection sensitivity", "fewer": "Fewer notes", "standard": "Standard", "more": "More notes", "custom": "Custom", "detectionAdvanced": "Advanced detection settings", "onsetThreshold": "Onset threshold", "frameThreshold": "Frame threshold", "minimumNoteSeconds": "Minimum note length (s)", "minimumPitch": "Lowest MIDI pitch", "maximumPitch": "Highest MIDI pitch", "detectionSettingsHint": "Settings apply only when you press Analyze audio. Lower thresholds may find more notes, including false detections.", "invalidDetectionSettings": "Use thresholds from 0 to 1, minimum length from 0.01 to 2 seconds, and integer pitches 0–127 with lowest ≤ highest.", "detectionWarning": "This analysis produced unusually many notes. Lower sensitivity or narrow the pitch range, and review the result before saving.", "helpDetection": "Choose Fewer, Standard or More notes before analyzing. Advanced settings control onset/frame thresholds, minimum length and MIDI pitch range. Applying settings requires Analyze audio; unsaved edits require confirmation. Failed or cancelled reanalysis keeps the previous notes and history. Undo/Redo keeps up to 100 edits. Use Ctrl/⌘+Z and Ctrl/⌘+Shift+Z outside text fields.", "helpEditing": "Select a note and use the pitch/timing controls or type values and Apply. Add inserts C4 at the playback position. Undo/Redo restores additions, deletions and changes. Display, synthesized playback and MIDI use the same edited notes.", "scopeNote": "v0.5: record, adjust detection, review and edit notes with Undo/Redo. The simple synth does not reproduce the original instrument.", "postprocessingHint": "Applying your selected detection settings."});
+Object.assign(translations.ja,{"undoEdit": "元に戻す", "redoEdit": "やり直す", "sensitivityPreset": "検出感度", "fewer": "少なめ", "standard": "標準", "more": "多め", "custom": "カスタム", "detectionAdvanced": "検出の詳細設定", "onsetThreshold": "Onsetしきい値", "frameThreshold": "Frameしきい値", "minimumNoteSeconds": "最短音符長（秒）", "minimumPitch": "最低音（MIDI番号）", "maximumPitch": "最高音（MIDI番号）", "detectionSettingsHint": "設定は「音声を解析」を押すと適用します。しきい値を下げると、誤検出を含め音符が増える場合があります。", "invalidDetectionSettings": "しきい値は0〜1、最短長さは0.01〜2秒、音域は0〜127の整数で最低音≤最高音にしてください。", "detectionWarning": "音符が大幅に増えています。感度を下げるか音域を狭め、保存前に結果を確認してください。", "helpDetection": "解析前に感度「少なめ・標準・多め」を選べます。詳細設定ではOnset/Frameしきい値、最短長さ、MIDI音域を指定します。「音声を解析」で適用し、未保存の編集があれば確認します。再解析の失敗・中止時は前の音符と履歴を保持します。Undo/Redoは最大100操作です。入力欄以外ではCtrl/⌘+Z、Ctrl/⌘+Shift+Zも使えます。", "helpEditing": "音符を選び、音程・時刻ボタンか直接入力で修正します。追加は再生位置にC4を置きます。追加・削除・変更は「元に戻す／やり直す」に対応します。表示・簡易合成音・MIDIは同じ編集後の音符を使います。", "scopeNote": "v0.5は録音・検出設定・音符編集とUndo/Redoに対応しています。簡易合成音は元の楽器の音色を再現しません。", "postprocessingHint": "選択した検出設定を適用しています。"});
+Object.assign(translations.en,{detectionSettingsTitle:'Detection settings',presetFewer:'Fewer notes',presetStandard:'Standard',presetMore:'More notes',presetCustom:'Custom'});
+Object.assign(translations.ja,{detectionSettingsTitle:'検出設定',presetFewer:'少なめ',presetStandard:'標準',presetMore:'多め',presetCustom:'カスタム'});
 const languageKey=APP_CONFIG.slug+':language';
 function readStorage(key){try{return localStorage.getItem(key);}catch{return null;}}
 function writeStorage(key,value){try{localStorage.setItem(key,value);}catch{}}
@@ -21,14 +25,22 @@ if(!translations[language])language='en';
 function translate(key){return translations[language][key]||translations.en[key]||key;}
 __UI_COMPONENTS__
 const generation=core.createGeneration();
-const state={phase:'empty',file:null,duration:0,samples:null,originalBuffer:null,notes:[],progress:0,error:null,inputError:null,elapsed:0,sourceKind:null};
+const state={phase:'empty',file:null,duration:0,samples:null,originalBuffer:null,notes:[],progress:0,error:null,inputError:null,elapsed:0,sourceKind:null,detectionWarning:false};
 let editor=null, editError=null, editRevision=0;
+const settingsFields=['onsetThreshold','frameThreshold','minimumNoteSeconds','minimumPitch','maximumPitch'];
+const settingsKeys={onsetThreshold:'onsetThreshold',frameThreshold:'frameThreshold',minimumNoteSeconds:'minDurationSeconds',minimumPitch:'minPitchMidi',maximumPitch:'maxPitchMidi'};
+let settingsError=false;
+function readDetectionSettings(){
+ const values=Object.fromEntries(settingsFields.map(key=>[settingsKeys[key],$('#'+key).value.trim()===''?NaN:Number($('#'+key).value)]));
+ try{const settings=AudioMidiSettings.validate(values);settingsError=false;return settings;}catch{settingsError=true;return null;}
+}
+function fillDetectionSettings(values){for(const key of settingsFields)$('#'+key).value=String(values[settingsKeys[key]]);settingsError=false;}
 const review=AudioMidiReview.create({translate,onEdit:editNotes,onSelection:()=>{editError=null;}});
 function editingEnabled(){return !!editor&&!busy()&&!recording?.active()&&!recording?.preparing();}
 function clearEditing(){editor=null;editError=null;editRevision++;AppToast.dismiss();}
 function syncEdited(note){
- state.notes=editor.snapshot();state.phase=state.notes.length?'result':'no-notes';editError=null;editRevision++;
- render();if(note)review.select(note.id);
+ state.notes=editor.snapshot();state.phase=state.notes.length?'result':'no-notes';state.error=null;editError=null;editRevision++;
+ render();if(note&&state.notes.some(current=>current.id===note.id))review.select(note.id);
 }
 function editNotes(action){
  if(!editingEnabled())return;
@@ -42,10 +54,11 @@ function editNotes(action){
    note=editor.add({pitchMidi:60,startSeconds:start,endSeconds:Math.min(state.duration,start+.5)});
   }else if(action.type==='delete'){
    note=editor.remove(action.id);if(!note)return;
-   const session=editor;syncEdited();
-   showToast('noteDeleted',{actionLabel:translate('undoDelete'),duration:7000,onAction:()=>{if(editor===session&&editingEnabled())editNotes({type:'undo'});}});return;
-  }else if(action.type==='undo'){AppToast.dismiss();note=editor.undoDelete();}
-  if(note)syncEdited(note);else{editError=null;render();}
+   const session=editor;syncEdited();const revision=editRevision;
+   showToast('noteDeleted',{actionLabel:translate('undoDelete'),duration:7000,onAction:()=>{if(editor===session&&editRevision===revision&&editingEnabled())editNotes({type:'undo'});}});return;
+  }else if(action.type==='undo'){AppToast.dismiss();note=editor.undo();}
+  else if(action.type==='redo'){AppToast.dismiss();note=editor.redo();}
+  if(note){AppToast.dismiss();syncEdited(note);}else{editError=null;render();}
  }catch(error){editError=error.code==='pitch'?'invalidPitch':'invalidNoteTime';render();}
 }
 async function confirmEdits(){
@@ -62,6 +75,9 @@ function invalidate(){const token=generation.next();stopWorker();closeDecoder();
 function pitchName(pitch){return ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][pitch%12]+(Math.floor(pitch/12)-1);}
 function render(){
  document.body.dataset.phase=state.phase;
+ $('#detectionSettingsError').hidden=!settingsError;$('#detectionSettingsError').textContent=settingsError?translate('invalidDetectionSettings'):'';
+ $('#detectionWarning').hidden=!state.detectionWarning;$('#detectionWarning').textContent=translate('detectionWarning');
+ for(const key of [...settingsFields,'sensitivityPreset'])$('#'+key).disabled=busy()||!!recording?.active();
  $('#inputError').hidden=!state.inputError;$('#inputError').textContent=state.inputError?translate(state.inputError):'';
  $('#sourceInfo').hidden=!state.file;$('#sourceName').textContent=state.file?.name||'';
  $('#sourceMeta').textContent=state.file?`${translate('size')}: ${(state.file.size/1048576).toFixed(2)} MiB${state.duration?' · '+translate('duration')+': '+state.duration.toFixed(2)+' '+translate('seconds'):''}`:'';
@@ -77,7 +93,7 @@ function render(){
  $('#notesDetails').hidden=!state.notes.length;
  $('#noteRows').replaceChildren(...state.notes.slice(0,100).map(n=>{const row=document.createElement('div');row.className='note-row';[`${pitchName(n.pitchMidi)} (${n.pitchMidi})`,n.startSeconds.toFixed(3),n.endSeconds.toFixed(3)].forEach(text=>{const cell=document.createElement('span');cell.textContent=text;row.append(cell);});return row;}));
  $('#noteLimit').textContent=state.notes.length>100?translate('noteLimit'):'';
- review.setSession(state.originalBuffer,state.notes);review.setLocked(!!recording?.active());review.setEditing({enabled:editingEnabled(),dirty:!!editor?.dirty(),canUndo:!!editor?.canUndoDelete(),error:editError?translate(editError):null});review.render();
+ review.setSession(state.originalBuffer,state.notes);review.setLocked(!!recording?.active());review.setEditing({enabled:editingEnabled(),dirty:!!editor?.dirty(),canUndo:!!editor?.canUndo(),canRedo:!!editor?.canRedo(),error:editError?translate(editError):null});review.render();
  recording?.render();
  if(mobile){
   mobile.setEnabled('notes',!!state.originalBuffer||!!recording?.active());
@@ -104,7 +120,7 @@ async function selectFiles(files,{recorded=false}={}){
  if(!recorded&&!await recording.replace())return false;
  if(!generation.isCurrent(requestGeneration))return false;
  clearEditing();
- const token=invalidate();Object.assign(state,{phase:'decoding',file,duration:0,samples:null,originalBuffer:null,notes:[],error:null,inputError:null,progress:0,elapsed:0,sourceKind:recorded?'recording':'file'});
+ const token=invalidate();Object.assign(state,{phase:'decoding',file,duration:0,samples:null,originalBuffer:null,notes:[],error:null,inputError:null,progress:0,elapsed:0,sourceKind:recorded?'recording':'file',detectionWarning:false});
  outputFilename.value=core.defaultMidiName(file.name).replace(/\.mid$/,'');render();
  let context;
  try{
@@ -130,10 +146,12 @@ async function selectFiles(files,{recorded=false}={}){
 }
 async function analyze(){
  if(busy()||!state.samples||recording.active()||recording.preparing())return;
+ const settings=readDetectionSettings();if(!settings){render();return;}
  if(!await confirmEdits())return;
  if(busy()||!state.samples||recording.active()||recording.preparing())return;
- clearEditing();
- const token=generation.next();Object.assign(state,{phase:'loading-model',notes:[],error:null,inputError:null,progress:0});render();
+ AppToast.dismiss();review.pause();
+ const previousCount=state.notes.length;
+ const token=generation.next();Object.assign(state,{phase:'loading-model',error:null,inputError:null,progress:0});render();
  try{
   if(!worker){
    const assets=StandaloneAssets;
@@ -148,19 +166,21 @@ async function analyze(){
    if(!generation.isCurrent(token)||worker!==activeWorker)return;
    const result=event.data;
    if(result.phase==='complete'){
-    editor=AudioMidiEditing.createSession(core.normalizeNotes(result.notes,state.duration),state.duration);state.notes=editor.snapshot();state.elapsed=result.elapsedMs;editRevision++;
+    editor=AudioMidiEditing.createSession(core.normalizeNotes(result.notes,state.duration),state.duration);state.notes=editor.snapshot();state.elapsed=result.elapsedMs;editRevision++;editError=null;
+    state.detectionWarning=state.notes.length>1000||(previousCount>0&&state.notes.length>100&&state.notes.length>previousCount*3);
     state.phase=state.notes.length?'result':'no-notes';state.progress=1;
-   }else if(result.phase==='error'){state.phase='error';state.error='analysisFailed';stopWorker();}
+   }else if(result.phase==='error'){restoreAnalysis('analysisFailed');stopWorker();}
    else{state.phase=result.phase;state.progress=result.progress||0;}
    render();
   };
-  activeWorker.onerror=event=>{console.error('Audio worker failed:',event.message);event.preventDefault();if(generation.isCurrent(token)){state.phase='error';state.error='analysisFailed';stopWorker();render();}};
+  activeWorker.onerror=event=>{console.error('Audio worker failed:',event.message);event.preventDefault();if(generation.isCurrent(token)){restoreAnalysis('analysisFailed');stopWorker();render();}};
   const copy=new Float32Array(state.samples);
-  activeWorker.postMessage({samples:copy,modelJson:activeWorker.modelJson,weights:activeWorker.modelWeights.buffer},[copy.buffer]);
- }catch(error){console.error('Audio runtime preparation failed:',error);if(generation.isCurrent(token)){stopWorker();state.phase='error';state.error='analysisFailed';render();}}
+  activeWorker.postMessage({settings,samples:copy,modelJson:activeWorker.modelJson,weights:activeWorker.modelWeights.buffer},[copy.buffer]);
+ }catch(error){console.error('Audio runtime preparation failed:',error);if(generation.isCurrent(token)){stopWorker();restoreAnalysis('analysisFailed');render();}}
 }
+function restoreAnalysis(error=null){state.phase=editor?(state.notes.length?'result':'no-notes'):(error?'error':'cancelled');state.error=error;state.progress=0;}
 function clearSource(){
- clearEditing();invalidate();Object.assign(state,{phase:'empty',file:null,samples:null,originalBuffer:null,notes:[],duration:0,error:null,inputError:null,sourceKind:null});outputFilename.value='audio-to-midi-notes';render();
+ clearEditing();invalidate();Object.assign(state,{phase:'empty',file:null,samples:null,originalBuffer:null,notes:[],duration:0,error:null,inputError:null,sourceKind:null,detectionWarning:false});outputFilename.value='audio-to-midi-notes';render();
 }
 recording=AudioMidiRecordingUI.create({translate,onChange:render,isBusy:busy,confirm:options=>AppConfirm.ask(options),toast:showToast,
  beforeReplace:confirmEdits,onStart:()=>{review.pause();clearSource();},onRecording:file=>selectFiles([file],{recorded:true}),
@@ -177,8 +197,17 @@ for(const type of ['dragenter','dragover'])drop.addEventListener(type,event=>{ev
 for(const type of ['dragleave','drop'])drop.addEventListener(type,event=>{event.preventDefault();drop.classList.remove('dragging');});
 drop.addEventListener('drop',event=>selectFiles(Array.from(event.dataTransfer.files)));
 window.addEventListener('dragover',event=>event.preventDefault());window.addEventListener('drop',event=>event.preventDefault());
+fillDetectionSettings(AudioMidiSettings.presets.standard);
+$('#sensitivityPreset').addEventListener('change',()=>{const preset=AudioMidiSettings.presets[$('#sensitivityPreset').value];if(preset)fillDetectionSettings(preset);render();});
+for(const key of settingsFields)$('#'+key).addEventListener('input',()=>{$('#sensitivityPreset').value='custom';if(settingsError)readDetectionSettings();render();});
+document.addEventListener('keydown',event=>{
+ if(event.defaultPrevented||event.isComposing||event.altKey||!(event.ctrlKey||event.metaKey)||document.querySelector('dialog[open]'))return;
+ if(event.target.closest('input,textarea,select,[contenteditable="true"]'))return;
+ const key=event.key.toLowerCase();const action=key==='z'?(event.shiftKey?'redo':'undo'):key==='y'&&!event.metaKey?'redo':null;
+ if(action&&editingEnabled()&&(action==='undo'?editor.canUndo():editor.canRedo())){event.preventDefault();editNotes({type:action});}
+});
 $('#analyzeButton').addEventListener('click',analyze);
-$('#cancelButton').addEventListener('click',()=>{invalidate();state.phase='cancelled';state.notes=[];state.error=null;render();});
+$('#cancelButton').addEventListener('click',()=>{invalidate();restoreAnalysis();render();});
 $('#resetButton').addEventListener('click',async()=>{
  const revision=editRevision;const token=generation.capture(); // A cancelled dialog must not invalidate an active job.
  if(!await AppConfirm.ask({title:translate('resetTitle'),message:translate(editor?.dirty()?'resetEditsBody':recording.active()||recording.unsaved()?'resetRecordingBody':'resetBody'),confirmLabel:translate('reset'),tone:'danger'}))return;
@@ -201,7 +230,7 @@ window.addEventListener('pagehide',event=>{
  if(event.persisted)recording.suspend();else recording.dispose();
  if(event.persisted){
   // BFCache restores this same document: keep completed data, cancel interrupted work coherently.
-  if(wasBusy){state.phase='cancelled';state.notes=[];state.error=null;}
+  if(wasBusy)restoreAnalysis();
  }else{review.dispose();state.samples=null;state.originalBuffer=null;state.notes=[];state.phase='empty';}
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden){review.pause();recording.suspend();}});

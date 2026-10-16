@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0 — development milestone (2026-10-16)
+
+- Preview and apply selected-note split and eligible adjacent same-pitch merge.
+- Review short-note removal and optional seconds-grid start/end correction before applying; grid correction defaults OFF and does not estimate tempo.
+- Apply each cleanup as one Undo/Redo operation; reject stale previews and skip invalid grid results.
+- Preserve the supplied icon, local processing and existing inference/recording/export limits.
+
 ## 0.5.0 — development milestone (2026-10-16)
 
 - Add fixed Fewer/Standard/More detection presets and validated advanced onset/frame thresholds, minimum note duration and MIDI pitch range. Settings apply only on explicit analysis.

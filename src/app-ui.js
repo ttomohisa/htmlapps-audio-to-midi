@@ -17,6 +17,10 @@ Object.assign(translations.en,{"undoEdit": "Undo", "redoEdit": "Redo", "sensitiv
 Object.assign(translations.ja,{"undoEdit": "元に戻す", "redoEdit": "やり直す", "sensitivityPreset": "検出感度", "fewer": "少なめ", "standard": "標準", "more": "多め", "custom": "カスタム", "detectionAdvanced": "検出の詳細設定", "onsetThreshold": "Onsetしきい値", "frameThreshold": "Frameしきい値", "minimumNoteSeconds": "最短音符長（秒）", "minimumPitch": "最低音（MIDI番号）", "maximumPitch": "最高音（MIDI番号）", "detectionSettingsHint": "設定は「音声を解析」を押すと適用します。しきい値を下げると、誤検出を含め音符が増える場合があります。", "invalidDetectionSettings": "しきい値は0〜1、最短長さは0.01〜2秒、音域は0〜127の整数で最低音≤最高音にしてください。", "detectionWarning": "音符が大幅に増えています。感度を下げるか音域を狭め、保存前に結果を確認してください。", "helpDetection": "解析前に感度「少なめ・標準・多め」を選べます。詳細設定ではOnset/Frameしきい値、最短長さ、MIDI音域を指定します。「音声を解析」で適用し、未保存の編集があれば確認します。再解析の失敗・中止時は前の音符と履歴を保持します。Undo/Redoは最大100操作です。入力欄以外ではCtrl/⌘+Z、Ctrl/⌘+Shift+Zも使えます。", "helpEditing": "音符を選び、音程・時刻ボタンか直接入力で修正します。追加は再生位置にC4を置きます。追加・削除・変更は「元に戻す／やり直す」に対応します。表示・簡易合成音・MIDIは同じ編集後の音符を使います。", "scopeNote": "v0.5は録音・検出設定・音符編集とUndo/Redoに対応しています。簡易合成音は元の楽器の音色を再現しません。", "postprocessingHint": "選択した検出設定を適用しています。"});
 Object.assign(translations.en,{detectionSettingsTitle:'Detection settings',presetFewer:'Fewer notes',presetStandard:'Standard',presetMore:'More notes',presetCustom:'Custom'});
 Object.assign(translations.ja,{detectionSettingsTitle:'検出設定',presetFewer:'少なめ',presetStandard:'標準',presetMore:'多め',presetCustom:'カスタム'});
+Object.assign(translations.en,{"splitNote": "Split selected note", "splitSeconds": "Split at (s)", "previewSplit": "Preview split", "mergeNote": "Merge adjacent notes", "mergeNoteId": "Merge with", "previewMerge": "Preview merge", "mergeHint": "Same pitch only; consecutive, non-overlapping notes with a gap of up to 0.05 s.", "noMergeCandidate": "No eligible adjacent note", "cleanupTitle": "Clean up notes", "shortNoteSeconds": "Shorter than (s)", "previewRemoveShort": "Preview short-note removal", "shortNotesHint": "Review all notes shorter than this limit, including manual notes. Nothing is removed automatically.", "quantizeEnabled": "Enable optional grid correction", "gridSeconds": "Grid spacing (seconds)", "quantizeMode": "Correct", "quantizeBoth": "Start and end", "quantizeStart": "Start only", "quantizeEnd": "End only", "previewQuantize": "Preview grid correction", "quantizeHint": "Off by default. Snap to the nearest seconds-grid from zero; no tempo is estimated. Notes that would become invalid are skipped.", "cleanupPreviewTitle": "Review changes before applying", "cleanupBefore": "Before", "cleanupAfter": "After", "applyCleanup": "Apply these changes", "cancelCleanup": "Cancel preview", "cleanupChanged": "Affected notes", "cleanupSkipped": "Skipped notes", "cleanupShown": "Showing up to 100 changes", "cleanupEmpty": "No changes are needed.", "cleanupRemoved": "Removed", "cleanupApplied": "Note cleanup applied", "invalidCleanup": "Check the values. Split inside the selected note; short-note limit 0.01–2 s; grid 0.01–1 s. Merge only eligible adjacent notes.", "staleCleanup": "The notes changed. Preview again before applying.", "helpCleanup": "Split a selected note at an interior time, or merge it with an eligible same-pitch neighbor (gap up to 0.05 s). Clean up notes previews short-note removal and optional seconds-grid correction. Review the before/after list and Apply; each batch is one Undo step. Grid correction starts off, never estimates tempo, and skips invalid results. No cleanup happens automatically.", "scopeNote": "v0.6: record, adjust detection, edit and clean up notes with Undo/Redo. The simple synth does not reproduce the original instrument."});
+Object.assign(translations.ja,{"splitNote": "選択音符を分割", "splitSeconds": "分割する時刻（秒）", "previewSplit": "分割をプレビュー", "mergeNote": "隣り合う音符を結合", "mergeNoteId": "結合する相手", "previewMerge": "結合をプレビュー", "mergeHint": "同じ音高で、重ならず、間隔が0.05秒以内の隣り合う音符だけを結合できます。", "noMergeCandidate": "結合できる隣接音符がありません", "cleanupTitle": "音符を整理", "shortNoteSeconds": "この長さ未満（秒）", "previewRemoveShort": "短い音符の削除をプレビュー", "shortNotesHint": "手動追加を含め、指定より短い音符を確認できます。自動では削除しません。", "quantizeEnabled": "任意のグリッド補正を有効にする", "gridSeconds": "グリッドの間隔（秒）", "quantizeMode": "補正する時刻", "quantizeBoth": "開始と終了", "quantizeStart": "開始のみ", "quantizeEnd": "終了のみ", "previewQuantize": "グリッド補正をプレビュー", "quantizeHint": "初期状態はOFFです。0秒からの最寄りの秒単位グリッドに合わせます。テンポは推定しません。不正な長さになる音符は変更しません。", "cleanupPreviewTitle": "適用前に変更を確認", "cleanupBefore": "変更前", "cleanupAfter": "変更後", "applyCleanup": "この変更を適用", "cancelCleanup": "プレビューを中止", "cleanupChanged": "対象の音符", "cleanupSkipped": "変更しない音符", "cleanupShown": "変更の先頭100件まで表示", "cleanupEmpty": "変更対象はありません。", "cleanupRemoved": "削除", "cleanupApplied": "音符の整理を適用しました", "invalidCleanup": "値を確認してください。分割は音符の内側、短い音符は0.01〜2秒、グリッドは0.01〜1秒です。結合は条件に合う隣接音符だけに行えます。", "staleCleanup": "音符が変わりました。もう一度プレビューしてください。", "helpCleanup": "選択音符の内側の時刻で分割するか、同じ音高で間隔0.05秒以内の隣接音符と結合できます。「音符を整理」では短い音符の削除と任意の秒単位グリッド補正をプレビューします。変更前後を確認して適用すると、まとめて1回のUndoで戻せます。グリッド補正は初期OFFで、テンポを推定せず、不正な結果は変更しません。自動で整理することはありません。", "scopeNote": "v0.6は録音・検出設定・音符編集と整理・Undo/Redoに対応しています。簡易合成音は元の楽器の音色を再現しません。"});
+Object.assign(translations.en,{splitTime:'Split at (s)',mergeWith:'Merge with',mergeNone:'No eligible adjacent note',shortNoteThreshold:'Shorter than (s)',cleanupChange:'Change'});
+Object.assign(translations.ja,{splitTime:'分割する時刻（秒）',mergeWith:'結合する相手',mergeNone:'結合できる隣接音符がありません',shortNoteThreshold:'この長さ未満（秒）',cleanupChange:'変更'});
 const languageKey=APP_CONFIG.slug+':language';
 function readStorage(key){try{return localStorage.getItem(key);}catch{return null;}}
 function writeStorage(key,value){try{localStorage.setItem(key,value);}catch{}}
@@ -26,7 +30,7 @@ function translate(key){return translations[language][key]||translations.en[key]
 __UI_COMPONENTS__
 const generation=core.createGeneration();
 const state={phase:'empty',file:null,duration:0,samples:null,originalBuffer:null,notes:[],progress:0,error:null,inputError:null,elapsed:0,sourceKind:null,detectionWarning:false};
-let editor=null, editError=null, editRevision=0;
+let editor=null, editError=null, editRevision=0, cleanupPending=null, cleanupError=null;
 const settingsFields=['onsetThreshold','frameThreshold','minimumNoteSeconds','minimumPitch','maximumPitch'];
 const settingsKeys={onsetThreshold:'onsetThreshold',frameThreshold:'frameThreshold',minimumNoteSeconds:'minDurationSeconds',minimumPitch:'minPitchMidi',maximumPitch:'maxPitchMidi'};
 let settingsError=false;
@@ -35,15 +39,17 @@ function readDetectionSettings(){
  try{const settings=AudioMidiSettings.validate(values);settingsError=false;return settings;}catch{settingsError=true;return null;}
 }
 function fillDetectionSettings(values){for(const key of settingsFields)$('#'+key).value=String(values[settingsKeys[key]]);settingsError=false;}
-const review=AudioMidiReview.create({translate,onEdit:editNotes,onSelection:()=>{editError=null;}});
+const review=AudioMidiReview.create({translate,onEdit:editNotes,onSelection:()=>{editError=null;clearCleanup();review.setEditing({mergeCandidates:editor?.mergeCandidates(review.selectedId())||[]});renderCleanup();}});
 function editingEnabled(){return !!editor&&!busy()&&!recording?.active()&&!recording?.preparing();}
-function clearEditing(){editor=null;editError=null;editRevision++;AppToast.dismiss();}
+function clearEditing(){clearCleanup();$('#quantizeEnabled').checked=false;editor=null;editError=null;editRevision++;AppToast.dismiss();}
 function syncEdited(note){
+ clearCleanup();
  state.notes=editor.snapshot();state.phase=state.notes.length?'result':'no-notes';state.error=null;editError=null;editRevision++;
  render();if(note&&state.notes.some(current=>current.id===note.id))review.select(note.id);
 }
 function editNotes(action){
  if(!editingEnabled())return;
+ if(action.type.startsWith('preview')){previewCleanup(action);return;}
  try{
   let note=null;
   if(action.type==='update'){
@@ -60,6 +66,35 @@ function editNotes(action){
   else if(action.type==='redo'){AppToast.dismiss();note=editor.redo();}
   if(note){AppToast.dismiss();syncEdited(note);}else{editError=null;render();}
  }catch(error){editError=error.code==='pitch'?'invalidPitch':'invalidNoteTime';render();}
+}
+function clearCleanup(){cleanupPending=null;cleanupError=null;}
+function previewCleanup(action){
+ clearCleanup();
+ try{
+  const plan=action.type==='previewSplit'?editor.previewSplit(action.id,action.seconds):action.type==='previewMerge'?editor.previewMerge(action.id,action.otherId):action.type==='previewRemoveShort'?editor.previewRemoveShort(action.threshold):editor.previewQuantize(action.gridSeconds,action.mode);
+  if(!plan)throw new Error('missing');cleanupPending={plan,session:editor,revision:editRevision};
+ }catch{cleanupError='invalidCleanup';}
+ renderCleanup();if(cleanupPending)$('#cleanupPreview').scrollIntoView({block:'nearest'});
+}
+function renderCleanup(){
+ const pending=cleanupPending,plan=pending?.plan;
+ $('#cleanupError').hidden=!cleanupError;$('#cleanupError').textContent=cleanupError?translate(cleanupError):'';
+ $('#cleanupPreview').hidden=!plan;
+ if(!plan)return;
+ $('#cleanupSummary').textContent=`${translate('cleanupChanged')}: ${plan.count} · ${translate('cleanupSkipped')}: ${plan.skippedCount||0}. ${plan.changes.length?translate('cleanupShown'):translate('cleanupEmpty')}`;
+ const describe=note=>note?`${pitchName(note.pitchMidi)} · ${note.startSeconds}–${note.endSeconds} s`:'—';
+ $('#cleanupRows').replaceChildren(...plan.changes.slice(0,100).map((change,index)=>{const row=document.createElement('tr');for(const text of [String(index+1),describe(change.before),describe(change.after)]){const cell=document.createElement('td');cell.textContent=text;row.append(cell);}return row;}));
+ $('#applyCleanupButton').disabled=!editingEnabled()||!plan.changes.length||pending.session!==editor||pending.revision!==editRevision;
+}
+function applyCleanup(){
+ if(!editingEnabled()||!cleanupPending)return;
+ const pending=cleanupPending;
+ if(pending.session!==editor||pending.revision!==editRevision){clearCleanup();cleanupError='staleCleanup';renderCleanup();return;}
+ try{
+  const note=editor.applyPlan(pending.plan);clearCleanup();if(!note){renderCleanup();return;}
+  const session=editor;syncEdited(note);const revision=editRevision;
+  showToast('cleanupApplied',{actionLabel:translate('undoEdit'),duration:7000,onAction:()=>{if(editor===session&&editRevision===revision&&editingEnabled())editNotes({type:'undo'});}});
+ }catch{clearCleanup();cleanupError='staleCleanup';renderCleanup();}
 }
 async function confirmEdits(){
  if(!editor?.dirty())return true;
@@ -93,7 +128,8 @@ function render(){
  $('#notesDetails').hidden=!state.notes.length;
  $('#noteRows').replaceChildren(...state.notes.slice(0,100).map(n=>{const row=document.createElement('div');row.className='note-row';[`${pitchName(n.pitchMidi)} (${n.pitchMidi})`,n.startSeconds.toFixed(3),n.endSeconds.toFixed(3)].forEach(text=>{const cell=document.createElement('span');cell.textContent=text;row.append(cell);});return row;}));
  $('#noteLimit').textContent=state.notes.length>100?translate('noteLimit'):'';
- review.setSession(state.originalBuffer,state.notes);review.setLocked(!!recording?.active());review.setEditing({enabled:editingEnabled(),dirty:!!editor?.dirty(),canUndo:!!editor?.canUndo(),canRedo:!!editor?.canRedo(),error:editError?translate(editError):null});review.render();
+ review.setSession(state.originalBuffer,state.notes);review.setLocked(!!recording?.active());review.setEditing({enabled:editingEnabled(),dirty:!!editor?.dirty(),canUndo:!!editor?.canUndo(),canRedo:!!editor?.canRedo(),mergeCandidates:editor?.mergeCandidates(review.selectedId())||[],error:editError?translate(editError):null});review.render();
+ renderCleanup();
  recording?.render();
  if(mobile){
   mobile.setEnabled('notes',!!state.originalBuffer||!!recording?.active());
@@ -107,7 +143,7 @@ function applyLanguage(){
  document.querySelectorAll('[data-i18n-title]').forEach(el=>{el.title=translate(el.dataset.i18nTitle);});
  document.querySelectorAll('[data-i18n-aria-label]').forEach(el=>el.setAttribute('aria-label',translate(el.dataset.i18nAriaLabel)));
  // Translate an active toast without restarting its dismissal timer.
- if($('#appToast').classList.contains('show')){if(!$('#appToastAction').hidden)$('#appToastAction').textContent=translate('undoDelete');const message=$('#appToastMessage');if(message.dataset.messageKey)message.textContent=translate(message.dataset.messageKey);}
+ if($('#appToast').classList.contains('show')){if(!$('#appToastAction').hidden)$('#appToastAction').textContent=translate('undoEdit');const message=$('#appToastMessage');if(message.dataset.messageKey)message.textContent=translate(message.dataset.messageKey);}
  $('#languageButton').textContent=language==='ja'?'EN':'JA';$('#languageButton').setAttribute('aria-label',language==='ja'?'英語に切り替え':'Switch to Japanese');
  document.title=language==='ja'?APP_CONFIG.nameJa:APP_CONFIG.name;$('#brandName').textContent=document.title;$('#footerName').textContent=document.title;render();
 }
@@ -149,7 +185,7 @@ async function analyze(){
  const settings=readDetectionSettings();if(!settings){render();return;}
  if(!await confirmEdits())return;
  if(busy()||!state.samples||recording.active()||recording.preparing())return;
- AppToast.dismiss();review.pause();
+ clearCleanup();AppToast.dismiss();review.pause();
  const previousCount=state.notes.length;
  const token=generation.next();Object.assign(state,{phase:'loading-model',error:null,inputError:null,progress:0});render();
  try{
@@ -206,6 +242,9 @@ document.addEventListener('keydown',event=>{
  const key=event.key.toLowerCase();const action=key==='z'?(event.shiftKey?'redo':'undo'):key==='y'&&!event.metaKey?'redo':null;
  if(action&&editingEnabled()&&(action==='undo'?editor.canUndo():editor.canRedo())){event.preventDefault();editNotes({type:action});}
 });
+$('#applyCleanupButton').addEventListener('click',applyCleanup);
+$('#cancelCleanupButton').addEventListener('click',()=>{clearCleanup();renderCleanup();});
+for(const id of ['splitSeconds','mergeNoteId','shortNoteSeconds','quantizeEnabled','gridSeconds','quantizeMode'])$('#'+id).addEventListener('input',()=>{clearCleanup();renderCleanup();});
 $('#analyzeButton').addEventListener('click',analyze);
 $('#cancelButton').addEventListener('click',()=>{invalidate();restoreAnalysis();render();});
 $('#resetButton').addEventListener('click',async()=>{
@@ -219,7 +258,7 @@ $('#downloadButton').addEventListener('click',()=>{
  const filename=core.safeMidiName(outputFilename.value);outputFilename.value=filename.replace(/\.mid$/,'');
  const url=URL.createObjectURL(new Blob([core.encodeMidi(state.notes)],{type:'audio/midi'}));blobUrls.add(url);
  const anchor=document.createElement('a');anchor.href=url;anchor.download=filename;document.body.append(anchor);anchor.click();anchor.remove();
- setTimeout(()=>{URL.revokeObjectURL(url);blobUrls.delete(url);},60000);editor?.markSaved();editRevision++;render();showToast('downloaded');
+ setTimeout(()=>{URL.revokeObjectURL(url);blobUrls.delete(url);},60000);editor?.markSaved();editRevision++;clearCleanup();render();showToast('downloaded');
 });
 $('#languageButton').addEventListener('click',()=>{language=language==='ja'?'en':'ja';writeStorage(languageKey,language);applyLanguage();});
 const helpDialog=$('#helpDialog');AppDialog.watch(helpDialog);$('#helpButton').addEventListener('click',()=>AppDialog.open(helpDialog));$('#closeHelpButton').addEventListener('click',()=>AppDialog.close(helpDialog));

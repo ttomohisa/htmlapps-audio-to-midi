@@ -536,6 +536,28 @@
     .note-edit-hint { margin:5px 0 0; color:var(--muted); font-size:11px; overflow-wrap:anywhere; }
     .note-edit-field .note-edit-hint { grid-column:1 / -1; margin:0; }
     .note-editor .input-error { margin:0 0 10px; }
+    .note-cleanup-actions { display:grid; gap:12px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); }
+    .note-cleanup-action { display:grid; gap:8px; min-width:0; }
+    .note-cleanup-action .control-field, .cleanup-fields .control-field { color:var(--text); font-weight:600; }
+    .note-cleanup-action select, .cleanup-fields select { min-height:44px; font-size:16px; font-weight:400; }
+    .note-cleanup-action select:disabled, .cleanup-fields select:disabled { color:var(--muted); background:var(--surface-muted); }
+    .note-cleanup-action .button { justify-self:start; }
+    .cleanup-settings { min-width:0; margin-top:12px; }
+    .cleanup-settings summary { min-height:44px; padding:11px 12px; font-size:13px; }
+    .cleanup-fields { display:grid; gap:14px; padding:0 12px 12px; min-width:0; }
+    .cleanup-fields .button, .cleanup-preview .button { min-width:44px; min-height:44px; padding:8px 10px; font-size:12px; }
+    .cleanup-toggle { display:flex; align-items:center; gap:9px; min-height:44px; color:var(--text); font-size:13px; font-weight:600; cursor:pointer; }
+    .cleanup-toggle input { flex:none; width:20px; height:20px; margin:0; accent-color:var(--accent); }
+    .cleanup-quantize { display:grid; gap:10px; padding-top:10px; border-top:1px solid var(--line); }
+    .cleanup-preview { min-width:0; margin-top:12px; padding:12px; border:1px solid var(--line); border-radius:10px; background:#fafbf9; }
+    .cleanup-preview h3 { margin:0 0 8px; font-size:14px; }
+    .cleanup-preview p { margin:8px 0; font-size:12px; overflow-wrap:anywhere; }
+    .cleanup-table-scroll { max-width:100%; max-height:280px; margin:10px 0; overflow:auto; border:1px solid var(--line); border-radius:8px; overscroll-behavior:contain; }
+    .cleanup-table-scroll:focus-visible { outline:3px solid color-mix(in srgb,var(--focus) 55%,transparent); outline-offset:2px; }
+    .cleanup-table { width:100%; border-collapse:collapse; font-size:12px; font-variant-numeric:tabular-nums; }
+    .cleanup-table th, .cleanup-table td { min-width:100px; padding:8px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line); overflow-wrap:anywhere; white-space:pre-line; }
+    .cleanup-table th { position:sticky; top:0; background:var(--surface-muted); }
+    .cleanup-table tr:last-child td { border-bottom:0; }
     @media(min-width:1000px) { .note-edit-fields { grid-template-columns:repeat(3,minmax(0,1fr)); } .note-edit-field { grid-template-columns:minmax(0,1fr); align-content:start; } }
     @media(max-width:820px) {
       .input-card, .review-card, .output-card { grid-column:auto; grid-row:auto; }
@@ -787,7 +809,44 @@
             <p class="input-error" id="noteEditError" role="status" aria-live="polite" hidden></p>
             <button class="button primary" type="button" id="applyNoteButton" data-i18n="applyNote" disabled>Apply changes</button>
             <p class="note-edit-hint" data-i18n="editingHint">Use Apply for typed values. The −/+ buttons change the selected note immediately. Overlapping notes are allowed.</p>
+            <div class="note-cleanup-actions">
+              <div class="note-cleanup-action">
+                <label class="control-field" for="splitSeconds"><span data-i18n="splitTime">Split at</span><span class="note-edit-value"><input id="splitSeconds" type="number" min="0" step="any" inputmode="decimal" aria-describedby="cleanupError" disabled><span class="note-edit-unit">s</span></span></label>
+                <button class="button" type="button" id="splitNoteButton" data-i18n="previewSplit" disabled>Preview split</button>
+              </div>
+              <div class="note-cleanup-action">
+                <label class="control-field" for="mergeNoteId"><span data-i18n="mergeWith">Merge with</span><select id="mergeNoteId" aria-describedby="mergeHint cleanupError" disabled></select></label>
+                <button class="button" type="button" id="mergeNotesButton" data-i18n="previewMerge" disabled>Preview merge</button>
+                <p class="note-edit-hint" id="mergeHint" data-i18n="mergeHint">Only neighboring notes of the same pitch, without overlap and with a gap of at most 0.05 s, can be merged.</p>
+              </div>
+            </div>
           </section>
+          <details class="cleanup-settings" id="cleanupSettings">
+            <summary data-i18n="cleanupTitle">Clean up notes</summary>
+            <div class="cleanup-fields">
+              <div class="note-cleanup-action">
+                <label class="control-field" for="shortNoteSeconds"><span data-i18n="shortNoteThreshold">Remove notes shorter than</span><span class="note-edit-value"><input id="shortNoteSeconds" type="number" min="0.01" max="2" step="0.01" value="0.1" inputmode="decimal" aria-describedby="shortNoteRange shortNotesHint cleanupError" disabled><span class="note-edit-unit">s</span></span></label>
+                <p class="note-edit-hint" id="shortNoteRange">0.01–2 s</p>
+                <p class="note-edit-hint" id="shortNotesHint" data-i18n="shortNotesHint">Preview removal across all current notes before applying.</p>
+                <button class="button" type="button" id="previewShortButton" data-i18n="previewRemoveShort" disabled>Preview short-note removal</button>
+              </div>
+              <div class="cleanup-quantize">
+                <label class="cleanup-toggle" for="quantizeEnabled"><input id="quantizeEnabled" type="checkbox" aria-describedby="quantizeHint" disabled><span data-i18n="quantizeEnabled">Enable timing quantization</span></label>
+                <p class="note-edit-hint" id="quantizeHint" data-i18n="quantizeHint">Off by default. Adjust all current notes to a seconds grid; tempo is not estimated. Invalid changes are skipped.</p>
+                <label class="control-field" for="gridSeconds"><span data-i18n="gridSeconds">Time grid</span><span class="note-edit-value"><input id="gridSeconds" type="number" min="0.01" max="1" step="0.01" value="0.05" inputmode="decimal" aria-describedby="gridSecondsRange quantizeHint cleanupError" disabled><span class="note-edit-unit">s</span></span></label>
+                <p class="note-edit-hint" id="gridSecondsRange">0.01–1 s</p>
+                <label class="control-field" for="quantizeMode"><span data-i18n="quantizeMode">Adjust</span><select id="quantizeMode" aria-describedby="cleanupError" disabled><option value="both" data-i18n="quantizeBoth">Start and end</option><option value="start" data-i18n="quantizeStart">Start only</option><option value="end" data-i18n="quantizeEnd">End only</option></select></label>
+                <button class="button" type="button" id="previewQuantizeButton" data-i18n="previewQuantize" disabled>Preview timing changes</button>
+              </div>
+            </div>
+          </details>
+          <section class="cleanup-preview" id="cleanupPreview" aria-labelledby="cleanupPreviewTitle" hidden>
+            <h3 id="cleanupPreviewTitle" data-i18n="cleanupPreviewTitle">Review changes</h3>
+            <p id="cleanupSummary" role="status" aria-live="polite"></p>
+            <div class="cleanup-table-scroll" tabindex="0" role="region" aria-labelledby="cleanupPreviewTitle"><table class="cleanup-table"><thead><tr><th scope="col" data-i18n="cleanupChange">Change</th><th scope="col" data-i18n="cleanupBefore">Before</th><th scope="col" data-i18n="cleanupAfter">After</th></tr></thead><tbody id="cleanupRows"></tbody></table></div>
+            <div class="note-editor-actions"><button class="button primary" type="button" id="applyCleanupButton" data-i18n="applyCleanup" disabled>Apply changes</button><button class="button" type="button" id="cancelCleanupButton" data-i18n="cancelCleanup">Cancel preview</button></div>
+          </section>
+          <p class="input-error" id="cleanupError" role="alert" hidden></p>
         </div>
       </section>
       <section class="workspace flow-card output-card app-mobile-page" id="outputCard" aria-labelledby="resultTitle">
@@ -863,6 +922,7 @@
       <p data-i18n="helpRecording"></p>
       <p data-i18n="helpEditing"></p>
       <p data-i18n="helpDetection"></p>
+      <p data-i18n="helpCleanup"></p>
           <!-- APP:HELP:END -->
     </div>
   </dialog>

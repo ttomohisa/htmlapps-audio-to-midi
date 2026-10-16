@@ -12,6 +12,7 @@ Convert a short recording into MIDI using Spotify Basic Pitch, entirely on your 
 - Input / Notes / Export page tabs on smartphones
 - On-device CPU inference, progress and immediate cancellation
 - Piano roll, waveform, zoom, scrolling and selectable note timing
+- Preview note split/merge, short-note removal and optional seconds-grid correction; each batch has Undo
 - Three detection presets and validated advanced threshold, duration and pitch-range settings
 - Manual note add/delete, semitone and timing correction, direct pitch/second entry, and 100-operation Undo/Redo
 - Original-audio / simple-synth comparison with play, pause, stop and seek
@@ -33,11 +34,11 @@ Audio, notes and model inference stay in your browser. There are no runtime down
 
 ## Browser support and limits
 
-This is the **v0.5 development milestone**. Chrome/Edge/Firefox/Safari with Web Audio, Workers and DecompressionStream are target browsers. Real Windows, Android and iOS device acceptance is not yet complete; see [verification](docs/VERIFICATION.md).
+This is the **v0.6 development milestone**. Chrome/Edge/Firefox/Safari with Web Audio, Workers and DecompressionStream are target browsers. Real Windows, Android and iOS device acceptance is not yet complete; see [verification](docs/VERIFICATION.md).
 
 Transcription is approximate. Mixed songs, noise and harmonics can create wrong notes. MIDI is note data, not audio. Output uses 120 BPM only to preserve seconds, channel 1, piano program 0 and fixed velocity 96. No tempo/loudness estimation or pitch bends.
 
-Select a note and correct it with nearby buttons or direct fields. C4 is MIDI 60; timing buttons step by 0.05 seconds. Add inserts a C4 note at the playback position. Undo/Redo retains up to 100 operations. Ctrl/⌘+Z and Ctrl/⌘+Shift+Z work outside text fields. Choose Fewer/Standard/More sensitivity or expand advanced thresholds, minimum length and pitch range. Settings apply only on Analyze; failed or cancelled reanalysis keeps the previous result and history. Unsaved edits require confirmation before reanalysis or audio replacement. Recording requires MediaRecorder and a browser-supported, locally decodable format. If permission is denied, no microphone is present, or recording is unsupported, file conversion remains available. Local-file microphone access varies; use the HTTPS app if needed. The simple synth does not reproduce the original instrument. Playback pauses and recording stops when the page is hidden. Stop releases all microphone tracks; there is no live speaker monitoring. Unsaved recordings require confirmation before replacement/reset. Closing or reloading loses session data; mobile browsers may omit the exit warning. Edited notes are used immediately for display, synthesized playback and MIDI export.
+Select a note and correct it with nearby buttons or direct fields. C4 is MIDI 60; timing buttons step by 0.05 seconds. Add inserts a C4 note at the playback position. Undo/Redo retains up to 100 operations. Ctrl/⌘+Z and Ctrl/⌘+Shift+Z work outside text fields. Choose Fewer/Standard/More sensitivity or expand advanced thresholds, minimum length and pitch range. Settings apply only on Analyze; failed or cancelled reanalysis keeps the previous result and history. Split inside a selected note or merge eligible same-pitch neighbors within 0.05 seconds. Cleanup previews short-note removal and optional seconds-grid correction before Apply; each batch is one Undo step. Grid correction starts off, does not infer tempo and skips invalid results. Unsaved edits require confirmation before reanalysis or audio replacement. Recording requires MediaRecorder and a browser-supported, locally decodable format. If permission is denied, no microphone is present, or recording is unsupported, file conversion remains available. Local-file microphone access varies; use the HTTPS app if needed. The simple synth does not reproduce the original instrument. Playback pauses and recording stops when the page is hidden. Stop releases all microphone tracks; there is no live speaker monitoring. Unsaved recordings require confirmation before replacement/reset. Closing or reloading loses session data; mobile browsers may omit the exit warning. Edited notes are used immediately for display, synthesized playback and MIDI export.
 
 ## Offline single HTML
 

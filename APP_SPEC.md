@@ -324,3 +324,11 @@ interface Note {
 - Undo/Redo records each valid changed edit atomically, retains100 operations and clears Redo after a new edit. No-op/invalid edits do not consume history. Text controls keep native undo; elsewhere Ctrl/⌘+Z and Ctrl/⌘+Shift+Z apply note history (Ctrl+Y also supported).
 - Warn above1000 notes or above100 notes and three times the previous result count. This is a review hint, not an accuracy judgment or automatic deletion.
 - The exact supplied SVG is embedded in header, readable favicon and self-extract favicon. No extra dependency, persistence, network, duration or model change.
+
+### v0.6 implementation boundary (2026-10-16)
+
+- Cleanup never runs automatically. Split/merge and batch changes first show before/after rows and affected/skipped counts, then require explicit Apply. Up to100 rows are displayed; the total count remains visible. Preview Cancel has no effect on notes.
+- Split requires an explicit time strictly inside the selected note, preserves its total extent/pitch/provenance, and gives the right part a fresh ID. Merge chooses a same-pitch immediate temporal neighbor; both notes must not overlap and their gap must be0–0.05 seconds. The explicitly selected note retains ID/provenance.
+- Short-note removal proposes all current notes strictly shorter than the chosen0.01–2 second threshold, including manual notes. It is not an automatic confidence judgment.
+- Grid correction starts OFF and resets OFF on input/reset. It uses a0.01–1 second grid anchored at0, with nearest rounding of start/end/both. No tempo is inferred or auto-filled. Invalid zero/reversed/out-of-clip intervals are skipped, not clamped or deleted. Existing legal overlaps remain legal.
+- Each applied cleanup batch consumes one of100 Undo steps. Previews are tied to their original editor/revision and cannot overwrite later edits. A parameter change or another edit dismisses the pending preview. The same updated notes feed drawing, synthesis and MIDI.

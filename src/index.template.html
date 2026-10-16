@@ -481,6 +481,19 @@
     .seek-field output { font-variant-numeric:tabular-nums; }
     .transport-status { margin:0; min-height:1.5em; }
     .input-error { color:var(--danger); font-size:13px; margin:0; }
+    .detection-settings { display:grid; gap:10px; min-width:0; margin:18px 0; }
+    .detection-settings h3 { margin:0; font-size:14px; }
+    .detection-settings .control-field { color:var(--text); font-weight:600; }
+    .detection-settings select { min-height:44px; font-size:16px; font-weight:400; }
+    .detection-settings-hint { margin:0; }
+    .detection-advanced summary { min-height:44px; padding:11px 12px; font-size:12px; }
+    .detection-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:0 12px 12px; }
+    .detection-value { display:flex; align-items:center; gap:6px; min-width:0; }
+    .detection-value input { width:100%; min-width:0; min-height:44px; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--text); font-size:16px; font-weight:400; font-variant-numeric:tabular-nums; }
+    .detection-value input[aria-invalid="true"] { border-color:var(--danger); }
+    .detection-unit, .detection-range { color:var(--muted); font-size:11px; font-weight:400; }
+    .detection-settings select:disabled, .detection-value input:disabled { color:var(--muted); background:var(--surface-muted); }
+    @media(max-width:360px) { .detection-fields { grid-template-columns:minmax(0,1fr); } }
     .timeline-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; margin:12px 0 8px; }
     .zoom-controls { display:flex; align-items:center; gap:8px; }
     .zoom-controls .button { width:40px; padding:6px; font-size:18px; }
@@ -709,6 +722,22 @@
         </section>
         <p id="inputError" role="alert" hidden></p>
         <div class="source-info" id="sourceInfo" hidden><strong id="sourceName"></strong><span class="muted" id="sourceMeta"></span></div>
+        <section class="detection-settings" aria-labelledby="detectionSettingsTitle">
+          <h3 id="detectionSettingsTitle" data-i18n="detectionSettingsTitle">Note detection</h3>
+          <label class="control-field" for="sensitivityPreset"><span data-i18n="sensitivityPreset">Sensitivity</span><select id="sensitivityPreset" aria-describedby="detectionSettingsHint"><option value="fewer" data-i18n="presetFewer">Fewer notes</option><option value="standard" selected data-i18n="presetStandard">Standard</option><option value="more" data-i18n="presetMore">More notes</option><option value="custom" data-i18n="presetCustom">Custom</option></select></label>
+          <p class="muted detection-settings-hint" id="detectionSettingsHint" data-i18n="detectionSettingsHint">Settings apply when you press Analyze audio. Changing them never starts analysis automatically.</p>
+          <details class="detection-advanced" id="detectionAdvanced">
+            <summary data-i18n="detectionAdvanced">Advanced detection settings</summary>
+            <div class="detection-fields">
+              <label class="control-field" for="onsetThreshold"><span data-i18n="onsetThreshold">Onset threshold</span><span class="detection-value"><input id="onsetThreshold" type="number" min="0" max="1" step="0.05" value="0.5" inputmode="decimal" aria-describedby="onsetThresholdRange detectionSettingsError"></span><span class="detection-range" id="onsetThresholdRange">0–1</span></label>
+              <label class="control-field" for="frameThreshold"><span data-i18n="frameThreshold">Frame threshold</span><span class="detection-value"><input id="frameThreshold" type="number" min="0" max="1" step="0.05" value="0.3" inputmode="decimal" aria-describedby="frameThresholdRange detectionSettingsError"></span><span class="detection-range" id="frameThresholdRange">0–1</span></label>
+              <label class="control-field" for="minimumNoteSeconds"><span data-i18n="minimumNoteSeconds">Shortest note</span><span class="detection-value"><input id="minimumNoteSeconds" type="number" min="0.01" max="2" step="0.001" value="0.059" inputmode="decimal" aria-describedby="minimumNoteSecondsRange detectionSettingsError"><span class="detection-unit">s</span></span><span class="detection-range" id="minimumNoteSecondsRange">0.01–2 s</span></label>
+              <label class="control-field" for="minimumPitch"><span data-i18n="minimumPitch">Lowest pitch</span><span class="detection-value"><input id="minimumPitch" type="number" min="0" max="127" step="1" value="21" inputmode="numeric" aria-describedby="minimumPitchRange detectionSettingsError"><span class="detection-unit">MIDI</span></span><span class="detection-range" id="minimumPitchRange">0–127</span></label>
+              <label class="control-field" for="maximumPitch"><span data-i18n="maximumPitch">Highest pitch</span><span class="detection-value"><input id="maximumPitch" type="number" min="0" max="127" step="1" value="108" inputmode="numeric" aria-describedby="maximumPitchRange detectionSettingsError"><span class="detection-unit">MIDI</span></span><span class="detection-range" id="maximumPitchRange">0–127</span></label>
+            </div>
+          </details>
+          <p class="input-error" id="detectionSettingsError" role="alert" hidden></p>
+        </section>
         <div class="button-row">
           <button id="analyzeButton" class="button primary" type="button" disabled data-i18n="analyze">Analyze audio</button>
           <button id="cancelButton" class="button" type="button" hidden data-i18n="cancel">Cancel</button>
@@ -739,7 +768,7 @@
           <p class="selected-note" id="selectedNoteDetails" role="status"></p>
           <section class="note-editor" id="noteEditor" aria-labelledby="noteEditorTitle">
             <div class="note-editor-head"><h3 id="noteEditorTitle" data-i18n="editNotes">Edit notes</h3><span class="note-origin" id="noteOrigin" hidden></span><span class="note-dirty" id="noteDirty" role="status" hidden></span></div>
-            <div class="note-editor-actions"><button class="button" type="button" id="addNoteButton" data-i18n="addNote" disabled>Add note</button><button class="button danger" type="button" id="deleteNoteButton" data-i18n="deleteNote" disabled>Delete note</button><button class="button" type="button" id="undoNoteButton" data-i18n="undoDeletion" disabled>Undo deletion</button></div>
+            <div class="note-editor-actions"><button class="button" type="button" id="addNoteButton" data-i18n="addNote" disabled>Add note</button><button class="button danger" type="button" id="deleteNoteButton" data-i18n="deleteNote" disabled>Delete note</button><button class="button" type="button" id="undoNoteButton" data-i18n="undoEdit" disabled>Undo</button><button class="button" type="button" id="redoNoteButton" data-i18n="redoEdit" disabled>Redo</button></div>
             <div class="note-edit-fields">
               <div class="note-edit-field">
                 <label class="control-field" for="editPitch"><span data-i18n="editPitch">Pitch</span><span class="note-edit-value"><input id="editPitch" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="editPitchHint noteEditError" disabled></span></label>
@@ -765,6 +794,7 @@
         <span class="step" data-i18n="stepOutput">02 / MIDI</span>
         <h2 id="resultTitle" data-i18n="resultTitle">Save the detected notes</h2>
         <div id="notesSummary"><div class="summary-line"><span id="noteCount" class="result-count">—</span><span data-i18n="notes">notes</span></div><p class="muted" id="resultMeta"></p></div>
+        <p class="compact-note" id="detectionWarning" role="status" hidden></p>
         <p class="muted" data-i18n="accuracyNote">Transcription is an estimate. Check the MIDI in your music app.</p>
         <label class="export-field" for="outputFilename"><span class="export-label" data-i18n="outputFilename">Output filename</span><span class="filename-control"><input class="filename-input" id="outputFilename" maxlength="120" autocomplete="off" spellcheck="false" value="audio-to-midi-notes"><span class="filename-extension">.mid</span></span></label>
         <button id="downloadButton" type="button" class="button primary" disabled data-i18n="download">Download MIDI</button>
@@ -832,12 +862,14 @@
       <details id="licensesDetails"><summary data-i18n="licenses">Open-source licenses</summary><pre class="license-text" id="licenseText"></pre></details>
       <p data-i18n="helpRecording"></p>
       <p data-i18n="helpEditing"></p>
+      <p data-i18n="helpDetection"></p>
           <!-- APP:HELP:END -->
     </div>
   </dialog>
 
   <script>
 __AUDIO_CORE_JS__
+__DETECTION_SETTINGS_JS__
 __EDITING_CORE_JS__
 __TIMELINE_CORE_JS__
 __PLAYBACK_ENGINE_JS__

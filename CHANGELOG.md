@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0 — development milestone (2026-10-16)
+
+- Add fixed Fewer/Standard/More detection presets and validated advanced onset/frame thresholds, minimum note duration and MIDI pitch range. Settings apply only on explicit analysis.
+- Preserve the prior result and edit history on failed or cancelled reanalysis; confirm unsaved edits before replacement. Warn on unusually high note counts.
+- Add bounded 100-operation Undo/Redo for all edits, buttons and keyboard shortcuts; preserve native input-field undo.
+- Use the exact user-supplied SVG as canonical app icon and favicon.
+- Physical-device acceptance remains unverified.
+
 ## 0.4.0 — development milestone (2026-10-16)
 
 - Add single-note pitch and timing correction, direct note-name/MIDI and second entry, manual additions and deletions.

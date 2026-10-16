@@ -183,7 +183,7 @@ jobs:
         if: steps.cloudflare.outputs.configured == 'true'
         env:
           PREVIEW_URL: ${{ steps.preview.outputs.preview_url }}
-        run: npx playwright test preview.spec.cjs recording.spec.cjs editing.spec.cjs --grep "deployed"
+        run: npx playwright test preview.spec.cjs recording.spec.cjs editing.spec.cjs settings-history.spec.cjs --grep "deployed"
 
       - name: Upload preview browser evidence
         if: always() && steps.cloudflare.outputs.configured == 'true'

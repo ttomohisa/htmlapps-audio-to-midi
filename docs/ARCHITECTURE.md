@@ -133,3 +133,9 @@ The worker bootstrap concatenates only declared, hash-verified TF.js and Tonejs 
 ## v0.4 editable notes
 
 `editing-core.js` owns an immutable original detection snapshot, detached validated current notes, unique manual IDs, deletion restoration and an export-content saved fingerprint. `app-ui.js` owns the active editor and async loss-confirmation guards. `review-ui.js` only emits edit intents and maintains selection, view and input drafts. Successful edits replace the single `state.notes` reference consumed by piano rendering, Web Audio scheduling and MIDI encoding. A session/revision check rejects stale confirmation decisions and toast callbacks. No new dependencies, network or persistence boundary is introduced.
+
+## v0.5 settings and transactional reanalysis
+
+`detection-settings.js` defines frozen presets and validates detached settings snapshots shared by window and worker. Inference uses the pinned official postprocessor with explicit parameters and inclusive pitch/duration filtering. UI setting drafts apply only on Analyze. The old editor remains owned by the session while a candidate analysis runs; failure/cancel restores its phase, and only successful completion installs a new detection/editor. Generation checks reject stale worker responses.
+
+`editing-core.js` records compact before/after commands (up to100), preserving IDs, exact seconds and provenance. Undo/Redo mutate the same working list and saved-content fingerprint; UI and exports continue sharing `state.notes`. A new edit invalidates Redo. Toast Undo is revision-guarded so it cannot undo an unrelated later edit.

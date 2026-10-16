@@ -1,1 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#16624F"/><g stroke="white" stroke-width="3" stroke-linecap="round"><path d="M13 29v6m6-14v22m6-18v14m8-20v26m6-18v10"/><path d="M44 20v24m0-24 9-2v8l-9 2"/></g><ellipse cx="40" cy="44" rx="6" ry="4" fill="white"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Audio to MIDI</title>
+  <rect width="64" height="64" rx="16" fill="#16624f"/>
+
+  <!-- Audio waveform -->
+  <g fill="#fff">
+    <rect x="6.5" y="21.0" width="2.8" height="5.8" rx="1.4"/>
+    <rect x="10.8" y="17.7" width="3.1" height="12.4" rx="1.55"/>
+    <rect x="15.6" y="13.6" width="3.2" height="20.6" rx="1.6"/>
+    <rect x="20.6" y="9.2" width="3.3" height="28.7" rx="1.65"/>
+    <rect x="25.7" y="13.6" width="3.2" height="20.6" rx="1.6"/>
+    <rect x="30.6" y="17.7" width="3.1" height="12.4" rx="1.55"/>
+    <rect x="35.2" y="21.0" width="2.8" height="5.8" rx="1.4"/>
+  </g>
+
+  <!-- Curved converting arrow: tapered beginning, smooth rounded lower bend -->
+  <path fill="#fff" d="M11.65 33.55
+    C10.55 37.8 11.2 42.25 13.6 45.65
+    C15.55 48.42 18.65 50.23 21.83 50.55
+    L21.07 51.7
+    Q20.72 52.45 21.48 52.28
+    L27.07 49.12
+    Q28.12 48.51 27.1 47.77
+    L21.68 43.1
+    Q20.74 42.4 20.86 43.55
+    L21.5 46.72
+    C17.2 46.42 13.16 43.36 11.9 38.92
+    C11.37 37.03 11.35 35.35 11.65 33.55 Z"/>
+
+  <!-- MIDI piano roll: four tracks and staggered note blocks -->
+  <g fill="#fff">
+    <rect x="30" y="38.1" width="29.5" height="1.65" rx="0.825"/>
+
+    <rect x="30" y="43.65" width="19.3" height="1.65" rx="0.825"/>
+    <rect x="50.1" y="41.5" width="9.4" height="4.9" rx="1.15"/>
+
+    <rect x="30" y="49.0" width="9.1" height="1.65" rx="0.825"/>
+    <rect x="40" y="47.2" width="9.6" height="5.05" rx="1.15"/>
+    <rect x="50.45" y="49.0" width="9.05" height="1.65" rx="0.825"/>
+
+    <rect x="30" y="53.45" width="9.55" height="4.45" rx="1.15"/>
+    <rect x="40.45" y="54.85" width="19.05" height="1.65" rx="0.825"/>
+  </g>
+</svg>

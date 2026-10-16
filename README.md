@@ -2,7 +2,7 @@
 
 Convert a short recording into MIDI using Spotify Basic Pitch, entirely on your device.
 
-![Actual v0.1 preview: synthetic C4 analyzed locally and exported as MIDI](assets/screenshot.png)
+![Actual v0.3 preview: a synthetic C4 microphone recording and its detected note](assets/screenshot.png)
 
 ## Features
 

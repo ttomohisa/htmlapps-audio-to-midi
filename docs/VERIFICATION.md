@@ -1,4 +1,6 @@
-# v0.1 verification record
+# Verification record
+
+## v0.1
 
 This is a development milestone, not a claim that every v0.1 device gate is complete.
 
@@ -54,7 +56,7 @@ The first real Chromium run exposed TF.js 3.21 legacy regenerator using a Functi
 - PowerShell syntax/encoding, repository build, standalone CSP/integrity and self-extract/root restoration: PASS. Current readable HTML is about 1.15 MiB and compact HTML 1.06 MiB; model assets are unchanged.
 - Added CI tests use Chromium's native virtual microphone with a generated C4 WAV, native MediaRecorder encoding, actual complete-Blob decoding, explicit playback/inference, original-audio download/redecode, and independent MIDI readback. The initial implementation passed these tests at the runs linked below; no physical microphone claim is made.
 - Denied/missing/unsupported APIs and a delayed permission grant use controlled test injections. BFCache lifecycle tests remain synthetic persisted event dispatch, distinct from actual back/forward caching.
-- Commit `5c103cb`: [Windows build/offline run](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38895723598) passed 107 contracts, real model smoke and 19 browser cases (2 preview-only cases skipped); [ordinary HTTPS run](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38895723611) passed both file and native virtual-microphone flows. Added hidden-page pitch-reveal regression and final screenshot refresh are being verified on the follow-up commit.
+- Commit `5c103cb`: [Windows build/offline run](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38895723598) passed 107 contracts, real model smoke and 19 browser cases (2 preview-only cases skipped); [ordinary HTTPS run](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38895723611) passed both file and native virtual-microphone flows. The hidden-page pitch-reveal regression is verified on the follow-up commit below.
 - Physical Windows/Android/iOS microphone permissions, device-loss behavior, audible listening/touch and Safari/Firefox recording codecs remain NOT RUN.
 
 ### First native recording run
@@ -66,3 +68,15 @@ The recorded take also showed level attenuation under browser speech processing.
 ### Visual QA follow-up
 
 Actual JA/EN screenshots exposed a mobile hidden-page issue not covered by the first green run: notes analyzed on Input did not scroll into view when Notes opened. The review view now defers layout/pitch centering until its viewport is measurable, including a return to the same desktop width, and preserves scroll during ordinary tab round trips. Browser regressions check selected C4 visibility after tab navigation and desktop restoration.
+
+### Verified v0.3 implementation
+
+Code commit `5ac576895b79df8baebb0be2e2c2be43a642a556`:
+
+- [Windows standard build and offline browser CI](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38896757387): 108/108 contracts, actual model smoke and 19/19 browser cases passed; the 2 HTTPS-only cases are intentionally skipped in that job.
+- [Ordinary HTTPS preview](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38896757374): 2/2 passed. Delivered HTML matched the workflow build. Both file and native virtual-microphone flows completed after going offline, with no runtime HTTP requests or page errors.
+- Native MediaRecorder produced a 2.520-second synthetic C4 recording; independent decode measured 262 Hz over the middle second. MIDI readback contained pitch 60, start 0.022917 s, end 2.485417 s; displayed note times matched within 2 ms. The downloaded original recording reloaded successfully through the regular file path.
+- Both standalone variants recorded/decoded/analyzed/exported offline in Chromium. Controlled denial, missing microphone, unsupported MIME and insecure-context paths retained file fallback. Reset/discard cancellation, hidden stop, pending-permission input replacement and late-track release passed.
+- Input / Notes / Export tabs at 320/360/390 px, selected-note visibility after hidden analysis and desktop restoration, ordinary tab-roundtrip scroll preservation, and the existing bilingual help/reset scroll-lock regressions passed.
+- Independent source reviews found and resolved pending-permission replacement and hidden-page pitch-reveal issues. Focused rechecks passed.
+- Actual 1360×900 JA/EN and narrow screenshots were inspected. `assets/screenshot.png` is the English native-recording result from this HTTPS run. It uses only synthetic audio. Physical-device gates above remain NOT RUN.

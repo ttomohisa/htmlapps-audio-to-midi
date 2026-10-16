@@ -46,7 +46,7 @@ test('reset dialog cancellation during analysis does not strand job',async({page
 test('320px bilingual layout, help scroll, keyboard and stereo input',async({page},testInfo)=>{
  await page.setViewportSize({width:320,height:640});await open(page);await upload(page,makeWav({sampleRate:48000,channels:2}), '長いファイル名'.repeat(12)+'.wav');await phase(page,'ready');
  // Establish a desktop viewport, then analyze while that same Notes view is hidden.
- await page.setViewportSize({width:1360,height:900});await expect(page.locator('#waveform')).toBeVisible();await page.setViewportSize({width:320,height:640});
+ await page.setViewportSize({width:1360,height:900});await expect(page.locator('#waveform text').first()).toBeVisible();await page.setViewportSize({width:320,height:640});
  for(let i=0;i<2;i++){
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await page.locator('#helpButton').click();await expect(page.locator('#helpDialog')).toBeVisible();await page.locator('#licensesDetails').scrollIntoViewIfNeeded();await page.keyboard.press('Escape');await expect(page.locator('#helpDialog')).not.toBeVisible();await page.locator('#languageButton').click();
  }

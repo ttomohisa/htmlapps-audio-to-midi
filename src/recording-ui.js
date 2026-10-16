@@ -1,6 +1,6 @@
 /* Recording session UI. Native capture is isolated in recording-engine.js. */
 const AudioMidiRecordingUI=(()=>{
- function create({translate,onRecording,onChange,onStart,onDiscard,onListen,isBusy,confirm,toast}){
+ function create({translate,onRecording,onChange,onStart,onDiscard,onListen,isBusy,confirm,toast,beforeReplace=async()=>true}){
   const $=id=>document.getElementById(id);
   let engine=null, capture=null, lastBlob=null, accepted=false, saved=false, preparing=false;
   let revision=0, disposed=false, pendingDecode=Promise.resolve(false), actionPending=false;
@@ -71,13 +71,13 @@ const AudioMidiRecordingUI=(()=>{
   $('recordButton').addEventListener('click',async()=>{
    if(active()||preparing||actionPending||isBusy())return;
    actionPending=true;render();
-   try{if(!await askDiscard())return;clear();onStart();engine.start();}
+   try{if(!await beforeReplace()||!await askDiscard())return;clear();onStart();engine.start();}
    // Permission may remain pending: do not hold the confirmation lock.
    finally{actionPending=false;changed();}
   });
   $('stopRecordButton').addEventListener('click',()=>stop());
   $('listenRecording').addEventListener('click',()=>{if(accepted&&!active())onListen();});
-  $('discardRecording').addEventListener('click',async()=>{if(await replace())onDiscard();});
+  $('discardRecording').addEventListener('click',async()=>{if(await beforeReplace()&&await replace())onDiscard();});
   $('downloadRecording').addEventListener('click',()=>{
    if(!lastBlob||preparing)return;
    const name=safeName($('recordingFilename').value);$('recordingFilename').value=name;

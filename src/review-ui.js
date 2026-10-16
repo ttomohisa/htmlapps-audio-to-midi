@@ -1,18 +1,71 @@
-/* Read-only waveform/piano-roll view. All positions are original clip seconds. */
+/* Waveform/piano-roll view and selected-note controls. All positions are original
+ * clip seconds. The caller owns note mutations, validation and deletion history. */
 const AudioMidiReview = (() => {
-  function create({translate}) {
+  function create({translate,onEdit,onSelection}) {
     const $=id=>document.getElementById(id), t=AudioMidiTimeline;
     const card=$('reviewCard'), panel=$('timelinePanel'), piano=$('pianoScroll'), wave=$('waveScroll');
     const svg=$('pianoRoll'), waveform=$('waveform'), pitchLabels=$('pitchLabels'), picker=$('notePicker');
     const seek=$('seekPosition'), mode=$('playbackMode');
     let buffer=null, notes=[], peaks=[], selected=null, zoom=80, view=null, lastWidth=0, error=false, player=null, locked=false, needsReveal=false;
+    const editFields={pitch:$('editPitch'),start:$('editStart'),end:$('editEnd')};
+    const editing={enabled:false,dirty:false,canUndo:false,error:null};
+    let fieldSignature;
     function node(name,attributes={},text){const el=document.createElementNS('http://www.w3.org/2000/svg',name);for(const [key,value] of Object.entries(attributes))el.setAttribute(key,String(value));if(text!==undefined)el.textContent=text;return el;}
+    function selectedNote(){return notes.find(n=>n.id===selected);}
+    function refreshEditor(){
+      const note=selectedNote(),enabled=!!buffer&&editing.enabled&&!locked&&typeof onEdit==='function';
+      $('noteEditor').dataset.enabled=String(enabled);$('noteEditor').dataset.dirty=String(!!editing.dirty);
+      $('addNoteButton').disabled=!enabled;$('undoNoteButton').disabled=!enabled||!editing.canUndo;
+      for(const id of ['deleteNoteButton','applyNoteButton','pitchDown','pitchUp','startEarlier','startLater','endEarlier','endLater'])$(id).disabled=!enabled||!note;
+      for(const field of Object.values(editFields))field.disabled=!enabled||!note;
+      $('noteDirty').hidden=!editing.dirty;$('noteDirty').textContent=translate('editsPending');
+      $('noteOrigin').hidden=!note;$('noteOrigin').textContent=note?translate(note.origin==='manual'?'originManual':'originDetected'):'';
+      $('noteOrigin').dataset.origin=note?.origin||'';
+      const editError=editing.error;
+      $('noteEditError').hidden=!editError;$('noteEditError').textContent=editError||'';
+      // The application provides the localized validation message. Keep the
+      // attempted text intact so an invalid field can be corrected in place.
+      for(const field of Object.values(editFields))field.setAttribute('aria-invalid',String(!!editError));
+    }
+    function fillEditor(){
+      const note=selectedNote(),signature=note?JSON.stringify([note.id,note.pitchMidi,note.startSeconds,note.endSeconds]):null;
+      if(signature===fieldSignature)return;
+      fieldSignature=signature;
+      editFields.pitch.value=note?t.pitchName(note.pitchMidi):'';
+      // String preserves the stored timing precision. Rounded display text must
+      // never be read back as the model value when applying a different field.
+      editFields.start.value=note?String(note.startSeconds):'';
+      editFields.end.value=note?String(note.endSeconds):'';
+    }
     function selectedDetails(){
-      const note=notes.find(n=>n.id===selected);
+      const note=selectedNote();
       picker.value=selected||'';
       $('selectedNoteDetails').textContent=note?`${t.pitchName(note.pitchMidi)} (MIDI ${note.pitchMidi}) · ${translate('start')}: ${note.startSeconds.toFixed(3)} s · ${translate('end')}: ${note.endSeconds.toFixed(3)} s`:translate('noNoteSelected');
       $('selectedNoteDetails').dataset.noteId=note?.id||'';
       for(const el of svg.querySelectorAll('[data-note-id]'))el.classList.toggle('selected',el.dataset.noteId===selected);
+      refreshEditor();
+    }
+    function select(id){
+      const next=notes.some(note=>note.id===id)?id:null,changed=selected!==next;
+      selected=next;
+      if(changed){editing.error=null;fillEditor();}
+      selectedDetails();showSelection();
+      if(changed&&typeof onSelection==='function')onSelection(selected);
+      return selected;
+    }
+    function emitEdit(type,patch){
+      if(!buffer||locked||!editing.enabled||typeof onEdit!=='function')return;
+      if((type==='update'||type==='delete')&&!selectedNote())return;
+      if(type==='undo'&&!editing.canUndo)return;
+      const action={type};if(type==='update'||type==='delete')action.id=selected;if(patch)action.patch=patch;
+      onEdit(action);
+    }
+    function adjust(field,amount){
+      const note=selectedNote();if(note)emitEdit('update',{[field]:note[field]+amount});
+    }
+    function applyFields(){
+      const seconds=field=>field.value.trim()===''?NaN:Number(field.value);
+      emitEdit('update',{pitchInput:editFields.pitch.value,startSeconds:seconds(editFields.start),endSeconds:seconds(editFields.end)});
     }
     function syncScroll(){wave.scrollLeft=piano.scrollLeft;pitchLabels.style.transform=`translateY(${-piano.scrollTop}px)`;}
     function showSelection(){
@@ -62,7 +115,7 @@ const AudioMidiReview = (() => {
         labels.push(node('text',{x:42,y:y+15,'text-anchor':'end','font-size':11,fill:'#666963'},t.pitchName(pitch)));
       }
       for(const tick of ticks)rows.push(node('line',{x1:tick.x,x2:tick.x,y1:0,y2:view.height,stroke:'#bfc1ba','stroke-width':.5}));
-      for(const note of notes){const r=t.noteRect(note,view);const el=node('rect',{x:r.x,y:r.y,width:Math.max(2,r.width),height:r.height,rx:3,class:'piano-note','data-note-id':note.id,'data-pitch':note.pitchMidi,'data-start':note.startSeconds,'data-end':note.endSeconds});el.append(node('title',{},`${t.pitchName(note.pitchMidi)} · ${note.startSeconds.toFixed(3)}–${note.endSeconds.toFixed(3)} s`));rows.push(el);}
+      for(const note of notes){const r=t.noteRect(note,view);const el=node('rect',{x:r.x,y:r.y,width:Math.max(2,r.width),height:r.height,rx:3,class:'piano-note','data-note-id':note.id,'data-pitch':note.pitchMidi,'data-start':note.startSeconds,'data-end':note.endSeconds,'data-origin':note.origin||'detected'});el.append(node('title',{},`${t.pitchName(note.pitchMidi)} · ${note.startSeconds.toFixed(3)}–${note.endSeconds.toFixed(3)} s`));rows.push(el);}
       rows.push(node('line',{class:'playhead',x1:0,x2:0,y1:0,y2:view.height}));
       svg.replaceChildren(...rows);pitchLabels.replaceChildren(...labels);
       const waveNodes=[node('rect',{x:0,y:0,width:view.width,height:96,fill:'#fafbf9'})];
@@ -77,15 +130,21 @@ const AudioMidiReview = (() => {
     function setSession(nextBuffer,nextNotes){
       const sourceChanged=nextBuffer!==buffer, notesChanged=nextNotes!==notes;
       if(!sourceChanged&&!notesChanged)return;
+      const previousSelected=selected;
       buffer=nextBuffer;notes=nextNotes;error=false;
-      if(sourceChanged){zoom=80;selected=null;peaks=buffer?t.waveformPeaks(Array.from({length:buffer.numberOfChannels},(_,i)=>buffer.getChannelData(i))):[];player.load(buffer,notes);player.setMode('original');piano.scrollLeft=0;}
+      if(sourceChanged){zoom=80;selected=null;fieldSignature=undefined;editing.error=null;peaks=buffer?t.waveformPeaks(Array.from({length:buffer.numberOfChannels},(_,i)=>buffer.getChannelData(i))):[];player.load(buffer,notes);player.setMode('original');piano.scrollLeft=0;}
       else player.setNotes(notes);
       if(!notes.some(n=>n.id===selected))selected=notes[0]?.id||null;
+      if(selected!==previousSelected)editing.error=null;
+      fillEditor();
       picker.replaceChildren(...notes.map((n,i)=>{const option=document.createElement('option');option.value=n.id;option.textContent=`${i+1}. ${t.pitchName(n.pitchMidi)} · ${n.startSeconds.toFixed(3)}–${n.endSeconds.toFixed(3)} s`;return option;}));
       picker.disabled=!notes.length;panel.hidden=!buffer;$('timelineEmpty').hidden=!!buffer;
       if(buffer){needsReveal=sourceChanged||notesChanged;draw();revealPosition();}
       else{needsReveal=false;view=null;svg.replaceChildren();waveform.replaceChildren();pitchLabels.replaceChildren();selectedDetails();}
       updateTransport();
+      // Do not call back from render/setEditing; only a real selection transition
+      // (including replacing the source or deleting the selected note) notifies.
+      if(selected!==previousSelected&&typeof onSelection==='function')onSelection(selected);
     }
     function render(){selectedDetails();updateTransport();}
     function changeZoom(factor){if(!view)return;const center=(piano.scrollLeft+piano.clientWidth/2)/view.pixelsPerSecond;zoom=Math.max(20,Math.min(Math.max(320,piano.clientWidth/buffer.duration*4),zoom*factor));draw();piano.scrollLeft=Math.max(0,center*view.pixelsPerSecond-piano.clientWidth/2);syncScroll();}
@@ -95,12 +154,18 @@ const AudioMidiReview = (() => {
     mode.addEventListener('change',()=>guard(()=>player.setMode(mode.value)));
     seek.addEventListener('input',()=>guard(()=>player.seek(Number(seek.value))));
     $('zoomIn').addEventListener('click',()=>changeZoom(2));$('zoomOut').addEventListener('click',()=>changeZoom(.5));
-    picker.addEventListener('change',()=>{selected=picker.value;selectedDetails();showSelection();});
-    svg.addEventListener('click',event=>{const note=event.target.closest('[data-note-id]');if(note){selected=note.dataset.noteId;selectedDetails();}});
+    picker.addEventListener('change',()=>select(picker.value));
+    svg.addEventListener('click',event=>{const note=event.target.closest('[data-note-id]');if(note)select(note.dataset.noteId);});
+    $('addNoteButton').addEventListener('click',()=>emitEdit('add'));
+    $('deleteNoteButton').addEventListener('click',()=>emitEdit('delete'));
+    $('undoNoteButton').addEventListener('click',()=>emitEdit('undo'));
+    $('applyNoteButton').addEventListener('click',applyFields);
+    for(const field of Object.values(editFields))field.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();applyFields();}});
+    for(const [id,field,amount] of [['pitchDown','pitchMidi',-1],['pitchUp','pitchMidi',1],['startEarlier','startSeconds',-.05],['startLater','startSeconds',.05],['endEarlier','endSeconds',-.05],['endLater','endSeconds',.05]])$(id).addEventListener('click',()=>adjust(field,amount));
     waveform.addEventListener('click',event=>{if(view)guard(()=>player.seek(t.xToTime(event.clientX-waveform.getBoundingClientRect().left,view)));});
     piano.addEventListener('scroll',syncScroll,{passive:true});
     const observer=new ResizeObserver(()=>{if(buffer&&piano.clientWidth>0&&(needsReveal||Math.abs(piano.clientWidth-lastWidth)>1)){draw();revealPosition();}});observer.observe(piano);
-    return Object.freeze({setSession,render,reveal:()=>{draw();revealPosition();},setLocked:value=>{locked=!!value;if(locked)player.pause();updateTransport();},playOriginal:()=>guard(()=>{player.setMode('original');return player.play();}),pause:()=>guard(()=>player.pause()),dispose:()=>{observer.disconnect();player.dispose();buffer=null;notes=[];peaks=[];},snapshot:()=>player.snapshot()});
+    return Object.freeze({setSession,render,selectedId:()=>selected,select,setEditing:value=>{Object.assign(editing,value);refreshEditor();},reveal:()=>{draw();revealPosition();},setLocked:value=>{locked=!!value;if(locked)player.pause();updateTransport();refreshEditor();},playOriginal:()=>guard(()=>{player.setMode('original');return player.play();}),pause:()=>guard(()=>player.pause()),dispose:()=>{observer.disconnect();player.dispose();buffer=null;notes=[];peaks=[];},snapshot:()=>player.snapshot()});
   }
   return Object.freeze({create});
 })();

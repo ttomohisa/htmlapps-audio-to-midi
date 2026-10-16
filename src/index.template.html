@@ -505,9 +505,125 @@
       .flow-grid { grid-template-columns:1fr; gap:14px; }
       .drop-zone { padding:22px 12px; }
     }
+
+  :root {
+    --app-mobile-bottom-bar-height: 74px;
+    --app-mobile-bottom-accent: var(--accent, #16624f);
+    --app-mobile-bottom-accent-soft: var(--accent-soft, #e1f0ea);
+    --app-mobile-bottom-muted: var(--muted, #6b6f69);
+    --app-mobile-bottom-line: var(--line, #dadbd6);
+  }
+
+  .app-mobile-bottom-bar {
+    display: none;
+  }
+
+  /* Desktop keeps every page in normal document flow. */
+  .app-mobile-page {
+    display: block;
+  }
+
+  @media (max-width: 600px) {
+    body.has-mobile-bottom-bar {
+      padding-bottom: calc(var(--app-mobile-bottom-bar-height) + env(safe-area-inset-bottom));
+    }
+
+    /*
+      Page-tab mode. Only use has-mobile-page-tabs when the mobile UX benefits
+      from real page switching. The active class is managed by the helper.
+    */
+    body.has-mobile-page-tabs .app-mobile-page {
+      display: none;
+    }
+
+    body.has-mobile-page-tabs .app-mobile-page.is-mobile-active {
+      display: block;
+    }
+
+    .app-mobile-bottom-bar {
+      position: fixed;
+      z-index: 80;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: repeat(var(--app-mobile-bottom-items, 4), minmax(0, 1fr));
+      gap: 4px;
+      padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+      border-top: 1px solid color-mix(in srgb, var(--app-mobile-bottom-line) 82%, transparent);
+      background: rgba(255, 255, 255, .94);
+      box-shadow: 0 -8px 24px rgba(20, 22, 20, .06);
+      backdrop-filter: blur(18px) saturate(1.35);
+    }
+
+    .app-mobile-bottom-item {
+      position: relative;
+      min-width: 0;
+      min-height: 54px;
+      padding: 5px 4px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--app-mobile-bottom-muted);
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 3px;
+      font: inherit;
+      font-size: 10px;
+      font-weight: 750;
+      line-height: 1.15;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-mobile-bottom-item svg {
+      width: 21px;
+      height: 21px;
+    }
+
+    .app-mobile-bottom-item span {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .app-mobile-bottom-item:hover,
+    .app-mobile-bottom-item:focus-visible,
+    .app-mobile-bottom-item.is-active,
+    .app-mobile-bottom-item[aria-current="page"] {
+      color: var(--app-mobile-bottom-accent);
+      background: var(--app-mobile-bottom-accent-soft);
+    }
+
+    .app-mobile-bottom-item.primary:not(:disabled) {
+      color: var(--app-mobile-bottom-accent);
+      background: var(--app-mobile-bottom-accent-soft);
+    }
+
+    .app-mobile-bottom-item:disabled {
+      opacity: .36;
+      cursor: default;
+      background: transparent;
+    }
+  }
+
+    .recording-panel { border:1px solid var(--line); border-radius:12px; padding:16px; margin:16px 0; background:var(--surface-muted); }
+    .recording-panel h3 { margin:0 0 6px; font-size:15px; }
+    .recording-indicator { display:flex; align-items:center; gap:8px; margin:12px 0; font-size:13px; }
+    .recording-light { width:9px; height:9px; border-radius:50%; background:var(--muted); flex:none; }
+    [data-recording="recording"] .recording-light { background:var(--danger); box-shadow:0 0 0 4px #b3261e18; }
+    #recordingClock { margin-left:auto; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    #recordingMeter { width:100%; height:10px; margin-bottom:12px; accent-color:var(--accent); }
+    #recordingError { color:var(--danger); }
+    .recording-export { margin-top:12px; }
+    .recording-export .export-field { margin-top:12px; }
+    @media(max-width:600px) { .app-toast { bottom:calc(var(--app-mobile-bottom-bar-height) + 12px + env(safe-area-inset-bottom)); } }
   </style>
 </head>
-<body>
+<body class="has-mobile-bottom-bar has-mobile-page-tabs">
   <header class="app-header">
     <div class="header-inner">
       <div class="brand">
@@ -515,7 +631,7 @@
           <img id="appBrandIcon" src="__APP_ICON_DATA_URI__" alt="">
         </div>
         <div class="brand-copy">
-          <p class="brand-name"><span id="brandName">Audio to MIDI</span><span class="version-badge" id="versionBadge">v0.2.0</span></p>
+          <p class="brand-name"><span id="brandName">Audio to MIDI</span><span class="version-badge" id="versionBadge">v0.3.0</span></p>
           <p class="brand-meta" data-i18n="brandMeta">音声から音符を見つけてMIDIに</p>
         </div>
       </div>
@@ -540,18 +656,32 @@
       </div>
     </section>
 
-    <!-- APP:BEGIN Audio to MIDI v0.2 -->
+    <!-- APP:BEGIN Audio to MIDI v0.3 -->
     <div class="flow-grid">
-      <section class="workspace flow-card input-card" aria-labelledby="inputTitle">
+      <section class="workspace flow-card input-card app-mobile-page is-mobile-active" id="inputCard" aria-labelledby="inputTitle">
         <span class="step" data-i18n="stepInput">01 / INPUT</span>
         <h2 id="inputTitle" data-i18n="inputTitle">Choose a short recording</h2>
         <p class="muted" data-i18n="inputHint">One instrument or melody. 0.5–60 seconds · up to 50 MiB.</p>
         <div class="drop-zone" id="dropZone">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3v12m-4-8 4-4 4 4M5 14v6h14v-6"/></svg>
           <label for="audioFile" data-i18n="chooseFile">Choose audio or drop it here</label><br>
-          <input id="audioFile" type="file" accept=".wav,.mp3,.m4a,.aac,.ogg,.flac,audio/*" aria-describedby="formatHint">
+          <input id="audioFile" type="file" accept=".wav,.mp3,.m4a,.aac,.ogg,.flac,.webm,audio/*" aria-describedby="formatHint">
           <p class="muted" id="formatHint" data-i18n="formatHint">WAV / MP3. Other audio formats depend on your browser.</p>
         </div>
+        <section class="recording-panel" aria-labelledby="recordingTitle" id="recordingPanel" data-recording="idle">
+          <h3 id="recordingTitle" data-i18n="recordingTitle">Or record a melody</h3>
+          <p class="muted" data-i18n="recordingHint">Microphone access starts only when you press Record. Up to 59 seconds.</p>
+          <div class="recording-indicator"><span class="recording-light" aria-hidden="true"></span><span id="recordingStatus" role="status"></span><output id="recordingClock" aria-label="Recording duration">0.0 / 59 s</output></div>
+          <meter id="recordingMeter" min="0" max="1" value="0" data-i18n-aria-label="recordingLevel" aria-label="Microphone level"></meter>
+          <div class="button-row"><button type="button" class="button" id="recordButton" data-i18n="record">Record</button><button type="button" class="button" id="stopRecordButton" disabled data-i18n="stopRecording">Stop recording</button></div>
+          <p class="muted" id="recordingError" role="alert" hidden></p>
+          <p class="muted" id="recordingLocalHint" data-i18n="recordingLocalHint" hidden>Microphone access from a local HTML file depends on your browser. If unavailable, open the HTTPS app or choose an audio file.</p>
+          <div id="recordingResult" hidden>
+            <p class="muted" data-i18n="recordingReadyHint">Listen before analyzing. Recording does not start analysis automatically.</p>
+            <div class="button-row"><button type="button" class="button" id="listenRecording" disabled data-i18n="listenRecording">Listen</button><button type="button" class="button" id="discardRecording" data-i18n="discardRecording">Discard recording</button></div>
+            <details class="recording-export"><summary data-i18n="saveRecordingOptional">Save original recording (optional)</summary><label class="export-field" for="recordingFilename"><span class="export-label" data-i18n="recordingFilename">Recording filename</span><span class="filename-control"><input class="filename-input" id="recordingFilename" maxlength="120" autocomplete="off" spellcheck="false"><span class="filename-extension" id="recordingExtension">.webm</span></span></label><button type="button" class="button" id="downloadRecording" data-i18n="downloadRecording">Download recording</button></details>
+          </div>
+        </section>
         <p id="inputError" role="alert" hidden></p>
         <div class="source-info" id="sourceInfo" hidden><strong id="sourceName"></strong><span class="muted" id="sourceMeta"></span></div>
         <div class="button-row">
@@ -564,7 +694,7 @@
         </div>
         <p class="compact-note" data-i18n="privacyNote">Your audio stays on this device. The model is included in this HTML.</p>
       </section>
-      <section class="workspace review-card" id="reviewCard" aria-labelledby="reviewTitle">
+      <section class="workspace review-card app-mobile-page" id="reviewCard" aria-labelledby="reviewTitle">
         <span class="step" data-i18n="stepReview">02 / REVIEW</span>
         <h2 id="reviewTitle" data-i18n="reviewTitle">See and compare the notes</h2>
         <p class="muted" data-i18n="reviewHint">Compare the original recording with a simple synthesized preview. Notes are read-only in this version.</p>
@@ -584,7 +714,7 @@
           <p class="selected-note" id="selectedNoteDetails" role="status"></p>
         </div>
       </section>
-      <section class="workspace flow-card output-card" aria-labelledby="resultTitle">
+      <section class="workspace flow-card output-card app-mobile-page" id="outputCard" aria-labelledby="resultTitle">
         <span class="step" data-i18n="stepOutput">02 / MIDI</span>
         <h2 id="resultTitle" data-i18n="resultTitle">Save the detected notes</h2>
         <div id="notesSummary"><div class="summary-line"><span id="noteCount" class="result-count">—</span><span data-i18n="notes">notes</span></div><p class="muted" id="resultMeta"></p></div>
@@ -608,6 +738,12 @@
       </details>
     </section>
   </main>
+  <nav class="app-mobile-bottom-bar" id="mobileBottomBar" style="--app-mobile-bottom-items:3" data-i18n-aria-label="mobileNavigation" aria-label="Workflow pages">
+    <button type="button" class="app-mobile-bottom-item" data-mobile-key="input" data-mobile-page-target="inputCard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-4-8 4-4 4 4M5 14v6h14v-6"/></svg><span data-i18n="tabInput">Input</span></button>
+    <button type="button" class="app-mobile-bottom-item" data-mobile-key="notes" data-mobile-page-target="reviewCard" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4zM8 5v9m4-9v9m4-9v9M4 14h16"/></svg><span data-i18n="tabNotes">Notes</span></button>
+    <button type="button" class="app-mobile-bottom-item" data-mobile-key="export" data-mobile-page-target="outputCard" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v4h14v-4"/></svg><span data-i18n="tabExport">Export</span></button>
+  </nav>
+
 
   <footer><span id="footerName">Audio to MIDI</span> · MIT License · <span data-i18n="footer">Generated as one self-contained HTML file</span></footer>
   <div class="app-toast" id="appToast" role="status" aria-live="polite" aria-atomic="true" data-tone="default">
@@ -647,7 +783,8 @@
       <h3 data-i18n="helpNotesTitle"></h3><ul><li data-i18n="helpNoteStorage"></li><li data-i18n="helpNoteBrowser"></li><li data-i18n="scopeNote"></li></ul>
       <p class="dialog-note" data-i18n="helpOffline"></p>
       <details id="licensesDetails"><summary data-i18n="licenses">Open-source licenses</summary><pre class="license-text" id="licenseText"></pre></details>
-      <!-- APP:HELP:END -->
+      <p data-i18n="helpRecording"></p>
+          <!-- APP:HELP:END -->
     </div>
   </dialog>
 
@@ -655,6 +792,9 @@
 __AUDIO_CORE_JS__
 __TIMELINE_CORE_JS__
 __PLAYBACK_ENGINE_JS__
+__RECORDING_ENGINE_JS__
+__RECORDING_UI_JS__
+__MOBILE_NAV_JS__
 __REVIEW_UI_JS__
     (() => {
       'use strict';

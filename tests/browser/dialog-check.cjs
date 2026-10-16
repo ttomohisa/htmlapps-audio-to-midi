@@ -1,7 +1,7 @@
 const {expect}=require('@playwright/test');
 async function checkModalScroll(page,testInfo){
  for(const width of [1360,320]){
-  await page.setViewportSize({width,height:480});
+  await page.setViewportSize({width,height:480});if(width<=600)await page.locator('[data-mobile-key="input"]').click();
   for(const dismiss of ['button','escape','backdrop','native']){
    await page.evaluate(()=>window.scrollTo({top:220,behavior:'instant'}));
    const before=await page.evaluate(()=>({y:scrollY,top:document.querySelector('#inputTitle').getBoundingClientRect().top}));

@@ -47,3 +47,12 @@ Worker windowing follows official 1.0.1 constants: 43,844 samples/window, hop 36
 ## Browser integration correction
 
 The first real Chromium run exposed TF.js 3.21 legacy regenerator using a Function-constructor fallback under strict CSP. The shared worker bootstrap now predeclares its runtime binding. A VM integration check disables string code generation while loading the exact pinned bundles. CSP remains unchanged, with no unsafe-eval. Both offline variants and the HTTPS preview subsequently passed actual Chromium inference and export with the unchanged restrictive CSP.
+
+## v0.3 recording milestone (in progress, 2026-10-16)
+
+- Local Node suite: 106/106 PASS, including 40 recording lifecycle tests and recording UI stale-Blob/confirmation tests.
+- PowerShell syntax/encoding, repository build, standalone CSP/integrity and self-extract/root restoration: PASS. Current readable HTML is about 1.15 MiB and compact HTML 1.06 MiB; model assets are unchanged.
+- Added CI tests use Chromium's native virtual microphone with a generated C4 WAV, native MediaRecorder encoding, actual complete-Blob decoding, explicit playback/inference, original-audio download/redecode, and independent MIDI readback. These tests are pending the PR run; no physical microphone claim is made.
+- Denied/missing/unsupported APIs and a delayed permission grant use controlled test injections. BFCache lifecycle tests remain synthetic persisted event dispatch, distinct from actual back/forward caching.
+- Pending: independent review, exact-head Windows/Chromium CI, ordinary HTTPS preview/offline run, actual JA/EN screenshots.
+- Physical Windows/Android/iOS microphone permissions, device-loss behavior, audible listening/touch and Safari/Firefox recording codecs remain NOT RUN.

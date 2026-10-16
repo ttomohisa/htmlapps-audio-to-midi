@@ -29,7 +29,7 @@ async function checkReview(page,testInfo){
  await page.locator('#stopButton').click();await expect(card).toHaveAttribute('data-active-sources','0');expect(Number(await card.getAttribute('data-position'))).toBe(0);
  const duration=Number(await page.locator('#seekPosition').getAttribute('max'));await seek(page,duration-.06);await page.locator('#playButton').click();await expect(card).toHaveAttribute('data-playback','ended');await expect(card).toHaveAttribute('data-active-sources','0');
  expect(Number(await card.getAttribute('data-position'))).toBeCloseTo(duration,4);await page.locator('#stopButton').click();
- for(const width of [320,360]){await page.setViewportSize({width,height:640});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await page.locator('#reviewCard').scrollIntoViewIfNeeded();await page.screenshot({path:testInfo.outputPath(`review-${width}.png`)});}
+ for(const width of [320,360]){await page.setViewportSize({width,height:640});await page.locator('[data-mobile-key="notes"]').click();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await page.locator('#reviewCard').scrollIntoViewIfNeeded();await page.screenshot({path:testInfo.outputPath(`review-${width}.png`)});}
  expect(await data()).toEqual(before);
  await page.setViewportSize({width:1360,height:900});await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
 }

@@ -236,3 +236,7 @@ Useful mount options include `initialPage`, `pageTopTarget`, `pageTopOffset`, `o
 ## WebRTC application-ready rule
 
 For `webrtc-qr-pairing.html`, PeerConnection `connected` alone is not application-ready. The designated readiness DataChannel must also be `open`. Custom channel layouts set `readyChannelLabel` to a reliable control channel.
+
+## Audio to MIDI mobile adaptation
+
+The app embeds the canonical mobile-bottom-bar CSS/markup/helper in its standalone build. Its Input / Notes / Export tabs add an asynchronous beforePageChange callback to confirm stopping an active recording. Real disabled states gate unavailable pages; desktop keeps all workspaces visible. Confirmation/help continue sharing the existing scroll-lock owner.

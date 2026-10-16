@@ -5,7 +5,7 @@ const AudioMidiReview = (() => {
     const card=$('reviewCard'), panel=$('timelinePanel'), piano=$('pianoScroll'), wave=$('waveScroll');
     const svg=$('pianoRoll'), waveform=$('waveform'), pitchLabels=$('pitchLabels'), picker=$('notePicker');
     const seek=$('seekPosition'), mode=$('playbackMode');
-    let buffer=null, notes=[], peaks=[], selected=null, zoom=80, view=null, lastWidth=0, error=false, player=null;
+    let buffer=null, notes=[], peaks=[], selected=null, zoom=80, view=null, lastWidth=0, error=false, player=null, locked=false;
     function node(name,attributes={},text){const el=document.createElementNS('http://www.w3.org/2000/svg',name);for(const [key,value] of Object.entries(attributes))el.setAttribute(key,String(value));if(text!==undefined)el.textContent=text;return el;}
     function selectedDetails(){
       const note=notes.find(n=>n.id===selected);
@@ -22,7 +22,7 @@ const AudioMidiReview = (() => {
       syncScroll();
     }
     function updateTransport(){
-      if(!player)return;const state=player.snapshot(),available=!!buffer,hasNotes=!!notes.length;
+      if(!player)return;const state=player.snapshot(),available=!!buffer&&!locked,hasNotes=!!notes.length;
       card.dataset.playback=state.status;card.dataset.mode=state.mode;card.dataset.position=state.position.toFixed(6);card.dataset.activeSources=String(state.activeSources);
       mode.value=state.mode;mode.disabled=!available;mode.querySelector('[value="synth"]').disabled=!hasNotes;
       $('playButton').disabled=!available||['starting','playing'].includes(state.status)||(state.mode==='synth'&&!hasNotes);
@@ -38,7 +38,7 @@ const AudioMidiReview = (() => {
         if(state.status==='playing'&&(x<piano.scrollLeft||x>piano.scrollLeft+piano.clientWidth-24)){piano.scrollLeft=Math.max(0,x-40);syncScroll();}
       }
     }
-    function guard(action){try{error=false;const result=action();if(result&&typeof result.catch==='function')result.catch(()=>{error=true;updateTransport();});}catch(_){error=true;}updateTransport();}
+    function guard(action){if(locked)return;try{error=false;const result=action();if(result&&typeof result.catch==='function')result.catch(()=>{error=true;updateTransport();});}catch(_){error=true;}updateTransport();}
     player=AudioMidiPlayback.createPlayer({onChange:updateTransport});
     function draw(){
       if(!buffer)return;
@@ -95,7 +95,7 @@ const AudioMidiReview = (() => {
     waveform.addEventListener('click',event=>{if(view)guard(()=>player.seek(t.xToTime(event.clientX-waveform.getBoundingClientRect().left,view)));});
     piano.addEventListener('scroll',syncScroll,{passive:true});
     const observer=new ResizeObserver(()=>{if(buffer&&Math.abs(piano.clientWidth-lastWidth)>1)draw();});observer.observe(piano);
-    return Object.freeze({setSession,render,pause:()=>guard(()=>player.pause()),dispose:()=>{observer.disconnect();player.dispose();buffer=null;notes=[];peaks=[];},snapshot:()=>player.snapshot()});
+    return Object.freeze({setSession,render,setLocked:value=>{locked=!!value;if(locked)player.pause();updateTransport();},playOriginal:()=>guard(()=>{player.setMode('original');return player.play();}),pause:()=>guard(()=>player.pause()),dispose:()=>{observer.disconnect();player.dispose();buffer=null;notes=[];peaks=[];},snapshot:()=>player.snapshot()});
   }
   return Object.freeze({create});
 })();

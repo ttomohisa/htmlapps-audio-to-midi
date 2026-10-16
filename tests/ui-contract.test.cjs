@@ -26,7 +26,7 @@ test('header subtitle describes audio transcription and panels reuse canonical w
  const ui=fs.readFileSync(path.join(__dirname,'../src/app-ui.js'),'utf8');
  assert.ok(ui.includes("brandMeta:'音声から音符を見つけてMIDIに'"));
  assert.ok(ui.includes("brandMeta:'Find notes in audio and turn them into MIDI'"));
- assert.equal((html.match(/class="workspace flow-card (?:input|output)-card"/g)||[]).length,2);
+ assert.equal((html.match(/class="workspace flow-card (?:input|output)-card[^"]*"/g)||[]).length,2);
  assert.doesNotMatch(html,/\.flow-card\s*\{[^}]*padding:/);
 });
 

@@ -48,7 +48,7 @@ test('320px bilingual layout, help scroll, keyboard and stereo input',async({pag
  for(let i=0;i<2;i++){
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await page.locator('#helpButton').click();await expect(page.locator('#helpDialog')).toBeVisible();await page.locator('#licensesDetails').scrollIntoViewIfNeeded();await page.keyboard.press('Escape');await expect(page.locator('#helpDialog')).not.toBeVisible();await page.locator('#languageButton').click();
  }
- await page.locator('#analyzeButton').focus();await page.keyboard.press('Enter');await phase(page,'result');await expect(page.locator('#noteRows')).toContainText('C4 (60)');
+ await page.locator('#analyzeButton').focus();await page.keyboard.press('Enter');await phase(page,'result');await page.locator('[data-mobile-key="export"]').click();await expect(page.locator('#noteRows')).toContainText('C4 (60)');
  await page.screenshot({path:testInfo.outputPath('mobile-result.png'),fullPage:true});
 });
 

@@ -31,3 +31,11 @@ The HTML is executable code. Obtain it from the repository's trusted release/pre
 ## Dependencies
 
 Exact npm package versions and tarball SHA-256 values are committed. Build scripts reject mismatch; do not hand-edit lock hashes to bypass verification. Review upstream license/security changes before upgrades. Browser tests must verify model inference with runtime networking blocked, not just inspect CSP text.
+
+## Microphone recording (v0.3)
+
+Only an explicit Record gesture requests audio-only microphone access. There is no request on page load, no camera access, no live speaker monitoring, and no audio transmission. The meter uses an analysis-only Web Audio graph. Stop, discard, capture error, hidden/pagehide and disposal release microphone tracks/graph/timers; a late permission result is stopped when its generation is stale.
+
+Native recording is capped at 59 seconds and 50 MiB, then must pass the same actual complete-Blob decoder and 0.5–60-second limit as file input. MIME support probes alone do not establish valid audio. Unsupported/denied recording leaves file conversion available. Original recording downloads require an explicit action and a sanitized filename; recordings are never persisted automatically.
+
+A best-effort unload warning cannot guarantee recovery on mobile. Reloading or closing the page loses audio and notes. Physical microphone behavior and browser-specific recording codec coverage remain unverified until measured.

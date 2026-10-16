@@ -7,6 +7,9 @@ on:
       - main
     paths:
       - "src/**"
+      - "assets/**"
+      - "README*.md"
+      - "docs/VERIFICATION.md"
       - "tests/**"
       - "package*.json"
       - "playwright.config.cjs"

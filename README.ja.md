@@ -2,6 +2,8 @@
 
 Spotify Basic Pitchで短い録音から音符を検出し、端末内だけでMIDIへ変換します。
 
+![v0.1の実際のプレビュー。合成C4音声を端末内で解析しMIDIへ保存](assets/screenshot.png)
+
 ## 主な機能
 
 - 音声ファイル1つ、0.5〜60秒・最大50 MiB

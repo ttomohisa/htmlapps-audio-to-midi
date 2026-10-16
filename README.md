@@ -2,6 +2,8 @@
 
 Convert a short recording into MIDI using Spotify Basic Pitch, entirely on your device.
 
+![Actual v0.1 preview: synthetic C4 analyzed locally and exported as MIDI](assets/screenshot.png)
+
 ## Features
 
 - One audio file, 0.5–60 seconds and up to 50 MiB

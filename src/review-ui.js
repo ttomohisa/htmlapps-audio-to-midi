@@ -6,13 +6,14 @@ const AudioMidiReview = (() => {
     const card=$('reviewCard'), panel=$('timelinePanel'), piano=$('pianoScroll'), wave=$('waveScroll');
     const svg=$('pianoRoll'), waveform=$('waveform'), pitchLabels=$('pitchLabels'), picker=$('notePicker');
     const seek=$('seekPosition'), mode=$('playbackMode');
-    let buffer=null, notes=[], peaks=[], selected=null, zoom=80, view=null, lastWidth=0, error=false, player=null, locked=false, needsReveal=false;
+    let buffer=null, notes=[], peaks=[], selected=null, zoom=80, view=null, lastWidth=0, lastHeight=0, renderFrame=0, error=false, player=null, locked=false, needsReveal=false;
     const editFields={pitch:$('editPitch'),start:$('editStart'),end:$('editEnd')};
     const splitSeconds=$('splitSeconds'),mergePicker=$('mergeNoteId'),quantizeEnabled=$('quantizeEnabled');
     const editing={enabled:false,dirty:false,canUndo:false,canRedo:false,error:null,mergeCandidates:[]};
     let fieldSignature,mergeSignature;
+    let noteIndex=t.createNoteIndex([]);
     function node(name,attributes={},text){const el=document.createElementNS('http://www.w3.org/2000/svg',name);for(const [key,value] of Object.entries(attributes))el.setAttribute(key,String(value));if(text!==undefined)el.textContent=text;return el;}
-    function selectedNote(){return notes.find(n=>n.id===selected);}
+    function selectedNote(){return noteIndex.get(selected);}
     function refreshMergeCandidates(){
       const candidates=selectedNote()&&Array.isArray(editing.mergeCandidates)?editing.mergeCandidates.filter(note=>note.id!==selected):[];
       const labels=candidates.map(note=>`${translate('editPitch')}: ${t.pitchName(note.pitchMidi)} · ${translate('editStart')}: ${note.startSeconds.toFixed(3)} s · ${translate('editEnd')}: ${note.endSeconds.toFixed(3)} s`);
@@ -71,7 +72,7 @@ const AudioMidiReview = (() => {
       refreshEditor();
     }
     function select(id){
-      const next=notes.some(note=>note.id===id)?id:null,changed=selected!==next;
+      const next=noteIndex.get(id)?id:null,changed=selected!==next;
       selected=next;
       if(changed){editing.error=null;fillEditor();}
       selectedDetails();showSelection();
@@ -100,12 +101,16 @@ const AudioMidiReview = (() => {
       const seconds=field=>field.value.trim()===''?NaN:Number(field.value);
       emitEdit('update',{pitchInput:editFields.pitch.value,startSeconds:seconds(editFields.start),endSeconds:seconds(editFields.end)});
     }
-    function syncScroll(){wave.scrollLeft=piano.scrollLeft;pitchLabels.style.transform=`translateY(${-piano.scrollTop}px)`;}
+    function scheduleViewport(){
+      if(renderFrame||!buffer||!view)return;
+      renderFrame=requestAnimationFrame(()=>{renderFrame=0;drawViewport();});
+    }
+    function syncScroll(){wave.scrollLeft=piano.scrollLeft;pitchLabels.style.transform=`translateY(${-piano.scrollTop}px)`;scheduleViewport();}
     function showSelection(){
-      const note=notes.find(n=>n.id===selected);if(!note||!view)return;
+      const note=selectedNote();if(!note||!view)return;
       const r=t.noteRect(note,view);piano.scrollTop=r.y-piano.clientHeight/2;
       if(r.x<piano.scrollLeft||r.x>piano.scrollLeft+piano.clientWidth-20)piano.scrollLeft=Math.max(0,r.x-piano.clientWidth/3);
-      syncScroll();
+      syncScroll();drawViewport();
     }
     function revealPosition(){
       if(!needsReveal||!buffer||piano.clientWidth<=0||piano.clientHeight<=0)return;
@@ -131,56 +136,67 @@ const AudioMidiReview = (() => {
     }
     function guard(action){if(locked)return;try{error=false;const result=action();if(result&&typeof result.catch==='function')result.catch(()=>{error=true;updateTransport();});}catch(_){error=true;}updateTransport();}
     player=AudioMidiPlayback.createPlayer({onChange:updateTransport});
+    function drawViewport(){
+      if(renderFrame){cancelAnimationFrame(renderFrame);renderFrame=0;}
+      if(!buffer||!view||piano.clientWidth<=0||piano.clientHeight<=0)return;
+      const range=t.visibleRange(view,{scrollLeft:piano.scrollLeft,scrollTop:piano.scrollTop,width:piano.clientWidth,height:piano.clientHeight});
+      const rows=[],labels=[],ticks=t.ticks(view,range),span=range.right-range.left;
+      for(let pitch=range.maxPitch;pitch>=range.minPitch;pitch--){
+        const y=(127-pitch)*view.rowHeight,black=[1,3,6,8,10].includes(pitch%12);
+        rows.push(node('rect',{x:range.left,y,width:span,height:view.rowHeight,fill:black?'#f0f0ed':'#ffffff'}));
+        rows.push(node('line',{x1:range.left,x2:range.right,y1:y,y2:y,stroke:'#dadbd6','stroke-width':.5}));
+        labels.push(node('text',{x:42,y:y+15,'text-anchor':'end','font-size':11,fill:'#666963'},t.pitchName(pitch)));
+      }
+      for(const tick of ticks)rows.push(node('line',{x1:tick.x,x2:tick.x,y1:range.top,y2:range.bottom,stroke:'#bfc1ba','stroke-width':.5}));
+      // Include the tiny display-only 2px minimum at the left edge. Exact note
+      // timing remains untouched for selection, editing, playback and export.
+      const visibleNotes=noteIndex.query({...range,startSeconds:Math.max(0,range.startSeconds-2/view.pixelsPerSecond)});
+      for(const note of visibleNotes){const r=t.noteRect(note,view);const el=node('rect',{x:r.x,y:r.y,width:Math.max(2,r.width),height:r.height,rx:3,class:'piano-note'+(note.id===selected?' selected':''),'data-note-id':note.id,'data-pitch':note.pitchMidi,'data-start':note.startSeconds,'data-end':note.endSeconds,'data-origin':note.origin||'detected'});el.append(node('title',{},`${t.pitchName(note.pitchMidi)} · ${note.startSeconds.toFixed(3)}–${note.endSeconds.toFixed(3)} s`));rows.push(el);}
+      const x=player.snapshot().position*view.pixelsPerSecond;
+      rows.push(node('line',{class:'playhead',x1:x,x2:x,y1:range.top,y2:range.bottom}));
+      svg.replaceChildren(...rows);pitchLabels.replaceChildren(...labels);
+      const waveNodes=[node('rect',{x:range.left,y:0,width:span,height:96,fill:'#fafbf9'})];
+      for(const tick of ticks){waveNodes.push(node('text',{x:tick.x+3,y:14,'font-size':10,fill:'#666963'},`${tick.seconds}s`));waveNodes.push(node('line',{x1:tick.x,x2:tick.x,y1:20,y2:96,stroke:'#dadbd6'}));}
+      const bins=t.waveformRange(peaks,view,range),segments=[];
+      for(let i=bins.start;i<bins.end;i++){const peak=peaks[i],px=(i+.5)/peaks.length*view.width;segments.push(`M${px.toFixed(2)},${(60-peak.max*30).toFixed(2)}V${(60-peak.min*30).toFixed(2)}`);}
+      waveNodes.push(node('path',{d:segments.join(''),stroke:'#16624f','stroke-width':Math.max(1,view.width/Math.max(1,peaks.length)),fill:'none'}));
+      waveNodes.push(node('line',{class:'playhead',x1:x,x2:x,y1:20,y2:96}));waveform.replaceChildren(...waveNodes);
+    }
     function draw(){
       if(!buffer||piano.clientWidth<=0)return;
-      // Reserve the real piano viewport, including non-overlay scrollbar width.
-      // A wider waveform viewport would clamp its right-edge scroll too early.
+      // Full-size SVGs preserve the browser's scroll extent/source-seconds map.
+      // Only their visible contents are rebuilt, once per animation frame on
+      // scroll. Ordinary progress/transport renders never rebuild this scene.
       svg.setAttribute('height',128*t.ROW_HEIGHT);
-      const width=Math.max(1,piano.clientWidth);lastWidth=width;wave.style.width=`${width}px`;
+      const width=Math.max(1,piano.clientWidth);lastWidth=width;lastHeight=piano.clientHeight;wave.style.width=`${width}px`;
       view=t.geometry(buffer.duration,zoom,width);zoom=view.pixelsPerSecond;
       for(const el of [svg,waveform])el.setAttribute('width',view.width);
       svg.setAttribute('height',view.height);pitchLabels.setAttribute('height',view.height);
-      const rows=[],labels=[],ticks=t.ticks(view);
-      for(let pitch=127;pitch>=0;pitch--){
-        const y=(127-pitch)*view.rowHeight,black=[1,3,6,8,10].includes(pitch%12);
-        rows.push(node('rect',{x:0,y,width:view.width,height:view.rowHeight,fill:black?'#f0f0ed':'#ffffff'}));
-        rows.push(node('line',{x1:0,x2:view.width,y1:y,y2:y,stroke:'#dadbd6','stroke-width':.5}));
-        labels.push(node('text',{x:42,y:y+15,'text-anchor':'end','font-size':11,fill:'#666963'},t.pitchName(pitch)));
-      }
-      for(const tick of ticks)rows.push(node('line',{x1:tick.x,x2:tick.x,y1:0,y2:view.height,stroke:'#bfc1ba','stroke-width':.5}));
-      for(const note of notes){const r=t.noteRect(note,view);const el=node('rect',{x:r.x,y:r.y,width:Math.max(2,r.width),height:r.height,rx:3,class:'piano-note','data-note-id':note.id,'data-pitch':note.pitchMidi,'data-start':note.startSeconds,'data-end':note.endSeconds,'data-origin':note.origin||'detected'});el.append(node('title',{},`${t.pitchName(note.pitchMidi)} · ${note.startSeconds.toFixed(3)}–${note.endSeconds.toFixed(3)} s`));rows.push(el);}
-      rows.push(node('line',{class:'playhead',x1:0,x2:0,y1:0,y2:view.height}));
-      svg.replaceChildren(...rows);pitchLabels.replaceChildren(...labels);
-      const waveNodes=[node('rect',{x:0,y:0,width:view.width,height:96,fill:'#fafbf9'})];
-      for(const tick of ticks){waveNodes.push(node('text',{x:tick.x+3,y:14,'font-size':10,fill:'#666963'},`${tick.seconds}s`));waveNodes.push(node('line',{x1:tick.x,x2:tick.x,y1:20,y2:96,stroke:'#dadbd6'}));}
-      const path=peaks.map((peak,i)=>{const x=(i+.5)/peaks.length*view.width;return `M${x.toFixed(2)},${(60-peak.max*30).toFixed(2)}V${(60-peak.min*30).toFixed(2)}`;}).join('');
-      waveNodes.push(node('path',{d:path,stroke:'#16624f','stroke-width':Math.max(1,view.width/Math.max(1,peaks.length)),fill:'none'}));
-      waveNodes.push(node('line',{class:'playhead',x1:0,x2:0,y1:20,y2:96}));waveform.replaceChildren(...waveNodes);
       $('zoomLevel').textContent=`${(zoom/80).toFixed(2).replace(/\.?0+$/,'')}×`;
       $('zoomOut').disabled=zoom<=Math.max(20,width/buffer.duration);$('zoomIn').disabled=zoom>=Math.max(320,width/buffer.duration*4);
-      syncScroll();selectedDetails();updateTransport();
+      syncScroll();drawViewport();selectedDetails();updateTransport();
     }
     function setSession(nextBuffer,nextNotes){
       const sourceChanged=nextBuffer!==buffer, notesChanged=nextNotes!==notes;
       if(!sourceChanged&&!notesChanged)return;
       const previousSelected=selected;
-      buffer=nextBuffer;notes=nextNotes;error=false;
+      buffer=nextBuffer;notes=nextNotes;noteIndex=t.createNoteIndex(notes);error=false;
       if(sourceChanged){zoom=80;selected=null;fieldSignature=undefined;editing.error=null;peaks=buffer?t.waveformPeaks(Array.from({length:buffer.numberOfChannels},(_,i)=>buffer.getChannelData(i))):[];player.load(buffer,notes);player.setMode('original');piano.scrollLeft=0;}
       else player.setNotes(notes);
-      if(!notes.some(n=>n.id===selected))selected=notes[0]?.id||null;
+      if(!noteIndex.get(selected))selected=notes[0]?.id||null;
       if(selected!==previousSelected)editing.error=null;
       fillEditor();
       picker.replaceChildren(...notes.map((n,i)=>{const option=document.createElement('option');option.value=n.id;option.textContent=`${i+1}. ${t.pitchName(n.pitchMidi)} · ${n.startSeconds.toFixed(3)}–${n.endSeconds.toFixed(3)} s`;return option;}));
       picker.disabled=!notes.length;panel.hidden=!buffer;$('timelineEmpty').hidden=!!buffer;
       if(buffer){needsReveal=sourceChanged||notesChanged;draw();revealPosition();}
-      else{needsReveal=false;view=null;svg.replaceChildren();waveform.replaceChildren();pitchLabels.replaceChildren();selectedDetails();}
+      else{if(renderFrame){cancelAnimationFrame(renderFrame);renderFrame=0;}needsReveal=false;view=null;svg.replaceChildren();waveform.replaceChildren();pitchLabels.replaceChildren();selectedDetails();}
       updateTransport();
       // Do not call back from render/setEditing; only a real selection transition
       // (including replacing the source or deleting the selected note) notifies.
       if(selected!==previousSelected&&typeof onSelection==='function')onSelection(selected);
     }
     function render(){selectedDetails();updateTransport();}
-    function changeZoom(factor){if(!view)return;const center=(piano.scrollLeft+piano.clientWidth/2)/view.pixelsPerSecond;zoom=Math.max(20,Math.min(Math.max(320,piano.clientWidth/buffer.duration*4),zoom*factor));draw();piano.scrollLeft=Math.max(0,center*view.pixelsPerSecond-piano.clientWidth/2);syncScroll();}
+    function changeZoom(factor){if(!view)return;const center=(piano.scrollLeft+piano.clientWidth/2)/view.pixelsPerSecond;zoom=Math.max(20,Math.min(Math.max(320,piano.clientWidth/buffer.duration*4),zoom*factor));draw();piano.scrollLeft=Math.max(0,center*view.pixelsPerSecond-piano.clientWidth/2);syncScroll();drawViewport();}
     $('playButton').addEventListener('click',()=>guard(()=>player.play()));
     $('pauseButton').addEventListener('click',()=>guard(()=>player.pause()));
     $('stopButton').addEventListener('click',()=>guard(()=>player.stop()));
@@ -203,8 +219,8 @@ const AudioMidiReview = (() => {
     for(const [id,field,amount] of [['pitchDown','pitchMidi',-1],['pitchUp','pitchMidi',1],['startEarlier','startSeconds',-.05],['startLater','startSeconds',.05],['endEarlier','endSeconds',-.05],['endLater','endSeconds',.05]])$(id).addEventListener('click',()=>adjust(field,amount));
     waveform.addEventListener('click',event=>{if(view)guard(()=>player.seek(t.xToTime(event.clientX-waveform.getBoundingClientRect().left,view)));});
     piano.addEventListener('scroll',syncScroll,{passive:true});
-    const observer=new ResizeObserver(()=>{if(buffer&&piano.clientWidth>0&&(needsReveal||Math.abs(piano.clientWidth-lastWidth)>1)){draw();revealPosition();}});observer.observe(piano);
-    return Object.freeze({setSession,render,selectedId:()=>selected,select,setEditing:value=>{Object.assign(editing,value);refreshEditor();},reveal:()=>{draw();revealPosition();},setLocked:value=>{locked=!!value;if(locked)player.pause();updateTransport();refreshEditor();},playOriginal:()=>guard(()=>{player.setMode('original');return player.play();}),pause:()=>guard(()=>player.pause()),dispose:()=>{observer.disconnect();player.dispose();buffer=null;notes=[];peaks=[];},snapshot:()=>player.snapshot()});
+    const observer=new ResizeObserver(()=>{if(buffer&&piano.clientWidth>0&&(needsReveal||Math.abs(piano.clientWidth-lastWidth)>1||piano.clientHeight!==lastHeight)){draw();revealPosition();}});observer.observe(piano);
+    return Object.freeze({setSession,render,selectedId:()=>selected,select,setEditing:value=>{Object.assign(editing,value);refreshEditor();},reveal:()=>{draw();revealPosition();},setLocked:value=>{locked=!!value;if(locked)player.pause();updateTransport();refreshEditor();},playOriginal:()=>guard(()=>{player.setMode('original');return player.play();}),pause:()=>guard(()=>player.pause()),dispose:()=>{observer.disconnect();if(renderFrame){cancelAnimationFrame(renderFrame);renderFrame=0;}player.dispose();buffer=null;notes=[];noteIndex=t.createNoteIndex([]);peaks=[];view=null;},snapshot:()=>player.snapshot()});
   }
   return Object.freeze({create});
 })();

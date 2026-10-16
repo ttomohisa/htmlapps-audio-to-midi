@@ -11,7 +11,8 @@ Spotify Basic Pitchで短い録音から音符を検出し、端末内だけでM
 - マイク録音、音量表示、停止・試聴・破棄と元音声の任意保存
 - スマートフォン向け「入力・音符・保存」ページタブ
 - CPUによる端末内解析、進捗表示、即時キャンセル
-- ピアノロールと波形、拡大・スクロール・選択音符の時刻表示
+- ピアノロールと波形の可視範囲描画、拡大・スクロール・選択音符の時刻表示
+- 小区間に分けた推論と、完了後の端末内モデル再利用
 - 音符の追加・削除、半音/時刻の修正、音名/秒数の直接入力、削除を元に戻す操作
 - 元音声/簡易合成音の聴き比べ、再生・一時停止・停止・シーク
 - 保存名の編集と標準MIDIタイプ1出力
@@ -32,7 +33,7 @@ Spotify Basic Pitchで短い録音から音符を検出し、端末内だけでM
 
 ## 対応環境・制限
 
-現在は **v0.6の開発段階**です。Web Audio・Worker・DecompressionStream対応のChrome/Edge/Firefox/Safariを対象にしています。Windows・Android・iOS実機での受け入れ確認は未完了です。[検証記録](docs/VERIFICATION.md)を参照してください。
+現在は **v0.7の開発段階**です。Web Audio・Worker・DecompressionStream対応のChrome/Edge/Firefox/Safariを対象にしています。Windows・Android・iOS実機での受け入れ確認は未完了です。[検証記録](docs/VERIFICATION.md)を参照してください。
 
 採譜は推定です。複数楽器の楽曲、雑音、倍音などで誤検出があります。MIDIは音声ではありません。時間を保持するための固定120 BPM、チャンネル1、ピアノ音色0、ベロシティ96で保存します。テンポ・強弱は推定せず、ピッチベンドも出力しません。
 
@@ -46,10 +47,12 @@ Spotify Basic Pitchで短い録音から音符を検出し、端末内だけでM
 
 [AGENTS.md](AGENTS.md)・[APP_SPEC.md](APP_SPEC.md)を先に確認してください。[開発計画](docs/DEVELOPMENT_PLAN.md)と[受け入れマトリクス](docs/ACCEPTANCE_MATRIX.md)はv0.1〜v1.0を対象にしています。
 
-Windowsでは `build-standalone.bat` を実行します。PowerShellの構文検査と `scripts/check-repository.ps1` が正式なビルド検証です。Node 24で `npm ci --ignore-scripts`、`npm test`、`npm run test:model`、Chromium導入後に `npm run test:browser` を実行できます。
+Windowsでは `build-standalone.bat` を実行します。PowerShellの構文検査と `scripts/check-repository.ps1` が正式なビルド検証です。Node 24で `npm ci --ignore-scripts`、`npm test`、`npm run test:model`、Chromium導入後に `npm run test:browser` を実行できます。任意の `npm run test:performance` は実モデルの10/30/60秒比較と100回の短時間解析・中断を測定し、数分かかることがあります。推論テストには通常ビルドで検証したパッケージキャッシュが必要です。
 
 生成HTMLは直接編集せず、`src/`から再ビルドしてください。
 
 ## ライセンス
 
 アプリはMIT。Basic Pitchとモデル、TensorFlow.jsはApache-2.0、Tonejs MIDIはMITです。[第三者告知](THIRD_PARTY_NOTICES.md)とアプリ内ヘルプの全文を参照してください。
+
+解析中にページを隠すと処理を中止します。戻ってから明示的に解析し直してください。再解析を中止しても前の完成済み音符は保持します。実機の性能ゲートは未完了のため、入力上限は60秒を維持しています。

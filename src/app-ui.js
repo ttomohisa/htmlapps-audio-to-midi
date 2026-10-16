@@ -21,6 +21,8 @@ Object.assign(translations.en,{"splitNote": "Split selected note", "splitSeconds
 Object.assign(translations.ja,{"splitNote": "選択音符を分割", "splitSeconds": "分割する時刻（秒）", "previewSplit": "分割をプレビュー", "mergeNote": "隣り合う音符を結合", "mergeNoteId": "結合する相手", "previewMerge": "結合をプレビュー", "mergeHint": "同じ音高で、重ならず、間隔が0.05秒以内の隣り合う音符だけを結合できます。", "noMergeCandidate": "結合できる隣接音符がありません", "cleanupTitle": "音符を整理", "shortNoteSeconds": "この長さ未満（秒）", "previewRemoveShort": "短い音符の削除をプレビュー", "shortNotesHint": "手動追加を含め、指定より短い音符を確認できます。自動では削除しません。", "quantizeEnabled": "任意のグリッド補正を有効にする", "gridSeconds": "グリッドの間隔（秒）", "quantizeMode": "補正する時刻", "quantizeBoth": "開始と終了", "quantizeStart": "開始のみ", "quantizeEnd": "終了のみ", "previewQuantize": "グリッド補正をプレビュー", "quantizeHint": "初期状態はOFFです。0秒からの最寄りの秒単位グリッドに合わせます。テンポは推定しません。不正な長さになる音符は変更しません。", "cleanupPreviewTitle": "適用前に変更を確認", "cleanupBefore": "変更前", "cleanupAfter": "変更後", "applyCleanup": "この変更を適用", "cancelCleanup": "プレビューを中止", "cleanupChanged": "対象の音符", "cleanupSkipped": "変更しない音符", "cleanupShown": "変更の先頭100件まで表示", "cleanupEmpty": "変更対象はありません。", "cleanupRemoved": "削除", "cleanupApplied": "音符の整理を適用しました", "invalidCleanup": "値を確認してください。分割は音符の内側、短い音符は0.01〜2秒、グリッドは0.01〜1秒です。結合は条件に合う隣接音符だけに行えます。", "staleCleanup": "音符が変わりました。もう一度プレビューしてください。", "helpCleanup": "選択音符の内側の時刻で分割するか、同じ音高で間隔0.05秒以内の隣接音符と結合できます。「音符を整理」では短い音符の削除と任意の秒単位グリッド補正をプレビューします。変更前後を確認して適用すると、まとめて1回のUndoで戻せます。グリッド補正は初期OFFで、テンポを推定せず、不正な結果は変更しません。自動で整理することはありません。", "scopeNote": "v0.6は録音・検出設定・音符編集と整理・Undo/Redoに対応しています。簡易合成音は元の楽器の音色を再現しません。"});
 Object.assign(translations.en,{splitTime:'Split at (s)',mergeWith:'Merge with',mergeNone:'No eligible adjacent note',shortNoteThreshold:'Shorter than (s)',cleanupChange:'Change'});
 Object.assign(translations.ja,{splitTime:'分割する時刻（秒）',mergeWith:'結合する相手',mergeNone:'結合できる隣接音符がありません',shortNoteThreshold:'この長さ未満（秒）',cleanupChange:'変更'});
+Object.assign(translations.en,{helpPerformance:'Analysis uses bounded input windows and reuses the local model after successful runs. Cancel, changing audio during analysis, hiding the page or Reset stops active work. Returning does not restart it; press Analyze again. Completed notes remain after an interrupted reanalysis. The timeline draws visible content as you scroll. Input remains limited to 60 seconds; larger files are not supported.',scopeNote:'v0.7: local analysis with bounded windows, model reuse and visible-range timelines. The simple synth does not reproduce the original instrument.'});
+Object.assign(translations.ja,{helpPerformance:'解析は入力を小さな区間に分け、完了後は端末内のモデルを再利用します。キャンセル・解析中の入力変更・ページを隠す操作・リセットで処理を停止します。戻っても自動再開しないため、もう一度「音声を解析」を押してください。再解析を中止しても前の完成済み音符は残ります。波形と音符はスクロールに合わせて表示範囲を描画します。入力上限は60秒のままで、それより長い音声には対応していません。',scopeNote:'v0.7は小区間での端末内解析・モデル再利用・可視範囲のタイムライン描画に対応しています。簡易合成音は元の楽器の音色を再現しません。'});
 const languageKey=APP_CONFIG.slug+':language';
 function readStorage(key){try{return localStorage.getItem(key);}catch{return null;}}
 function writeStorage(key,value){try{localStorage.setItem(key,value);}catch{}}
@@ -103,10 +105,11 @@ async function confirmEdits(){
  return ok&&editor===session&&revision===editRevision&&generation.isCurrent(token);
 }
 let worker=null,workerUrl=null,decodeContext=null,recording=null,mobile=null;
+let sourceRequest=0,sourcePermission=null;
 const busy=()=>['decoding','loading-model','analyzing','postprocessing'].includes(state.phase);
 function stopWorker(){if(worker){worker.terminate();worker=null;}if(workerUrl){URL.revokeObjectURL(workerUrl);workerUrl=null;}}
 function closeDecoder(){const context=decodeContext;decodeContext=null;if(context&&context.state!=='closed')context.close().catch(()=>{});}
-function invalidate(){const token=generation.next();stopWorker();closeDecoder();return token;}
+function invalidate({keepIdleWorker=false}={}){const token=generation.next();if(!keepIdleWorker||busy())stopWorker();closeDecoder();return token;}
 function pitchName(pitch){return ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][pitch%12]+(Math.floor(pitch/12)-1);}
 function render(){
  document.body.dataset.phase=state.phase;
@@ -151,12 +154,18 @@ async function selectFiles(files,{recorded=false}={}){
  if(files.length!==1){if(files.length){state.inputError='multipleFiles';render();}return;}
  const file=files[0],error=core.validateFile(file);
  if(error){state.inputError=error;render();return false;}
- const requestGeneration=generation.capture();
- if(!recorded&&!await confirmEdits())return false;
- if(!recorded&&!await recording.replace())return false;
- if(!generation.isCurrent(requestGeneration))return false;
+ const request=++sourceRequest,requestGeneration=generation.capture();
+ if(!recorded){
+  // Concurrent file selections share the same loss-confirmation decision; only
+  // the latest valid request may install a source after it resolves.
+  if(!sourcePermission)sourcePermission=(async()=>await confirmEdits()&&await recording.replace())();
+  const permission=sourcePermission;let allowed;
+  try{allowed=await permission;}finally{if(sourcePermission===permission)sourcePermission=null;}
+  if(!allowed)return false;
+ }
+ if(request!==sourceRequest||!generation.isCurrent(requestGeneration))return false;
  clearEditing();
- const token=invalidate();Object.assign(state,{phase:'decoding',file,duration:0,samples:null,originalBuffer:null,notes:[],error:null,inputError:null,progress:0,elapsed:0,sourceKind:recorded?'recording':'file',detectionWarning:false});
+ const token=invalidate({keepIdleWorker:true});Object.assign(state,{phase:'decoding',file,duration:0,samples:null,originalBuffer:null,notes:[],error:null,inputError:null,progress:0,elapsed:0,sourceKind:recorded?'recording':'file',detectionWarning:false});
  outputFilename.value=core.defaultMidiName(file.name).replace(/\.mid$/,'');render();
  let context;
  try{
@@ -177,7 +186,7 @@ async function selectFiles(files,{recorded=false}={}){
   }
   if(!generation.isCurrent(token))return;
   state.samples=samples;state.originalBuffer=audio;state.phase='ready';render();return true;
- }catch(error){if(generation.isCurrent(token)){state.phase='error';state.error=['invalidDuration','browserUnsupported'].includes(error.message)?error.message:(recorded?'recordingDecodeFailed':'decodeFailed');render();}return false;}
+ }catch(error){if(generation.isCurrent(token)){stopWorker();state.phase='error';state.error=['invalidDuration','browserUnsupported'].includes(error.message)?error.message:(recorded?'recordingDecodeFailed':'decodeFailed');render();}return false;}
  finally{if(decodeContext===context)closeDecoder();}
 }
 async function analyze(){
@@ -199,7 +208,7 @@ async function analyze(){
   }
   const activeWorker=worker;
   activeWorker.onmessage=event=>{
-   if(!generation.isCurrent(token)||worker!==activeWorker)return;
+   if(!generation.isCurrent(token)||worker!==activeWorker||event.data.jobId!==token)return;
    const result=event.data;
    if(result.phase==='complete'){
     editor=AudioMidiEditing.createSession(core.normalizeNotes(result.notes,state.duration),state.duration);state.notes=editor.snapshot();state.elapsed=result.elapsedMs;editRevision++;editError=null;
@@ -211,7 +220,11 @@ async function analyze(){
   };
   activeWorker.onerror=event=>{console.error('Audio worker failed:',event.message);event.preventDefault();if(generation.isCurrent(token)){restoreAnalysis('analysisFailed');stopWorker();render();}};
   const copy=new Float32Array(state.samples);
-  activeWorker.postMessage({settings,samples:copy,modelJson:activeWorker.modelJson,weights:activeWorker.modelWeights.buffer},[copy.buffer]);
+  const payload={jobId:token,settings,samples:copy};
+  if(activeWorker.modelJson){payload.modelJson=activeWorker.modelJson;payload.weights=activeWorker.modelWeights.buffer;}
+  activeWorker.postMessage(payload,[copy.buffer]);
+  // Bootstrap data is needed only once. The idle worker owns the loaded model.
+  activeWorker.modelJson=null;activeWorker.modelWeights=null;
  }catch(error){console.error('Audio runtime preparation failed:',error);if(generation.isCurrent(token)){stopWorker();restoreAnalysis('analysisFailed');render();}}
 }
 function restoreAnalysis(error=null){state.phase=editor?(state.notes.length?'result':'no-notes'):(error?'error':'cancelled');state.error=error;state.progress=0;}
@@ -272,7 +285,7 @@ window.addEventListener('pagehide',event=>{
   if(wasBusy)restoreAnalysis();
  }else{review.dispose();state.samples=null;state.originalBuffer=null;state.notes=[];state.phase='empty';}
 });
-document.addEventListener('visibilitychange',()=>{if(document.hidden){review.pause();recording.suspend();}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){review.pause();recording.suspend();if(busy()){invalidate();restoreAnalysis();render();}}});
 window.addEventListener('beforeunload',event=>{if(recording.active()||recording.unsaved()||editor?.dirty()){event.preventDefault();event.returnValue='';}});
 window.addEventListener('pageshow',event=>{if(event.persisted)render();});
 $('#versionBadge').textContent='v'+APP_CONFIG.version;$('#buildVersion').textContent=APP_CONFIG.version;$('#builtAt').textContent=BUILD_MANIFEST.generatedAtUtc;$('#dependencyCount').textContent=BUILD_MANIFEST.dependencies.length;

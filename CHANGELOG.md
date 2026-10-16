@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0 — 2026-10-16
+
+- Bound inference input tensors to one window while preserving pinned model alignment.
+- Reuse idle model workers across successful runs and audio replacement; send bootstrap data once and reject stale job IDs.
+- Cancel active analysis when hidden; retain the previous complete editor on interrupted reanalysis.
+- Render timeline content only near the viewport, preserving source-time geometry and keyboard selection.
+- Add performance, window-boundary and 100-cycle lifecycle/resource regression evidence. Keep 60-second limit pending physical-device gates.
+
 ## 0.6.0 — development milestone (2026-10-16)
 
 - Preview and apply selected-note split and eligible adjacent same-pitch merge.

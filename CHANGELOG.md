@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 — development milestone (2026-10-16)
+
+- Add single-note pitch and timing correction, direct note-name/MIDI and second entry, manual additions and deletions.
+- Keep touch-sized editing controls beside the selected note; update piano roll, synth and MIDI from the same current note list.
+- Restore deletions using canonical Toast + Undo and a persistent undo-deletion control.
+- Preserve detection provenance and protect unsaved edits before reanalysis, source replacement or reset.
+- Full edit Undo/Redo remains v0.5. Physical-device acceptance remains unverified.
+
 ## 0.3.0 — development milestone (2026-10-16)
 
 - Add explicit, local-only microphone capture with native format checks, a level meter, Stop / Listen / Discard, and an editable original-recording filename/download.

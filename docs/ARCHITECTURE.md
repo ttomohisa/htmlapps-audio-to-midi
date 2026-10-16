@@ -129,3 +129,7 @@ The worker bootstrap concatenates only declared, hash-verified TF.js and Tonejs 
 - `mobile-nav.js`: canonical mobile-bottom-bar adaptation, adding an async pre-navigation guard for recording. Existing desktop workspaces remain visible; phones switch one input/review/export page at a time.
 - Stop on hidden and pagehide is a privacy boundary. Persisted pagehide keeps coherent session data, but real BFCache eligibility remains a separate browser gate.
 - New native recording APIs add no package/license dependency. CSP and embedded model assets are unchanged.
+
+## v0.4 editable notes
+
+`editing-core.js` owns an immutable original detection snapshot, detached validated current notes, unique manual IDs, deletion restoration and an export-content saved fingerprint. `app-ui.js` owns the active editor and async loss-confirmation guards. `review-ui.js` only emits edit intents and maintains selection, view and input drafts. Successful edits replace the single `state.notes` reference consumed by piano rendering, Web Audio scheduling and MIDI encoding. A session/revision check rejects stale confirmation decisions and toast callbacks. No new dependencies, network or persistence boundary is introduced.

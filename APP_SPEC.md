@@ -307,3 +307,12 @@ interface Note {
 - At <=600px the canonical bottom bar switches Input / Notes / Export pages; desktop retains all framed workspaces. Notes and export use real disabled states until available. Header, hero, fully-local badge and modal scroll-position restoration are retained.
 - WebM is accepted for reloading browser recordings when the browser can decode it. File conversion remains usable if microphone permission/API/MIME/secure-context support is unavailable. file:// availability varies by browser; HTTPS is the recording fallback.
 - No additional model/library dependency or runtime network access is introduced. Physical device permission prompts, microphone quality, audible listening, mobile touch and Safari/Firefox codecs remain manual acceptance gates.
+
+### v0.4 implementation boundary (2026-10-16)
+
+- Analysis creates an immutable detection snapshot and a separate session-owned editable list. Piano roll, simple synth and MIDI share that list; original audio is never changed.
+- Single-note selection has adjacent 44px controls for add/delete, semitone pitch steps and 0.05-second start/end steps. Direct note-name/MIDI and second inputs apply atomically after validation; overlap is legal.
+- Manual additions have distinct IDs and origin. Editing a detected note retains its detected provenance. No tempo, velocity or pitch-bend estimation is introduced.
+- Delete uses the canonical Undo toast and a persistent deletion-undo button (up to 100 deleted notes). General edit Undo/Redo is reserved for v0.5.
+- Unsaved edited note content is fingerprinted against the latest download. Reanalysis, audio replacement, recording replacement and reset guard data loss. Download initiates browser saving; the app cannot establish that the file reached storage.
+- Edits are session-only. beforeunload is best effort; physical mobile/device acceptance remains unverified.

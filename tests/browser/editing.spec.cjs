@@ -1,0 +1,32 @@
+const {test,expect}=require('@playwright/test');
+const fs=require('node:fs'),path=require('node:path');const {pathToFileURL}=require('node:url');
+const {makeWav}=require('../fixtures.cjs');const {parseMidi}=require('midi-file');
+async function phase(page,value){await expect(page.locator('body')).toHaveAttribute('data-phase',value,{timeout:90000});}
+async function upload(page,name='C4.wav'){await page.locator('#audioFile').setInputFiles({name,mimeType:'audio/wav',buffer:makeWav()});}
+async function setup(page,context,variant){const errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});if(variant==='deployed'){await page.goto(process.env.PREVIEW_URL);requests.length=0;}else await page.goto(pathToFileURL(path.join(__dirname,'../../dist',variant)).href);await context.setOffline(true);await upload(page);await phase(page,'ready');await page.locator('#analyzeButton').click();await phase(page,'result');return {errors,requests};}
+async function notes(page){return page.locator('#pianoRoll [data-note-id]').evaluateAll(nodes=>nodes.map(n=>({id:n.dataset.noteId,pitch:Number(n.dataset.pitch),start:Number(n.dataset.start),end:Number(n.dataset.end)})));}
+function readMidi(bytes){const midi=parseMidi(bytes),active=new Map(),result=[];let tick=0;for(const e of midi.tracks[1]){tick+=e.deltaTime;if(e.type==='noteOn'){if(!active.has(e.noteNumber))active.set(e.noteNumber,[]);active.get(e.noteNumber).push(tick);}if(e.type==='noteOff')result.push({pitch:e.noteNumber,start:active.get(e.noteNumber).shift()/960,end:tick/960});}return result;}
+for(const variant of ['index.html','index.self-extract.html','deployed'])test(`${variant}: edit detected notes, validate fields, undo deletion and export current MIDI`,async({page,context},info)=>{
+ test.skip(variant==='deployed'&&!process.env.PREVIEW_URL,'Preview URL not supplied');
+ const observed=await setup(page,context,variant);const original=await notes(page);expect(original.length).toBeGreaterThan(0);
+ await page.locator('#pitchUp').click();let current=await notes(page);expect(current[0].pitch).toBe(original[0].pitch+1);
+ await page.locator('#startLater').click();current=await notes(page);expect(current[0].start).toBeCloseTo(original[0].start+.05,9);await expect(page.locator('#noteDirty')).toBeVisible();
+ await page.locator('#editPitch').fill('Db4');await page.locator('#editStart').fill('0.333333');await page.locator('#editEnd').fill('1.75');await page.locator('#applyNoteButton').click();current=await notes(page);expect(current[0]).toMatchObject({pitch:61,start:.333333,end:1.75});
+ for(const [field,value] of [['editPitch','128'],['editPitch','C99'],['editStart',''],['editStart','2'],['editEnd','9']]){
+  await page.locator('#editPitch').fill('Db4');await page.locator('#editStart').fill('0.333333');await page.locator('#editEnd').fill('1.75');await page.locator('#'+field).fill(value);await page.locator('#applyNoteButton').click();await expect(page.locator('#noteEditError')).toBeVisible();expect(await notes(page)).toEqual(current);
+ }
+ await page.locator('#addNoteButton').click();await expect(page.locator('#noteOrigin')).toContainText(/Manually|手動/);await page.locator('#editPitch').fill('G4');await page.locator('#editStart').fill('0.4');await page.locator('#editEnd').fill('1.6');await page.locator('#applyNoteButton').click();current=await notes(page);expect(current.some(n=>n.pitch===67&&n.start===.4)).toBe(true);
+ await page.locator('#deleteNoteButton').click();expect((await notes(page)).length).toBe(current.length-1);await page.locator('#appToastAction').click();expect(await notes(page)).toEqual(current);
+ await page.locator('#outputFilename').fill('編集したメロディー');const saved=page.waitForEvent('download');await page.locator('#downloadButton').click();const d=await saved;expect(d.suggestedFilename()).toBe('編集したメロディー.mid');const decoded=readMidi(fs.readFileSync(await d.path()));expect(decoded.length).toBe(current.length);for(const n of current)expect(decoded.some(x=>x.pitch===n.pitch&&Math.abs(x.start-n.start)<.0011&&Math.abs(x.end-n.end)<.0011)).toBe(true);await expect(page.locator('#noteDirty')).not.toBeVisible();
+ await page.locator('#pitchUp').click();await expect(page.locator('#noteDirty')).toBeVisible();
+ await page.setViewportSize({width:1360,height:900});await page.locator('#noteEditor').scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('desktop-note-editor.png'),fullPage:false});
+ for(const width of [320,360,390]){await page.setViewportSize({width,height:760});await page.locator('[data-mobile-key="notes"]').click();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);for(const id of ['pitchUp','startLater','deleteNoteButton','applyNoteButton']){const box=await page.locator('#'+id).boundingBox();expect(box.height).toBeGreaterThanOrEqual(44);}}
+ await page.locator('#editStart').fill('0.55');await page.locator('#languageButton').click();await expect(page.locator('#editStart')).toHaveValue('0.55');await page.screenshot({path:info.outputPath('mobile-note-editor.png'),fullPage:true});
+ expect(observed.errors).toEqual([]);expect(observed.requests).toEqual([]);
+});
+test('unsaved edits survive cancelled reanalysis, file/record replacement and reset; zero-note Undo remains available',async({page,context})=>{
+ await setup(page,context,'index.html');await page.locator('#pitchUp').click();const edited=await notes(page);
+ for(const action of [()=>page.locator('#analyzeButton').click(),()=>upload(page,'replacement.wav'),()=>page.locator('#recordButton').click(),()=>page.locator('#resetButton').click()]){await action();await expect(page.locator('#appConfirmDialog')).toBeVisible();await page.locator('#appConfirmCancel').click();expect(await notes(page)).toEqual(edited);await phase(page,'result');}
+ while((await notes(page)).length)await page.locator('#deleteNoteButton').click();await phase(page,'no-notes');await expect(page.locator('#downloadButton')).toBeDisabled();await expect(page.locator('#undoNoteButton')).toBeEnabled();await page.locator('#undoNoteButton').click();await phase(page,'result');
+ await page.locator('#resetButton').click();await page.locator('#appConfirmOk').click();await phase(page,'empty');await expect(page.locator('#addNoteButton')).toBeDisabled();
+});

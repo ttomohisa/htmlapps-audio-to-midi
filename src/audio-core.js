@@ -1,4 +1,4 @@
-/* Pure, shared audio input/note/MIDI contracts. No browser, model, or network side effects. */
+/* Pure, shared audio input/note/export contracts. No browser, model, or network side effects. */
 const AudioMidiCore = (() => {
   const SAMPLE_RATE = 22050, PPQ = 480, TICKS_PER_SECOND = 960;
   function buildWorkerSource(tfSource,midiSource,postSource,inferenceSource) {
@@ -44,15 +44,39 @@ const AudioMidiCore = (() => {
     let generation = 0;
     return Object.freeze({next:() => ++generation,capture:() => generation,isCurrent:token => token === generation});
   }
-  function safeMidiName(value) {
-    let base = String(value || '').replace(/[\x00-\x1f\x7f/\\:*?"<>|]/g,'').trim().replace(/(?:\.mid)+$/i,'').replace(/[. ]+$/g,'');
+  function safeExportName(value, extension) {
+    // A shared name survives format changes. Remove only known export suffixes;
+    // retain Japanese and meaningful periods elsewhere in the user's name.
+    const stripSuffix = name => name.replace(/[. ]+$/g,'').replace(/(?:\.(?:mid|csv)[. ]*)+$/i,'').replace(/[. ]+$/g,'');
+    let base = stripSuffix(String(value || '').replace(/[\x00-\x1f\x7f/\\:*?"<>|]/g,'').trim());
     if (!base) base = 'audio-to-midi-notes';
     if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(base)) base = '_' + base;
-    return Array.from(base).slice(0,120).join('') + '.mid';
+    base = stripSuffix(Array.from(base).slice(0,120).join('')) || 'audio-to-midi-notes';
+    return base + '.' + extension;
   }
+  function safeMidiName(value) { return safeExportName(value, 'mid'); }
+  function safeCsvName(value) { return safeExportName(value, 'csv'); }
   function defaultMidiName(name) { return safeMidiName(String(name).replace(/\.[^.]+$/,'') + '-notes'); }
+  function validateExportNotes(notes) {
+    if (!Array.isArray(notes) || !notes.length) throw new Error('No valid notes to export');
+    // Iteration includes sparse-array holes, unlike Array#some. Reject the whole
+    // export rather than silently dropping malformed rows from the current score.
+    for (const note of notes) {
+      if (!note || typeof note !== 'object' || Array.isArray(note) || !validNote(note) || note.endSeconds > 60) {
+        throw new Error('No valid notes to export');
+      }
+    }
+  }
+  function encodeCsv(notes) {
+    validateExportNotes(notes);
+    const rows = notes.slice().sort((a,b) => a.startSeconds-b.startSeconds || a.pitchMidi-b.pitchMidi || a.endSeconds-b.endSeconds);
+    // Only validated numbers are serialized: no filename, provenance, formula,
+    // or other source metadata. Keep exact source seconds, with no MIDI rounding.
+    return 'start_seconds,end_seconds,pitch_midi,velocity\r\n' +
+      rows.map(note => [note.startSeconds,note.endSeconds,note.pitchMidi,96].join(',')).join('\r\n') + '\r\n';
+  }
   function encodeMidi(notes) {
-    if (!notes.length || notes.some(n => !validNote(n) || n.endSeconds > 60)) throw new Error('No valid notes to export');
+    validateExportNotes(notes);
     const be16 = n => [n >>> 8 & 255,n & 255];
     const be32 = n => [n >>> 24 & 255,n >>> 16 & 255,n >>> 8 & 255,n & 255];
     function vlq(n) { const bytes=[n & 127]; while ((n=Math.floor(n/128))) bytes.unshift((n & 127)|128); return bytes; }
@@ -72,6 +96,6 @@ const AudioMidiCore = (() => {
     track.push(0,255,47,0);
     return new Uint8Array([...ascii('MThd'),...be32(6),...be16(1),...be16(2),...be16(PPQ),...tempo,...chunk('MTrk',track)]);
   }
-  return Object.freeze({SAMPLE_RATE,PPQ,buildWorkerSource,validateFile,validateDuration,mixChannels,normalizeNotes,createGeneration,safeMidiName,defaultMidiName,encodeMidi});
+  return Object.freeze({SAMPLE_RATE,PPQ,buildWorkerSource,validateFile,validateDuration,mixChannels,normalizeNotes,createGeneration,safeMidiName,safeCsvName,defaultMidiName,encodeMidi,encodeCsv});
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports=AudioMidiCore;

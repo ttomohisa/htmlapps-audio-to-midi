@@ -1,15 +1,15 @@
-# v0.7 verification record
+# v0.8 verification record
 
-Development milestone, 2026-10-16. Previous record: [v0.6](VERIFICATION-v06.md).
+Development milestone, 2026-10-16. Previous record: [v0.7](VERIFICATION-v07.md).
 
 ## Required gates
 
-- Exact window samples/alignment, tensor disposal on success/error/cancellation, boundary-note equivalence and actual pinned-model 10/30/60-second measurements.
-- 100 short real-model analysis/cancellation cycles, plus browser worker lifecycle stress and real-model recovery/reuse. Memory measurements distinguish tensor bytes from process memory and do not claim browser/device peak memory.
-- Viewport geometry, long crossing notes, dense timelines, scrolling/zoom/keyboard reveal and immutable note data.
-- Existing settings, cleanup, editor/MIDI readback, recording, playback, modal and offline normal/self-extract regressions.
-- PowerShell syntax/build/integrity, independent review, exact-head CI and HTTPS preview before Ready. Final counts/run links and benchmark measurements belong in the PR evidence, avoiding evidence-only rebuilds.
+- Independent SMF parser: header/tempo/channel/program, consecutive equal pitches, chords, overlap, short/sub-tick notes, pitches 0/127 and dense event sequences. Nested same-pitch ambiguity is explicitly tested and documented, not claimed to preserve per-note identity.
+- CSV: exact header, deterministic non-mutating order, full source seconds, numeric-only fields, UTF-8/CRLF, malformed input rejection and no source metadata.
+- Filename: Japanese, unsafe characters, empty/reserved names, mixed/repeated extensions and format switching.
+- Browser: edited/deleted/restored notes, exact CSV values versus MIDI readback, saved fingerprint, replacement/cancel/no-notes guards, keyboard, JA/EN,320/360/390px and output screenshots.
+- All existing unit, actual-model smoke, offline readable/self-extract, PowerShell/build/integrity and HTTPS preview gates remain required. Exact counts/run links are recorded in the PR rather than evidence-only source commits.
 
-## Limits and manual gates
+## Remaining gates
 
-Input remains 60 seconds / 50 MiB; recording 59 seconds. Whole compressed files are decoded by decodeAudioData; duration is validated only after decode. A 50 MiB compressed file may need substantially more decoded memory. Physical Windows/Android/iOS timings, peak memory, low-memory behavior, permissions, audible listening, touch, Safari/Firefox codecs and actual BFCache are unverified. Cloud CPU and automated Chromium results are not physical-device acceptance. The five-minute expansion gate is not passed and remains disabled.
+Actual DAW/player listening, physical Windows/Android/iOS behavior, low-memory limits, permission prompts, touch, Safari/Firefox codecs and real BFCache remain unverified. Pitch bends are absent/OFF. MIDI same-pitch overlaps may pair differently between readers; CSV preserves exact intervals. No 5-minute input expansion or physical-device performance claim is made.

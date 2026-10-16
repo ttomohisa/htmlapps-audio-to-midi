@@ -231,6 +231,7 @@
     .save-status { align-self: center; color: var(--muted); font-size: 12px; }
     .export-row { display: flex; align-items: end; gap: 10px; margin-top: 12px; }
     .export-field { display: grid; gap: 5px; min-width: min(100%, 320px); }
+    .export-field select { min-height:44px; font-size:16px; font-weight:400; }
     .export-label { color: var(--muted); font-size: 11px; font-weight: 700; }
     .filename-control { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
     .filename-control:focus-within { border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 20%, transparent); }
@@ -855,9 +856,10 @@
         <div id="notesSummary"><div class="summary-line"><span id="noteCount" class="result-count">—</span><span data-i18n="notes">notes</span></div><p class="muted" id="resultMeta"></p></div>
         <p class="compact-note" id="detectionWarning" role="status" hidden></p>
         <p class="muted" data-i18n="accuracyNote">Transcription is an estimate. Check the MIDI in your music app.</p>
-        <label class="export-field" for="outputFilename"><span class="export-label" data-i18n="outputFilename">Output filename</span><span class="filename-control"><input class="filename-input" id="outputFilename" maxlength="120" autocomplete="off" spellcheck="false" value="audio-to-midi-notes"><span class="filename-extension">.mid</span></span></label>
+        <label class="export-field" for="outputFormat"><span class="export-label" data-i18n="outputFormat">File format</span><select id="outputFormat"><option value="mid" data-i18n="formatMidi">MIDI (.mid)</option><option value="csv" data-i18n="formatCsv">Note table (.csv)</option></select></label>
+        <label class="export-field" for="outputFilename"><span class="export-label" data-i18n="outputFilename">Output filename</span><span class="filename-control"><input class="filename-input" id="outputFilename" maxlength="120" autocomplete="off" spellcheck="false" value="audio-to-midi-notes"><span class="filename-extension" id="outputExtension">.mid</span></span></label>
         <button id="downloadButton" type="button" class="button primary" disabled data-i18n="download">Download MIDI</button>
-        <p class="muted" data-i18n="midiNote">MIDI contains notes, not audio. Fixed 120 BPM and velocity 96; tempo and loudness are not estimated.</p>
+        <p class="muted" id="midiNote" data-i18n="midiNote">MIDI contains notes, not audio. Fixed 120 BPM and velocity 96; tempo and loudness are not estimated.</p>
         <details id="notesDetails" hidden><summary data-i18n="noteDetails">Detected note details</summary><div class="note-row muted"><span data-i18n="pitch">Pitch</span><span data-i18n="start">Start (s)</span><span data-i18n="end">End (s)</span></div><div class="notes-list" id="noteRows"></div><p class="muted" id="noteLimit"></p></details>
       </section>
     </div>
@@ -924,6 +926,7 @@
       <p data-i18n="helpDetection"></p>
       <p data-i18n="helpCleanup"></p>
       <p data-i18n="helpPerformance"></p>
+      <p data-i18n="helpExport"></p>
           <!-- APP:HELP:END -->
     </div>
   </dialog>

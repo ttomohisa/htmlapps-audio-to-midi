@@ -114,6 +114,9 @@ foreach ($requiredDependencyId in @("qrcode-generator", "jsqr")) {
 }
 
 $sourceText = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "src\index.template.html")
+foreach ($sourcePart in @("src/audio-core.js", "src/app-ui.js", "src/ui-components.js", "src/inference-worker.js")) {
+  $sourceText += Get-Content -Raw -Encoding UTF8 (Join-Path $Root $sourcePart)
+}
 if (-not $sourceText.Contains("__EMBEDDED_ASSET_BUNDLE_JSON__")) { throw "src\index.template.html must embed the asset bundle JSON directly." }
 if ($sourceText.Contains("__EMBEDDED_ASSET_BUNDLE_BASE64__")) { throw "Legacy double-Base64 asset bundle placeholder must not return." }
 $iconPlaceholderCount = ([regex]::Matches($sourceText, [regex]::Escape("__APP_ICON_DATA_URI__"))).Count

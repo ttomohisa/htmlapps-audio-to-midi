@@ -111,3 +111,9 @@ Keep source in one HTML while it remains understandable. When an app grows subst
 - No runtime external resource.
 - Clear state ownership.
 - A build that fails on missing input.
+
+## Audio to MIDI v0.1 runtime
+
+Development source is split into `audio-core.js` (pure validation, mono mix, note model and MIDI), `inference-worker.js` (CPU inference with bounded tensor scopes), `app-ui.js` (generation-owned input/result state), and `ui-components.js` (adapted canonical confirmation/toast). The standard PowerShell builder concatenates these and serializes worker source and full notices; release remains one HTML.
+
+The worker bootstrap concatenates only declared, hash-verified TF.js and Tonejs bundles plus the unchanged Basic Pitch CommonJS post-processing module. A small static module wrapper resolves its single Tonejs import; no eval/Function constructor, dynamic import, runtime fetch or bundler service is used. Model topology and weight bytes are passed directly to an in-memory TensorFlow IOHandler. The CPU backend is selected explicitly.

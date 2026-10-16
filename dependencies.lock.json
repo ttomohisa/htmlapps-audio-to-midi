@@ -1,5 +1,27 @@
 {
   "$schema": "./schemas/dependencies-lock.schema.json",
   "schemaVersion": 1,
-  "dependencies": []
+  "dependencies": [
+    {
+      "id": "tfjs",
+      "package": "@tensorflow/tfjs",
+      "version": "3.21.0",
+      "tarballSha256": "3017b7ed8072b6a51e580c9d6b78b605d43689feffdfd5dc929675f3be0affbb",
+      "integrity": "sha512-khcARd3/872llL/oF4ouR40qlT71mylU66PGT8kHP/GJ5YKj44sv8lDRjU7lOVlJK7jsJFWEsNVHI3eMc/GWNQ=="
+    },
+    {
+      "id": "basic-pitch",
+      "package": "@spotify/basic-pitch",
+      "version": "1.0.1",
+      "tarballSha256": "8efee25e266e4a06bb2a8f3a86ad934179a2db2845c1544a9b2e43b37a74a874",
+      "integrity": "sha512-SAxiFi9ZnyhGdhWEOS9YVhdunZiKzI3I5zOccZzDzQRr4s00Ii9lphqlPMMfby3iYa7TSupB2g8yuu1kJ6gL+Q=="
+    },
+    {
+      "id": "tone-midi",
+      "package": "@tonejs/midi",
+      "version": "2.0.28",
+      "tarballSha256": "70255e4ea7425b833608a117c90dccc77cc43beeefcdfcb908d3d5c850ac7975",
+      "integrity": "sha512-RII6YpInPsOZ5t3Si/20QKpNqB1lZ2OCFJSOzJxz38YdY/3zqDr3uaml4JuCWkdixuPqP1/TBnXzhQ39csyoVg=="
+    }
+  ]
 }

@@ -1,0 +1,1 @@
+module.exports={testDir:'tests/browser',timeout:120000,workers:1,retries:0,maxFailures:2,use:{browserName:'chromium',headless:true,acceptDownloads:true,screenshot:'only-on-failure',trace:'retain-on-failure'},reporter:[['list'],['json',{outputFile:'test-results/browser-results.json'}]],outputDir:'test-results/browser-artifacts'};

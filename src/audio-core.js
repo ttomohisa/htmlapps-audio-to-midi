@@ -4,7 +4,11 @@ const AudioMidiCore = (() => {
   function buildWorkerSource(tfSource,midiSource,postSource,inferenceSource) {
     // TF.js 3.21's legacy regenerator assigns this name in strict mode. Declare it
     // first so it never takes its Function-constructor fallback under our CSP.
-    return 'var regeneratorRuntime;\n'+tfSource+'\n'+midiSource+'\nconst BasicPitchPostprocess=(()=>{const exports={};const require=id=>{if(id!=="@tonejs/midi")throw new Error("Unknown module");return {Midi:self.Midi};};\n'+postSource+'\nreturn exports;})();\n'+inferenceSource;
+    // TF.js also bundles long.js's optional integer WASM probe.
+    // Hide that API only inside the unchanged TF source, selecting its existing
+    // JS fallback before Firefox can report a caught compilation as a CSP error.
+    // Preserve the UMD this binding and the worker's actual WebAssembly global.
+    return 'var regeneratorRuntime;\n(function(WebAssembly){\n'+tfSource+'\n}).call(self,undefined);\n'+midiSource+'\nconst BasicPitchPostprocess=(()=>{const exports={};const require=id=>{if(id!=="@tonejs/midi")throw new Error("Unknown module");return {Midi:self.Midi};};\n'+postSource+'\nreturn exports;})();\n'+inferenceSource;
   }
   function validateFile(file) {
     if (!file || !Number.isFinite(file.size) || file.size <= 0) return 'emptyFile';

@@ -30,15 +30,20 @@ async function openAudit(page,context,variant){
   expect(preview.protocol).toBe('https:');
   expect(preview.hostname.endsWith('.ttomohisa.workers.dev')).toBe(true);
   url=preview.href;
- }else await context.setOffline(true);
+ }
  const errors=[],requests=[];
+ let documentLoaded=false;
+ const isEntryDocument=request=>variant==='deployed'&&!documentLoaded&&request.isNavigationRequest()&&request.frame()===page.mainFrame()&&request.url()===url;
  page.on('pageerror',error=>errors.push(error.message));
  page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
- // The deployed HTML navigation is allowed; runtime HTTP(S) resources are not.
+ // Deny network before any app code runs. WebKit's offline emulation also
+ // rejects file:// navigation, so enable it only after the local HTML loads.
+ // Only the exact initial deployed document is allowed through the guard.
+ await context.route(/^https?:/,route=>isEntryDocument(route.request())?route.continue():route.abort('blockedbyclient'));
  page.on('request',request=>{
-  if(/^https?:/.test(request.url())&&!(request.isNavigationRequest()&&request.frame()===page.mainFrame()))requests.push(request.url());
+  if(/^https?:/.test(request.url())&&!isEntryDocument(request))requests.push(request.url());
  });
- await page.goto(url);await phase(page,'empty');await context.setOffline(true);
+ await page.goto(url);documentLoaded=true;await phase(page,'empty');await context.setOffline(true);
  await language(page,'en');
  return ()=>{expect(errors,'Browser console/page errors').toEqual([]);expect(requests,'Runtime HTTP(S) requests').toEqual([]);};
 }
@@ -249,19 +254,23 @@ for(const variant of variants){
     expect(geometry.lastTop).toBeGreaterThanOrEqual(geometry.bodyTop-1);expect(geometry.lastBottom).toBeLessThanOrEqual(geometry.bodyBottom+1);
     expect(geometry.dialogTop).toBeGreaterThanOrEqual(0);expect(geometry.dialogBottom).toBeLessThanOrEqual(geometry.height);
     await expect(page.locator('#closeHelpButton')).toBeInViewport();
-    // Native Tab navigation may visit browser chrome, represented by body as
-    // activeElement (observed in Chromium CI). Background controls must never
-    // receive focus, and a bounded keyboard cycle must return to Close.
+    // Native Tab may visit browser chrome (body in Chromium, the last focused
+    // control retained in Firefox). Do not assume forward Tab wraps around.
+    // Check both directions and require keyboard return to Close, while never
+    // permitting a background element to receive focus.
     await expect(page.locator('#closeHelpButton')).toBeFocused();
     let returnedToClose=false;
-    for(let step=0;step<8;step++){
-     await page.keyboard.press('Tab');
-     const focus=await page.evaluate(()=>{const active=document.activeElement;return {allowed:active===document.body||!!active.closest('#helpDialog'),close:active.id==='closeHelpButton',tag:active.tagName,id:active.id};});
-     expect(focus.allowed,`Modal Tab reached ${focus.tag}#${focus.id}`).toBe(true);
-     await expect(page.locator('#helpDialog')).toBeVisible();
-     if(focus.close){returnedToClose=true;break;}
+    for(const key of ['Tab','Shift+Tab']){
+     for(let step=0;step<4;step++){
+      await page.keyboard.press(key);
+      const focus=await page.evaluate(()=>{const active=document.activeElement;return {allowed:active===document.body||!!active.closest('#helpDialog'),close:active.id==='closeHelpButton',tag:active.tagName,id:active.id};});
+      expect(focus.allowed,`Modal ${key} reached ${focus.tag}#${focus.id}`).toBe(true);
+      await expect(page.locator('#helpDialog')).toBeVisible();
+      if(focus.close){returnedToClose=true;break;}
+     }
+     if(returnedToClose)break;
     }
-    expect(returnedToClose,'Modal Tab must return from browser chrome/dialog content to Close').toBe(true);
+    expect(returnedToClose,'Modal Tab/Shift+Tab must return from browser chrome/dialog content to Close').toBe(true);
     await expect(page.locator('#closeHelpButton')).toBeFocused();
     await page.keyboard.press('Escape');await expect(page.locator('#helpDialog')).toBeHidden();await expect(page.locator('body')).not.toHaveCSS('position','fixed');await expect(page.locator('#helpButton')).toBeFocused();
     await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(before.y);

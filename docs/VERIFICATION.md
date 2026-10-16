@@ -19,6 +19,13 @@ The served HTML exactly matched that run's validated standalone artifact: SHA-25
 
 Final-head CI counts and artifact links belong in the PR body. New checks are not PASS until that head succeeds.
 
+## Cross-engine findings during the audit
+
+- Head 54a1617 passed 246 unit tests, actual-model smoke, 40 offline Chromium tests and 12 HTTPS tests. Firefox completed edited-note CSV/MIDI output but failed the zero-console-error gate on the pinned runtime's optional long-integer WebAssembly optimization; CPU inference itself completed. CSP is not relaxed to permit that optimization.
+- Native dialog keyboard navigation differs between engines. The audit must reject focus on background controls and verify keyboard return/close, without assuming a fixed forward-Tab cycle through browser chrome.
+- WebKit's initial local-file navigation failed when Playwright offline mode was set before navigation. The corrected harness installs an abort rule for every HTTP(S) resource before loading local HTML, then enables offline mode for the entire app workflow. It does not convert a network-enabled load into an offline claim. Initial deployed HTML is the only allowed HTTP navigation.
+- Runtime/test corrections require fresh exact-head CI; prior failures remain evidence, not passes. Engine CI is still distinct from physical Safari/Edge/device acceptance.
+
 ## Release blockers
 
 Physical Windows/macOS/Android/iOS behavior, actual Safari/Edge, real microphone permission/device-loss behavior, audible playback/DAW listening, assistive-technology reading, low-memory limits and real BFCache/sleep remain unverified. Real voice/instrument accuracy fixtures are not supplied. CI viewport/virtual microphone/engine evidence does not replace those gates. Do not mark this milestone complete or publish v1.0 based solely on automated checks; retain Draft until the required manual gates are satisfied or the user explicitly decides a documented support scope.

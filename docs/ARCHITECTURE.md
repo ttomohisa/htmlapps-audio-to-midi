@@ -155,3 +155,9 @@ Cancellation invalidates pending decode/resample results but browser decodeAudio
 ## v0.8 dual-format export
 
 The pure audio core validates and formats numeric CSV rows alongside its existing SMF encoder. No dependency or runtime network path is added. The app owns one format selector and basename; at the click boundary it reads only the active result list, creates a format-specific Blob and uses the existing URL cleanup/saved-content fingerprint flow. CSV contains exact numeric intervals; SMF emits fixed-timing note events and cannot assign identity to nested notes sharing channel/pitch. That limitation is disclosed instead of silently changing the score.
+
+## v0.9 strict-CSP engine audit
+
+The app uses the pinned CPU inference path. The runtime also contains an optional long-integer WebAssembly accelerator that can probe at bundle initialization before backend selection. Worker bootstrap disables that optional path locally so the library uses its bundled JavaScript fallback; it does not enable wasm-unsafe-eval, change the model or modify pinned asset bytes. Regression checks must establish no WebAssembly construction and unchanged CPU inference outputs.
+
+Cross-engine offline audits abort HTTP(S) before local-file navigation and use browser offline mode after loading. This preserves the no-network boundary even where an engine's offline emulation prevents the initial file:// navigation itself.

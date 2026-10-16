@@ -53,6 +53,8 @@ PR8のmergeは `ae195fa273a235dc52303460553b947cdff9ce54`。[Pages run 389475346
 
 2026-10-16の作業ツリーで、単体 **246件成功**、PowerShell構文/encoding、repository build、実モデルsmoke、source review成功が報告されている。変更中のためimmutableな最終SHAに紐付く結果ではない。新規 [release-audit browser tests](../tests/browser/release-audit.spec.cjs)、Firefox/WebKit engine job、最終Chromium全回帰、HTTPS、画像確認は**まだ成功扱いにしない**。実行後は最終SHA・run URL・engine実版・件数・失敗/skip理由を[現行検証記録](VERIFICATION.md)とPRに追記する。Playwright WebKit成功もactual Safari/iOS成功へ、Chromium成功もEdge成功へ読み替えない。
 
+54a1617候補の追加結果: Chromium通常/自己展開40件・HTTPS12件は成功。Firefoxは変換と編集後CSV/MIDIまで完走したがCSPログとキーボード判定でFAIL、WebKitは初回file読込でFAIL。修正候補の成功は先取りせず、最終headのrunと詳細は[現行検証記録](VERIFICATION.md)およびPR9に記録する。これらは実機ゲートを閉じない。
+
 ## 2. 証跡コードと試験範囲
 
 下表のコードはE08で成功した該当test群を指す。ファイルへのリンクは試験内容を追うためのもので、存在するだけでは実行証拠にならない。実行はE08/E07のrunへ紐付ける。E09で新設・変更されたassertionはE08に遡って成功扱いにしない。
@@ -220,8 +222,8 @@ PR8のmergeは `ae195fa273a235dc52303460553b947cdff9ce54`。[Pages run 389475346
 |---|---|---|
 | ENV-01 Windows 11 / Chrome | hosted Windows + headless Chromium（E08） | 物理Windows 11、実Chrome、audio入出力/権限/保存 |
 | ENV-02 Windows 11 / Edge | PowerShell build（E08） | 物理Windows 11 / branded Edge動線全体 |
-| ENV-03 Windows/macOS / Firefox | v0.9 engine job追加のみ、成功未確定 | 実Windows/macOS Firefox、codec/権限/音声/保存 |
-| ENV-04 macOS / Safari | v0.9 WebKit job追加のみ、成功未確定 | actual Safari/macOS。Linux WebKitはSafari認証ではない |
+| ENV-03 Windows/macOS / Firefox | 54a1617 Firefox engineは実行済みFAIL（CSP probe・Tab判定） | 実Windows/macOS Firefox、codec/権限/音声/保存 |
+| ENV-04 macOS / Safari | 54a1617 WebKit engineは実行済みFAIL（初回offline file読込） | actual Safari/macOS。Linux WebKitはSafari認証ではない |
 | ENV-05 iPhone / Safari | desktop Chromium viewport 320/360/390px | 物理iPhone、touch、safe area、権限、codec、音声、保存 |
 | ENV-06 Android / Chrome | 同上、virtual microphone | 物理Android、touch、権限、codec、音声、保存、低メモリ |
 | ENV-07 offline file / readable | E08自動完走 | 実対象端末とv0.9最終生成物で完走 |

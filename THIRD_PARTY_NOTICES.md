@@ -7,7 +7,7 @@ Runtime assets are pinned in dependencies.json and verified against the SHA-256 
 - @tonejs/midi 2.0.28: Copyright 2016 Yotam Mann, MIT. Required by the unchanged Basic Pitch post-processing module; app MIDI export uses its own type-1 encoder. https://github.com/Tonejs/Midi
 - Bundled MIT components: midi-file (Carter Thaxton), array-flatten (Blake Embrey), seedrandom (David Bau and algorithm contributors). Notices reproduced below.
 
-The worker's windowing is adapted from Spotify inference.ts: same sample/window/hop/frame trimming and time correction; modified to dispose tensors per window, omit unused contours and execute in a cancellable worker. Official post-processing functions are unmodified. Package source-map comments are stripped by the existing asset pipeline; assets are gzip-compressed.
+The worker's windowing is adapted from Spotify inference.ts: same sample/window/hop/frame trimming and time correction; modified to dispose tensors per window, omit unused contours and execute in a cancellable worker. Official post-processing functions are unmodified. The CPU-only worker wrapper disables the runtime’s optional long-integer WebAssembly probe and uses its bundled JavaScript fallback under the existing strict CSP; the pinned runtime/model asset bytes are unchanged. Package source-map comments are stripped by the existing asset pipeline; assets are gzip-compressed.
 
 The Basic Pitch npm package supplies LICENSE but no separate NOTICE. Its model is distributed under that package's Apache-2.0 license. TensorFlow's source distribution likewise supplies Apache-2.0 LICENSE; the published runtime's copyright header is retained.
 

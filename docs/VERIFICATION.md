@@ -4,7 +4,7 @@ This is a development milestone, not a claim that every v0.1 device gate is comp
 
 ## Verified locally, 2026-10-16
 
-- Node 24.19.0: 19 pure/contract tests, including independent `midi-file` 1.2.4 readback of SMF type 1, channel 1, 120 BPM, velocity 96, timing, chords, retriggers, filename safety and stale generations.
+- Node 24.19.0: 23 pure/contract tests, including independent `midi-file` 1.2.4 readback of SMF type 1, channel 1, 120 BPM, velocity 96, timing, chords, retriggers, filename safety and stale generations.
 - PowerShell 7.6.7 syntax/encoding preflight, full repository build, normal HTML static verifier, self-extract byte restoration and root HTML equality: PASS.
 - Actual Basic Pitch 1.0.1 + TF.js 3.21.0 CPU, loaded through in-memory IOHandler: synthetic C4 starts at 0.2554195 s and ends at 2.2652295 s for reference 0.250–2.250 s; pitch 60. Silence returns 0 notes.
 - 2.5 s C4 + 1 s silence took 4.862 s total in this cloud Node process. A later CI Node run took 13.697 s, illustrating environment variability. These are not device SLAs.
@@ -13,15 +13,16 @@ This is a development milestone, not a claim that every v0.1 device gate is comp
 
 ## Browser and CI
 
-Verified code commit: `096e56d2d05fd0022f60cafe64f235cd56e7d565`, 2026-10-16.
+Verified code commit: `76ae2e3c576f59f8bce6ceb0f44db625b53fdb2c`, 2026-10-16.
 
-- [Windows CI build and offline browser run](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38861815050): PowerShell syntax/build/integrity checks, 19 contracts, real CPU model smoke, and **10 Chromium browser cases passed**. The preview-only case is intentionally skipped in this job and runs below.
+- [Windows CI build and offline browser run](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38864341235): PowerShell syntax/build/integrity checks, 23 contracts, real CPU model smoke, and **11 Chromium browser cases passed**. The preview-only case is intentionally skipped in this job and runs below.
 - Both `file://` HTML variants work with the browser context offline from initial load. Synthetic C4 is analyzed by the real Worker/model, downloaded with an edited Japanese filename, parsed independently, and compared with displayed note timing. No HTTP requests or page errors were observed.
 - Browser coverage: silence/no-notes; corrupt audio; decoded duration limits/retry; oversized input preserving existing result; cancel; replacement/stale completion; repeated clicks; reset dialog cancellation; MP3/drop; 48 kHz stereo; three-note C4/D4/E4 melody; bilingual 320 px layout/help/keyboard; reload clears the session.
 - The BFCache regression dispatches persisted lifecycle events. It does **not** prove actual browser back/forward-cache eligibility or physical-device restoration.
-- [Ordinary Cloudflare preview run](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38861815080): **1 Chromium HTTPS test passed**. Downloaded HTML SHA-256 matched that job's built HTML before interaction. After initial navigation the context was switched offline; real C4 inference, MIDI download/readback and JA/EN narrow layouts passed without subsequent HTTP requests or page errors. Active download-toast language switching also passed.
+- [Ordinary Cloudflare preview run](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38864341238): **1 Chromium HTTPS test passed**. Downloaded HTML SHA-256 matched that job's built HTML before interaction. After initial navigation the context was switched offline; real C4 inference, MIDI download/readback and JA/EN narrow layouts passed without subsequent HTTP requests or page errors. Active download-toast language switching also passed.
 - Preview MIDI readback: SMF 1, 2 tracks, 480 PPQ, 500,000 microseconds/beat, channel 1, program 0, C4 (60), velocity 96, onset tick 245 / offset tick 2175 (0.255208 / 2.265625 s).
-- CI screenshots are actual rendered results. `assets/screenshot.png` is the 1360 × 900 HTTPS result captured at commit `096e56d`; no mockup or personal recording is used.
+- User preview refinements verified in Chromium: descriptive JA/EN header subtitle, canonical white framed workspaces, and Help/reset background scroll lock. At 1360 px and 320 px / 480 px height, wheel input leaves background geometry unchanged while Help content scrolls; close button, Escape, backdrop and native close restore the exact scroll position and allow scrolling again. Reset cancellation also restores scrolling. Pure regressions cover prior inline styles, nested/repeated ownership, delayed close events and showModal failure cleanup. Physical touch-device behavior remains unverified.
+- CI screenshots are actual rendered results. `assets/screenshot.png` is the 1360 × 900 HTTPS result captured at commit `76ae2e3`; no mockup or personal recording is used.
 - Exact 0.5 s boundary fixture uses the browser's native decode rate. A different source rate can round decoded duration below 0.5 s; the product keeps the specified strict **decoded-duration** limit, rather than relaxing it for the test.
 
 The hosted Windows Server runner is automated browser evidence, not a physical Windows/phone device claim. The shared cloud Chrome displayed the HTTPS UI, but its file-chooser operation failed with a browser tooling timeout; it is not counted as a successful conversion.

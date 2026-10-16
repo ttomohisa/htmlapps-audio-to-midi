@@ -129,7 +129,7 @@ recording=AudioMidiRecordingUI.create({translate,onChange:render,isBusy:busy,con
 });
 mobile=AppMobileBottomBar.mount($('#mobileBottomBar'),{initialPage:'input',pageTopOffset:90,
  beforePageChange:async key=>{if(!await recording.leave())return false;return key==='input'||(key==='notes'?!!state.originalBuffer:state.phase==='result');},
- onPageChange:({key})=>{if(key!=='notes')review.pause();}
+ onPageChange:({key})=>{if(key==='notes')review.reveal();else review.pause();}
 });
 $('#audioFile').addEventListener('change',event=>{const files=Array.from(event.target.files);event.target.value='';selectFiles(files);});
 const drop=$('#dropZone');

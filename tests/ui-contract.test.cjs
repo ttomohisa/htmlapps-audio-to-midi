@@ -35,3 +35,8 @@ test('v0.2 keeps waveform, transport and read-only selection beside the piano ro
  const ui=fs.readFileSync(path.join(__dirname,'../src/app-ui.js'),'utf8');assert.ok(ui.includes('originalBuffer'));assert.ok(ui.includes('review.setSession(state.originalBuffer,state.notes)'));assert.ok(ui.includes("addEventListener('visibilitychange'"));
  const build=fs.readFileSync(path.join(__dirname,'../build-standalone.ps1'),'utf8');for(const file of ['timeline-core.js','playback-engine.js','review-ui.js'])assert.ok(build.includes(file),file);
 });
+
+test('mobile Notes waits for a measurable viewport before centering the selected pitch',()=>{
+ const review=fs.readFileSync(path.join(__dirname,'../src/review-ui.js'),'utf8'),ui=fs.readFileSync(path.join(__dirname,'../src/app-ui.js'),'utf8');
+ assert.ok(review.includes('piano.clientWidth<=0'));assert.ok(review.includes('needsReveal'));assert.ok(ui.includes("if(key==='notes')review.reveal()"));
+});

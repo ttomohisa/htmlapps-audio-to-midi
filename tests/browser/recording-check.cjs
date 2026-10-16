@@ -32,7 +32,15 @@ async function checkRecording(page,context,testInfo,{mobile=false}={}){
  expect(decoded.duration).toBeGreaterThan(2);expect(decoded.duration).toBeLessThan(12);expect(Math.abs(decoded.frequency-261.63)).toBeLessThan(4);
  await testInfo.attach('native-recorded-audio',{body:original,contentType:'application/octet-stream'});
  await page.locator('#analyzeButton').click();await expect(page.locator('body')).toHaveAttribute('data-phase','result',{timeout:90000});await expect(page.locator('#noteRows')).toContainText('C4 (60)');
- if(mobile)await page.locator('[data-mobile-key="export"]').click();
+ if(mobile){
+  await page.locator('[data-mobile-key="notes"]').click();
+  // Analysis happened while Notes was hidden: reveal the selected detected pitch.
+  await expect.poll(()=>page.locator('#pianoRoll [data-pitch="60"]').first().evaluate(note=>{const n=note.getBoundingClientRect(),v=document.querySelector('#pianoScroll').getBoundingClientRect();return n.top>=v.top&&n.bottom<=v.bottom;})).toBe(true);
+  const y=await page.locator('#pianoScroll').evaluate(el=>el.scrollTop);
+  await page.locator('[data-mobile-key="input"]').click();await page.locator('[data-mobile-key="notes"]').click();
+  expect(await page.locator('#pianoScroll').evaluate(el=>el.scrollTop)).toBe(y);
+  await page.locator('[data-mobile-key="export"]').click();
+ }
  await page.locator('#outputFilename').fill('recorded-C4');const pending=page.waitForEvent('download');await page.locator('#downloadButton').click();const output=await pending;expect(output.suggestedFilename()).toBe('recorded-C4.mid');
  const midi=parseMidi(fs.readFileSync(await output.path()));expect(midi.header.format).toBe(1);expect(midi.tracks).toHaveLength(2);
  const expected=await page.locator('#noteRows .note-row').evaluateAll(rows=>rows.map(row=>({pitch:Number(row.children[0].textContent.match(/\((\d+)\)/)[1]),start:Number(row.children[1].textContent),end:Number(row.children[2].textContent)})));
@@ -47,7 +55,7 @@ async function checkRecording(page,context,testInfo,{mobile=false}={}){
  await testInfo.attach('recording-note-measurements',{body:Buffer.from(JSON.stringify({decoded,notes})),contentType:'application/json'});
  if(mobile){
   for(const width of [320,360,390]){await page.setViewportSize({width,height:560});for(const tab of ['input','notes','export']){await page.locator(`[data-mobile-key="${tab}"]`).click();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await expect(page.locator('.app-mobile-page:visible')).toHaveCount(1);await expect(page.locator(`[data-mobile-key="${tab}"]`)).toHaveAttribute('aria-current','page');}await page.screenshot({path:testInfo.outputPath(`recording-export-${width}.png`)});}
-  await page.locator('[data-mobile-key="input"]').click();await page.locator('#languageButton').click();await page.screenshot({path:testInfo.outputPath('recording-input-ja.png'),fullPage:true});await page.locator('[data-mobile-key="notes"]').click();await page.screenshot({path:testInfo.outputPath('recording-notes-ja.png'),fullPage:true});await page.locator('[data-mobile-key="input"]').click();
+  await page.locator('[data-mobile-key="input"]').click();await page.locator('#languageButton').click();await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await expect(page.locator('#appToast')).not.toHaveClass(/show/,{timeout:10000});await page.screenshot({path:testInfo.outputPath('recording-input-ja.png')});await page.locator('[data-mobile-key="notes"]').click();await page.locator('#timelinePanel').scrollIntoViewIfNeeded();await page.screenshot({path:testInfo.outputPath('recording-notes-ja.png')});await page.locator('[data-mobile-key="input"]').click();
  }
  // Capture the actual recording/result UI in both languages, with normal user controls.
  await page.setViewportSize({width:1360,height:900});

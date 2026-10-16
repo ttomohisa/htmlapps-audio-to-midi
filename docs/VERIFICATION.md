@@ -48,13 +48,13 @@ Worker windowing follows official 1.0.1 constants: 43,844 samples/window, hop 36
 
 The first real Chromium run exposed TF.js 3.21 legacy regenerator using a Function-constructor fallback under strict CSP. The shared worker bootstrap now predeclares its runtime binding. A VM integration check disables string code generation while loading the exact pinned bundles. CSP remains unchanged, with no unsafe-eval. Both offline variants and the HTTPS preview subsequently passed actual Chromium inference and export with the unchanged restrictive CSP.
 
-## v0.3 recording milestone (in progress, 2026-10-16)
+## v0.3 recording milestone (2026-10-16)
 
-- Local Node suite: 107/107 PASS, including 40 recording lifecycle tests and recording UI stale-Blob/confirmation tests.
+- Local Node suite: 108/108 PASS, including 40 recording lifecycle tests and recording UI stale-Blob/confirmation tests.
 - PowerShell syntax/encoding, repository build, standalone CSP/integrity and self-extract/root restoration: PASS. Current readable HTML is about 1.15 MiB and compact HTML 1.06 MiB; model assets are unchanged.
-- Added CI tests use Chromium's native virtual microphone with a generated C4 WAV, native MediaRecorder encoding, actual complete-Blob decoding, explicit playback/inference, original-audio download/redecode, and independent MIDI readback. These tests are pending the PR run; no physical microphone claim is made.
+- Added CI tests use Chromium's native virtual microphone with a generated C4 WAV, native MediaRecorder encoding, actual complete-Blob decoding, explicit playback/inference, original-audio download/redecode, and independent MIDI readback. The initial implementation passed these tests at the runs linked below; no physical microphone claim is made.
 - Denied/missing/unsupported APIs and a delayed permission grant use controlled test injections. BFCache lifecycle tests remain synthetic persisted event dispatch, distinct from actual back/forward caching.
-- Pending: independent review, exact-head Windows/Chromium CI, ordinary HTTPS preview/offline run, actual JA/EN screenshots.
+- Commit `5c103cb`: [Windows build/offline run](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38895723598) passed 107 contracts, real model smoke and 19 browser cases (2 preview-only cases skipped); [ordinary HTTPS run](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38895723611) passed both file and native virtual-microphone flows. Added hidden-page pitch-reveal regression and final screenshot refresh are being verified on the follow-up commit.
 - Physical Windows/Android/iOS microphone permissions, device-loss behavior, audible listening/touch and Safari/Firefox recording codecs remain NOT RUN.
 
 ### First native recording run
@@ -62,3 +62,7 @@ The first real Chromium run exposed TF.js 3.21 legacy regenerator using a Functi
 The first v0.3 CI run passed 14 existing offline browser cases and the HTTPS file-conversion test. Native recording/decode/playback, the C4 frequency check, and MIDI-to-display readback passed, but a test incorrectly required the steady C4 recording to become a single note. The preserved 2.34-second take produced adjacent C4 notes at 0.012–1.649 and 1.649–2.312 seconds. The test now verifies C4 time coverage (including endpoints/gaps) separately from the number of model-inferred retriggers; exact MIDI/display comparison remains unchanged.
 
 The recorded take also showed level attenuation under browser speech processing. Capture now requests ideal echo cancellation, noise suppression and automatic gain control disabled for musical input. Browsers may ignore unsupported ideal constraints; actual-device audio quality remains a manual gate.
+
+### Visual QA follow-up
+
+Actual JA/EN screenshots exposed a mobile hidden-page issue not covered by the first green run: notes analyzed on Input did not scroll into view when Notes opened. The review view now defers layout/pitch centering until its viewport is measurable, including a return to the same desktop width, and preserves scroll during ordinary tab round trips. Browser regressions check selected C4 visibility after tab navigation and desktop restoration.

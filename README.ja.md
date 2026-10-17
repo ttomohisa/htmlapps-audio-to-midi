@@ -35,7 +35,7 @@ Spotify Basic Pitchで短い録音から音符を検出し、端末内だけでM
 
 ## 対応環境・制限
 
-現在は **v0.9のリリース候補総点検（0.9.0-rc.1）の段階**です。Web Audio・Worker・DecompressionStream対応のChrome/Edge/Firefox/Safariを対象にしています。Chromium自動試験と実端末での確認は区別しています。Windows・Android・iOS実機での受け入れ確認は未完了で、正式リリース判定には達していません。[検証記録](docs/VERIFICATION.md)を参照してください。
+**1.0.0のリリース準備中**です。正式版の対象はWeb Audio・Worker・DecompressionStream対応のWindows・AndroidのChromeです。[最終チェックリスト](docs/RELEASE_CHECKLIST.md)の利用者確認4項目と最終コミットのCIが揃うまでリリースしません。他のOS／ブラウザー、DAW再生、読み上げ支援は未検証です。Firefox/WebKitの自動試験を実機合格とは扱いません。
 
 採譜は推定です。複数楽器の楽曲、雑音、倍音などで誤検出があります。MIDIは音声ではありません。時間を保持するための固定120 BPM、チャンネル1、ピアノ音色0、ベロシティ96で保存します。テンポ・強弱は推定せず、ピッチベンドも出力しません。
 

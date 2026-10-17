@@ -1,5 +1,12 @@
 # Audio to MIDI — DEVELOPMENT_PLAN.md
 
+## 2026-10-17: approved bounded v1.0 release scope
+
+The owner approved completing v1.0 around Windows and Android Chrome rather than extending the broad all-platform audit. The authoritative final decision checklist is [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). Its four owner checks are still pending; approval of scope is not evidence of passing them.
+
+For this release, the broad historical matrix remains an evidence inventory, not a requirement to certify every browser/device, actual DAW, screen reader, low-memory device, sleep/BFCache scenario, codec or 100 physical cancellation cycles. These unverified areas stay explicitly unverified; no historical row is relabeled PASS or N/A. Core local-processing, correct exports, permission boundaries, safe interruption and edit-preservation requirements remain blocking if a known failure exists. No model tuning, longer input support or pitch bends are added.
+
+
 > Browser Kitty / v0.1.0〜v1.0.0 実装計画
 > 策定日: 2026-10-16 / 対象契約: [`APP_SPEC.md`](./APP_SPEC.md)
 > 受け入れ項目: [`ACCEPTANCE_MATRIX.md`](./ACCEPTANCE_MATRIX.md)

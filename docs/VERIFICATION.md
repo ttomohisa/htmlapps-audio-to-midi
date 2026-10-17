@@ -54,3 +54,9 @@ Based on main `305f2e5f2818791def3cb49671eb21afcc0eb1b9`, both READMEs now link 
 Local checks on 2026-10-17 (Linux, Node 24.19.0, PowerShell 7.6.7): preflight and repository/build validation passed; all 248 unit/contract tests passed. The existing effective-translation test was extended (observed failing before the copy change, then passing). Independent review verified every effective translation against the generated readable HTML, root/readable byte equality, and unchanged embedded asset bytes. Readable SHA-256: `b2a57b05f32b625c6c76fad65d831786462519e0577b68059d49cc68a9c265b2`.
 
 The existing short-screen browser checks were attempted but did not reach the app: the pinned Playwright executable was absent, and system Chromium 154.0.8037.57 could not start under the environment's socket restrictions. Therefore rendered-layout checks remain unverified for this copy change; a successful browser/CI run is required before merge readiness. No new model-characterization run was needed or performed.
+
+## 1.0 release preparation
+
+The owner approved the bounded Windows/Android Chrome scope on 2026-10-17. See [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for the exact decision, unchanged blocking correctness/privacy requirements and four **PENDING** owner checks. This preparation changes release metadata and support wording only. It does not retroactively pass historical BLOCKED/NOT RUN rows. Final candidate CI and owner results are required before the Draft release PR can become ready.
+
+Local release-preparation verification: PowerShell syntax/encoding, repository/build and all 248 unit/contract tests passed. Independent source review found no processing changes or rewritten historical outcomes; its support-error-copy consistency finding was corrected and rebuilt. Exact-head CI and the four owner results remain pending.

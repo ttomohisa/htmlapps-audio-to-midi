@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.0.0 — release preparation (not yet released)
+
+- Prepare the owner-approved Windows/Android Chrome release scope; retain other browsers, DAW playback and assistive technology as unverified. Final owner checks and exact-head CI remain required.
 
 - Add direct app links to both READMEs and clarify quiet-noise limitations and the Fewer-preset tradeoff in bilingual detection help. No inference or preset changes.
 

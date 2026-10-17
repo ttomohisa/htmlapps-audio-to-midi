@@ -74,3 +74,21 @@ test('overlapping same-pitch notes retain balanced events without deduplication'
 });
 
 test('worker bootstrap declares legacy runtime without permitting string evaluation',()=>{const source=core.buildWorkerSource('/* tf */','/* midi */','exports.ok=true;','/* worker */');assert.ok(source.startsWith('var regeneratorRuntime;\n'));assert.ok(source.includes('return {Midi:self.Midi}'));});
+test('worker bootstrap disables the optional TF WASM probe without changing other worker globals',()=>{
+ let wasmAccesses=0;
+ const worker={self:null,expectedWasm:{},WebAssembly:null};worker.self=worker;
+ Object.defineProperty(worker,'WebAssembly',{get(){wasmAccesses++;throw new Error('WASM must not be probed');},configurable:true});
+ vm.createContext(worker,{codeGeneration:{strings:false,wasm:false}});
+ // Match the pinned bundle's strict legacy assignment, UMD this binding, and
+ // caught long.js optimization attempt. Throwing alone cannot detect a probe.
+ const tf='(function(root){"use strict";regeneratorRuntime={};try{new WebAssembly.Module(new Uint8Array());}catch(error){}root.tf={cpu:true};})(this);';
+ const midi='self.Midi=function Midi(){};';
+ const post='exports.midi=require("@tonejs/midi").Midi;';
+ const inference='self.bootstrapReady=tf.cpu && BasicPitchPostprocess.midi===self.Midi;';
+ vm.runInContext(core.buildWorkerSource(tf,midi,post,inference),worker);
+ assert.equal(wasmAccesses,0,'TF must never access the real WASM API');
+ assert.equal(worker.bootstrapReady,true);
+ // The shadow is limited to the TF source, not a replacement of the global API.
+ Object.defineProperty(worker,'WebAssembly',{value:worker.expectedWasm,configurable:true});
+ assert.equal(vm.runInContext('WebAssembly===self.expectedWasm',worker),true);
+});

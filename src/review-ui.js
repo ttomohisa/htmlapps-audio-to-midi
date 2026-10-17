@@ -126,7 +126,10 @@ const AudioMidiReview = (() => {
       seek.disabled=!available;seek.max=String(state.duration);seek.value=String(state.position);
       seek.setAttribute('aria-valuetext',`${state.position.toFixed(2)} / ${state.duration.toFixed(2)} s`);
       $('playbackTime').textContent=`${state.position.toFixed(2)} / ${state.duration.toFixed(2)} s`;
-      $('transportStatus').textContent=translate('playback_'+state.status);
+      // Transport ticks update positions frequently; avoid repeatedly replacing
+      // identical live-region text while still announcing state/language changes.
+      const status=$('transportStatus'),statusText=translate('playback_'+state.status);
+      if(status.textContent!==statusText)status.textContent=statusText;
       $('playbackError').hidden=!error;$('playbackError').textContent=error?translate('playbackFailed'):'';
       if(view){
         const x=state.position*view.pixelsPerSecond;

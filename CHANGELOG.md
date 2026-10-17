@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add direct app links to both READMEs and clarify quiet-noise limitations and the Fewer-preset tradeoff in bilingual detection help. No inference or preset changes.
+
 ## Unreleased — acceptance evidence
 
 - Reconcile final v0.9 automated audit and development-version publication evidence while retaining manual release gates.

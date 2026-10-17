@@ -29,6 +29,20 @@ Final-head CI counts and artifact links belong in the PR body. New checks are no
 
 ## Release blockers
 
-Physical Windows/macOS/Android/iOS behavior, actual Safari/Edge, real microphone permission/device-loss behavior, audible playback/DAW listening, assistive-technology reading, low-memory limits and real BFCache/sleep remain unverified. Real voice/instrument accuracy fixtures are not supplied. CI viewport/virtual microphone/engine evidence does not replace those gates. Do not mark this milestone complete or publish v1.0 based solely on automated checks; retain Draft until the required manual gates are satisfied or the user explicitly decides a documented support scope.
+The full physical Windows/macOS/Android/iOS matrix, actual Safari/Edge, detailed microphone refusal/device-loss behavior, DAW listening, assistive-technology reading, low-memory limits and real BFCache/sleep remain unverified. A later limited owner-reported Android/Windows Chrome recording/playback/edit/export smoke is recorded below. Real voice/instrument accuracy fixtures are not supplied. CI viewport/virtual microphone/engine evidence does not replace those gates. Do not mark this milestone complete or publish v1.0 based solely on automated checks; retain Draft until the required manual gates are satisfied or the user explicitly decides a documented support scope.
 
 Longer-than-60-second input and pitch bends remain absent, not advertised as supported. No production/settings/dependency/model change is included.
+
+## Final PR9 and development-version publication (2026-10-17)
+
+Final head `411c3d935d06c1488e7965ba88ee579a351e9cff` passed [build/engine run 38957816212](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38957816212): 247 unit/contract tests, actual-model smoke, 40 Chromium, 4 Firefox and 4 WebKit route-blocked audits; [HTTPS run 38957816079](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/38957816079) passed 12 tests. These supersede the intermediate failures above for that exact head. The PR records final bilingual screenshots, independent review and matching cross-engine CSV/MIDI exports.
+
+The owner explicitly accepted development-version integration with manual gaps still unverified, then merged PR9 as `76660bf40b1f5b0ae71fa5348bde7a558dce40c8`. [Automatic Pages run 39004911835](https://github.com/ttomohisa/htmlapps-audio-to-midi/actions/runs/39004911835) passed build and deploy. The served HTML matched artifact `12090253623` / `dist/index.html` byte-for-byte: 1,298,537 bytes, SHA-256 `6e0f4b6c4f6f37f30797c26386089dcbcd658c02d9e54bb8152f68c2cd959d7a`. This supersedes the earlier Draft status, not the unresolved physical-device, microphone, DAW, accessibility and final-release gates.
+
+## Synthetic noise measurement
+
+[Noise/near-silence characterization](NOISE_CHARACTERIZATION.md) records fifteen Node CPU cases and their source hashes. It is an opt-in milestone command, not routine CI. Noise can produce notes even at very low amplitude; no zero-noise-output guarantee, product threshold change or manual-gate completion is implied.
+
+## Owner-reported physical-device smoke
+
+On 2026-10-17 the owner reported Android and Windows, Chrome, with all four requested core flows OK: recording/stop and microphone indicator release; analyze and audible original/synth play/stop; semitone edit/revert and usable mobile controls; renamed MIDI download present in storage. This is an owner report, not an independently observed run. Device models, OS/Chrome versions and per-device served hashes are unavailable. The owner explicitly reported not owning a DAW and requested that DAW import/listening remain unverified. See M09-OWNER in the acceptance ledger; the remaining detailed/manual gates are retained.

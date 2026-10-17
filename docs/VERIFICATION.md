@@ -46,3 +46,11 @@ The owner explicitly accepted development-version integration with manual gaps s
 ## Owner-reported physical-device smoke
 
 On 2026-10-17 the owner reported Android and Windows, Chrome, with all four requested core flows OK: recording/stop and microphone indicator release; analyze and audible original/synth play/stop; semitone edit/revert and usable mobile controls; renamed MIDI download present in storage. This is an owner report, not an independently observed run. Device models, OS/Chrome versions and per-device served hashes are unavailable. The owner explicitly reported not owning a DAW and requested that DAW import/listening remain unverified. See M09-OWNER in the acceptance ledger; the remaining detailed/manual gates are retained.
+
+## Bilingual usage-guidance follow-up (ATM-085)
+
+Based on main `305f2e5f2818791def3cb49671eb21afcc0eb1b9`, both READMEs now link directly to the published app and point to the existing synthetic-noise observations. Effective English/Japanese detection help explains that quiet noise can produce notes and that Fewer may also miss weak or short musical notes. This is a copy-only clarification: model, inference, preset values, dependencies and support scope are unchanged. It does not complete physical-device, DAW or assistive-technology acceptance or qualify v1.0.
+
+Local checks on 2026-10-17 (Linux, Node 24.19.0, PowerShell 7.6.7): preflight and repository/build validation passed; all 248 unit/contract tests passed. The existing effective-translation test was extended (observed failing before the copy change, then passing). Independent review verified every effective translation against the generated readable HTML, root/readable byte equality, and unchanged embedded asset bytes. Readable SHA-256: `b2a57b05f32b625c6c76fad65d831786462519e0577b68059d49cc68a9c265b2`.
+
+The existing short-screen browser checks were attempted but did not reach the app: the pinned Playwright executable was absent, and system Chromium 154.0.8037.57 could not start under the environment's socket restrictions. Therefore rendered-layout checks remain unverified for this copy change; a successful browser/CI run is required before merge readiness. No new model-characterization run was needed or performed.

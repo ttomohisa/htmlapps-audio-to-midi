@@ -9,3 +9,5 @@ ffmpeg -i input.wav -codec:a libmp3lame -b:a 96k -map_metadata -1 tests/fixtures
 ```
 
 Generated fixture is distributed under the repository's MIT license.
+
+`npm run test:noise` generates seed-1729 noise, Float32 near-silence noise/C4 and silence/C4 controls directly from synthetic fixtures. See [characterization methodology and observations](../../docs/NOISE_CHARACTERIZATION.md). It is opt-in and does not read microphone or user files.

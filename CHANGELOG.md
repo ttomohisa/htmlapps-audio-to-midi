@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — acceptance evidence
+
+- Reconcile final v0.9 automated audit and development-version publication evidence while retaining manual release gates.
+- Add opt-in synthetic noise/near-silence characterization; ordinary CI, model settings and product behavior remain unchanged.
+
+
 ## 0.9.0-rc.1 — 2026-10-16
 
 - Audit bilingual state/help copy, correct both-variant decompression requirements, and synchronize Japanese usage with MIDI/CSV and full Undo/Redo.

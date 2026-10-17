@@ -1,0 +1,2981 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-17T05:12:11.419Z",
+  "cases": [
+    {
+      "id": "silence",
+      "description": "Exact digital zero",
+      "reference": "no intentional pitched notes",
+      "pcmSha256": "45fb833b1fe3a8bd5f5ca68532fbd34803862cfffae4092090b15c277bc4058f",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0,
+      "rms": 0,
+      "rmsDbfs": null,
+      "preset": "fewer",
+      "settings": {
+        "onsetThreshold": 0.7,
+        "frameThreshold": 0.5,
+        "minDurationSeconds": 0.12,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 4132.671990000001,
+      "rawNoteCount": 0,
+      "noteCount": 0,
+      "notes": [],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "silence",
+      "description": "Exact digital zero",
+      "reference": "no intentional pitched notes",
+      "pcmSha256": "45fb833b1fe3a8bd5f5ca68532fbd34803862cfffae4092090b15c277bc4058f",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0,
+      "rms": 0,
+      "rmsDbfs": null,
+      "preset": "standard",
+      "settings": {
+        "onsetThreshold": 0.5,
+        "frameThreshold": 0.3,
+        "minDurationSeconds": 0.059,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 3555.506289,
+      "rawNoteCount": 0,
+      "noteCount": 0,
+      "notes": [],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "silence",
+      "description": "Exact digital zero",
+      "reference": "no intentional pitched notes",
+      "pcmSha256": "45fb833b1fe3a8bd5f5ca68532fbd34803862cfffae4092090b15c277bc4058f",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0,
+      "rms": 0,
+      "rmsDbfs": null,
+      "preset": "more",
+      "settings": {
+        "onsetThreshold": 0.3,
+        "frameThreshold": 0.15,
+        "minDurationSeconds": 0.03,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 3124.1720029999997,
+      "rawNoteCount": 0,
+      "noteCount": 0,
+      "notes": [],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "noise-1729",
+      "description": "Existing makeWav F-09 uniform seeded LCG noise, seed 1729, peak parameter 0.3, PCM16 quantized",
+      "reference": "no intentional pitched notes",
+      "pcmSha256": "68ee76518463aa89a0f6658d3cbaea76026e5b0b0ee3562b9239dda91945ff2c",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0.29998779296875,
+      "rms": 0.17308460301266002,
+      "rmsDbfs": -15.234831273809162,
+      "preset": "fewer",
+      "settings": {
+        "onsetThreshold": 0.7,
+        "frameThreshold": 0.5,
+        "minDurationSeconds": 0.12,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 3047.417448,
+      "rawNoteCount": 0,
+      "noteCount": 0,
+      "notes": [],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "noise-1729",
+      "description": "Existing makeWav F-09 uniform seeded LCG noise, seed 1729, peak parameter 0.3, PCM16 quantized",
+      "reference": "no intentional pitched notes",
+      "pcmSha256": "68ee76518463aa89a0f6658d3cbaea76026e5b0b0ee3562b9239dda91945ff2c",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0.29998779296875,
+      "rms": 0.17308460301266002,
+      "rmsDbfs": -15.234831273809162,
+      "preset": "standard",
+      "settings": {
+        "onsetThreshold": 0.5,
+        "frameThreshold": 0.3,
+        "minDurationSeconds": 0.059,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 3407.362215000001,
+      "rawNoteCount": 3,
+      "noteCount": 3,
+      "notes": [
+        {
+          "id": "detected-0",
+          "pitchMidi": 43,
+          "startSeconds": 0.6501587301587302,
+          "endSeconds": 0.7198185941043084,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-1",
+          "pitchMidi": 30,
+          "startSeconds": 1.486077097505669,
+          "endSeconds": 1.6834467120181407,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-2",
+          "pitchMidi": 32,
+          "startSeconds": 2.334889342403628,
+          "endSeconds": 2.4045492063492064,
+          "velocity": 96,
+          "origin": "detected"
+        }
+      ],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "noise-1729",
+      "description": "Existing makeWav F-09 uniform seeded LCG noise, seed 1729, peak parameter 0.3, PCM16 quantized",
+      "reference": "no intentional pitched notes",
+      "pcmSha256": "68ee76518463aa89a0f6658d3cbaea76026e5b0b0ee3562b9239dda91945ff2c",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0.29998779296875,
+      "rms": 0.17308460301266002,
+      "rmsDbfs": -15.234831273809162,
+      "preset": "more",
+      "settings": {
+        "onsetThreshold": 0.3,
+        "frameThreshold": 0.15,
+        "minDurationSeconds": 0.03,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 3221.735843000002,
+      "rawNoteCount": 243,
+      "noteCount": 243,
+      "notes": [
+        {
+          "id": "detected-0",
+          "pitchMidi": 27,
+          "startSeconds": 0,
+          "endSeconds": 0.08126984126984127,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-1",
+          "pitchMidi": 45,
+          "startSeconds": 0.011609977324263039,
+          "endSeconds": 0.058049886621315196,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-2",
+          "pitchMidi": 50,
+          "startSeconds": 0.011609977324263039,
+          "endSeconds": 0.058049886621315196,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-3",
+          "pitchMidi": 38,
+          "startSeconds": 0.023219954648526078,
+          "endSeconds": 0.08126984126984127,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-4",
+          "pitchMidi": 45,
+          "startSeconds": 0.058049886621315196,
+          "endSeconds": 0.11609977324263039,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-5",
+          "pitchMidi": 30,
+          "startSeconds": 0.06965986394557823,
+          "endSeconds": 0.1509297052154195,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-6",
+          "pitchMidi": 27,
+          "startSeconds": 0.08126984126984127,
+          "endSeconds": 0.17414965986394557,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-7",
+          "pitchMidi": 34,
+          "startSeconds": 0.08126984126984127,
+          "endSeconds": 0.17414965986394557,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-8",
+          "pitchMidi": 43,
+          "startSeconds": 0.12770975056689343,
+          "endSeconds": 0.2089795918367347,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-9",
+          "pitchMidi": 55,
+          "startSeconds": 0.12770975056689343,
+          "endSeconds": 0.19736961451247165,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-10",
+          "pitchMidi": 30,
+          "startSeconds": 0.1509297052154195,
+          "endSeconds": 0.45278911564625846,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-11",
+          "pitchMidi": 85,
+          "startSeconds": 0.16253968253968254,
+          "endSeconds": 0.19736961451247165,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-12",
+          "pitchMidi": 27,
+          "startSeconds": 0.17414965986394557,
+          "endSeconds": 0.34829931972789113,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-13",
+          "pitchMidi": 34,
+          "startSeconds": 0.17414965986394557,
+          "endSeconds": 0.23219954648526078,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-14",
+          "pitchMidi": 41,
+          "startSeconds": 0.19736961451247165,
+          "endSeconds": 0.23219954648526078,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-15",
+          "pitchMidi": 55,
+          "startSeconds": 0.19736961451247165,
+          "endSeconds": 0.25541950113378686,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-16",
+          "pitchMidi": 36,
+          "startSeconds": 0.2089795918367347,
+          "endSeconds": 0.29024943310657597,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-17",
+          "pitchMidi": 43,
+          "startSeconds": 0.2089795918367347,
+          "endSeconds": 0.2786394557823129,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-18",
+          "pitchMidi": 60,
+          "startSeconds": 0.2089795918367347,
+          "endSeconds": 0.26702947845804986,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-19",
+          "pitchMidi": 63,
+          "startSeconds": 0.22058956916099773,
+          "endSeconds": 0.3599092970521542,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-20",
+          "pitchMidi": 33,
+          "startSeconds": 0.25541950113378686,
+          "endSeconds": 0.313469387755102,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-21",
+          "pitchMidi": 55,
+          "startSeconds": 0.25541950113378686,
+          "endSeconds": 0.29024943310657597,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-22",
+          "pitchMidi": 60,
+          "startSeconds": 0.26702947845804986,
+          "endSeconds": 0.33668934240362813,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-23",
+          "pitchMidi": 55,
+          "startSeconds": 0.29024943310657597,
+          "endSeconds": 0.33668934240362813,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-24",
+          "pitchMidi": 33,
+          "startSeconds": 0.313469387755102,
+          "endSeconds": 0.3599092970521542,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-25",
+          "pitchMidi": 47,
+          "startSeconds": 0.313469387755102,
+          "endSeconds": 0.4179591836734694,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-26",
+          "pitchMidi": 52,
+          "startSeconds": 0.313469387755102,
+          "endSeconds": 0.3831292517006803,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-27",
+          "pitchMidi": 35,
+          "startSeconds": 0.3250793650793651,
+          "endSeconds": 0.44117913832199546,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-28",
+          "pitchMidi": 44,
+          "startSeconds": 0.3250793650793651,
+          "endSeconds": 0.3599092970521542,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-29",
+          "pitchMidi": 59,
+          "startSeconds": 0.33668934240362813,
+          "endSeconds": 0.40634920634920635,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-30",
+          "pitchMidi": 42,
+          "startSeconds": 0.34829931972789113,
+          "endSeconds": 0.4295691609977324,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-31",
+          "pitchMidi": 61,
+          "startSeconds": 0.34829931972789113,
+          "endSeconds": 0.3831292517006803,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-32",
+          "pitchMidi": 44,
+          "startSeconds": 0.3599092970521542,
+          "endSeconds": 0.4876190476190476,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-33",
+          "pitchMidi": 63,
+          "startSeconds": 0.3599092970521542,
+          "endSeconds": 0.4876190476190476,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-34",
+          "pitchMidi": 40,
+          "startSeconds": 0.3831292517006803,
+          "endSeconds": 0.4527891156462585,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-35",
+          "pitchMidi": 52,
+          "startSeconds": 0.3831292517006803,
+          "endSeconds": 0.4179591836734694,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-36",
+          "pitchMidi": 60,
+          "startSeconds": 0.40634920634920635,
+          "endSeconds": 0.44117913832199546,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-37",
+          "pitchMidi": 65,
+          "startSeconds": 0.40634920634920635,
+          "endSeconds": 0.5108390022675737,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-38",
+          "pitchMidi": 48,
+          "startSeconds": 0.4179591836734694,
+          "endSeconds": 0.5804988662131519,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-39",
+          "pitchMidi": 53,
+          "startSeconds": 0.4179591836734694,
+          "endSeconds": 0.4527891156462585,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-40",
+          "pitchMidi": 85,
+          "startSeconds": 0.4179591836734694,
+          "endSeconds": 0.5108390022675737,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-41",
+          "pitchMidi": 35,
+          "startSeconds": 0.44117913832199546,
+          "endSeconds": 0.5108390022675737,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-42",
+          "pitchMidi": 59,
+          "startSeconds": 0.44117913832199546,
+          "endSeconds": 0.4992290249433107,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-43",
+          "pitchMidi": 29,
+          "startSeconds": 0.4527891156462585,
+          "endSeconds": 0.7662585034013606,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-44",
+          "pitchMidi": 40,
+          "startSeconds": 0.4527891156462585,
+          "endSeconds": 0.4876190476190476,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-45",
+          "pitchMidi": 52,
+          "startSeconds": 0.4527891156462585,
+          "endSeconds": 0.4876190476190476,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-46",
+          "pitchMidi": 38,
+          "startSeconds": 0.46439909297052157,
+          "endSeconds": 0.6501587301587302,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-47",
+          "pitchMidi": 73,
+          "startSeconds": 0.47600907029478456,
+          "endSeconds": 0.5456689342403628,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-48",
+          "pitchMidi": 41,
+          "startSeconds": 0.4876190476190476,
+          "endSeconds": 0.5224489795918368,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-49",
+          "pitchMidi": 44,
+          "startSeconds": 0.4876190476190476,
+          "endSeconds": 0.626938775510204,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-50",
+          "pitchMidi": 47,
+          "startSeconds": 0.4876190476190476,
+          "endSeconds": 0.5340589569160997,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-51",
+          "pitchMidi": 53,
+          "startSeconds": 0.4876190476190476,
+          "endSeconds": 0.5340589569160997,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-52",
+          "pitchMidi": 57,
+          "startSeconds": 0.4876190476190476,
+          "endSeconds": 0.5456689342403628,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-53",
+          "pitchMidi": 63,
+          "startSeconds": 0.4876190476190476,
+          "endSeconds": 0.5688888888888889,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-54",
+          "pitchMidi": 53,
+          "startSeconds": 0.5340589569160997,
+          "endSeconds": 0.626938775510204,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-55",
+          "pitchMidi": 73,
+          "startSeconds": 0.5456689342403628,
+          "endSeconds": 0.5804988662131519,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-56",
+          "pitchMidi": 32,
+          "startSeconds": 0.5572789115646258,
+          "endSeconds": 0.6733786848072563,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-57",
+          "pitchMidi": 49,
+          "startSeconds": 0.5804988662131519,
+          "endSeconds": 0.6501587301587302,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-58",
+          "pitchMidi": 62,
+          "startSeconds": 0.5804988662131519,
+          "endSeconds": 0.6385487528344671,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-59",
+          "pitchMidi": 85,
+          "startSeconds": 0.592108843537415,
+          "endSeconds": 0.626938775510204,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-60",
+          "pitchMidi": 38,
+          "startSeconds": 0.6501587301587302,
+          "endSeconds": 0.6965986394557823,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-61",
+          "pitchMidi": 44,
+          "startSeconds": 0.6501587301587302,
+          "endSeconds": 0.7430385487528345,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-62",
+          "pitchMidi": 49,
+          "startSeconds": 0.6501587301587302,
+          "endSeconds": 0.6849886621315193,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-63",
+          "pitchMidi": 32,
+          "startSeconds": 0.6733786848072563,
+          "endSeconds": 0.7314285714285714,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-64",
+          "pitchMidi": 37,
+          "startSeconds": 0.6965986394557823,
+          "endSeconds": 0.7430385487528345,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-65",
+          "pitchMidi": 46,
+          "startSeconds": 0.7198185941043084,
+          "endSeconds": 0.7546485260770975,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-66",
+          "pitchMidi": 31,
+          "startSeconds": 0.7314285714285714,
+          "endSeconds": 0.9752380952380952,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-67",
+          "pitchMidi": 38,
+          "startSeconds": 0.7430385487528345,
+          "endSeconds": 0.7894784580498866,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-68",
+          "pitchMidi": 43,
+          "startSeconds": 0.7430385487528345,
+          "endSeconds": 0.8126984126984127,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-69",
+          "pitchMidi": 29,
+          "startSeconds": 0.7662585034013606,
+          "endSeconds": 0.8243083900226758,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-70",
+          "pitchMidi": 52,
+          "startSeconds": 0.7662585034013606,
+          "endSeconds": 0.8126984126984127,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-71",
+          "pitchMidi": 45,
+          "startSeconds": 0.8010884353741496,
+          "endSeconds": 0.8823582766439909,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-72",
+          "pitchMidi": 42,
+          "startSeconds": 0.8126984126984127,
+          "endSeconds": 0.8823582766439909,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-73",
+          "pitchMidi": 29,
+          "startSeconds": 0.8243083900226758,
+          "endSeconds": 0.9404081632653061,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-74",
+          "pitchMidi": 59,
+          "startSeconds": 0.8707482993197279,
+          "endSeconds": 0.9636281179138322,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-75",
+          "pitchMidi": 45,
+          "startSeconds": 0.8823582766439909,
+          "endSeconds": 0.9636281179138322,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-76",
+          "pitchMidi": 51,
+          "startSeconds": 0.8823582766439909,
+          "endSeconds": 0.9404081632653061,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-77",
+          "pitchMidi": 51,
+          "startSeconds": 0.9404081632653061,
+          "endSeconds": 1.1029478458049886,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-78",
+          "pitchMidi": 59,
+          "startSeconds": 0.9636281179138322,
+          "endSeconds": 0.9984580498866213,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-79",
+          "pitchMidi": 78,
+          "startSeconds": 0.9868480725623583,
+          "endSeconds": 1.0448979591836736,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-80",
+          "pitchMidi": 50,
+          "startSeconds": 0.9984580498866213,
+          "endSeconds": 1.0797278911564625,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-81",
+          "pitchMidi": 46,
+          "startSeconds": 1.0332879818594105,
+          "endSeconds": 1.1609977324263039,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-82",
+          "pitchMidi": 42,
+          "startSeconds": 1.0448979591836736,
+          "endSeconds": 1.0797278911564625,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-83",
+          "pitchMidi": 74,
+          "startSeconds": 1.0448979591836736,
+          "endSeconds": 1.1145578231292517,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-84",
+          "pitchMidi": 78,
+          "startSeconds": 1.0448979591836736,
+          "endSeconds": 1.1609977324263039,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-85",
+          "pitchMidi": 42,
+          "startSeconds": 1.0913378684807256,
+          "endSeconds": 1.1609977324263039,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-86",
+          "pitchMidi": 27,
+          "startSeconds": 1.1029478458049886,
+          "endSeconds": 1.230657596371882,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-87",
+          "pitchMidi": 56,
+          "startSeconds": 1.1145578231292517,
+          "endSeconds": 1.172607709750567,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-88",
+          "pitchMidi": 61,
+          "startSeconds": 1.1145578231292517,
+          "endSeconds": 1.195827664399093,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-89",
+          "pitchMidi": 46,
+          "startSeconds": 1.1609977324263039,
+          "endSeconds": 1.230657596371882,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-90",
+          "pitchMidi": 78,
+          "startSeconds": 1.1609977324263039,
+          "endSeconds": 1.207437641723356,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-91",
+          "pitchMidi": 83,
+          "startSeconds": 1.1609977324263039,
+          "endSeconds": 1.242267573696145,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-92",
+          "pitchMidi": 56,
+          "startSeconds": 1.172607709750567,
+          "endSeconds": 1.2190476190476192,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-93",
+          "pitchMidi": 63,
+          "startSeconds": 1.172607709750567,
+          "endSeconds": 1.242267573696145,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-94",
+          "pitchMidi": 44,
+          "startSeconds": 1.18421768707483,
+          "endSeconds": 1.230657596371882,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-95",
+          "pitchMidi": 50,
+          "startSeconds": 1.18421768707483,
+          "endSeconds": 1.242267573696145,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-96",
+          "pitchMidi": 54,
+          "startSeconds": 1.2190476190476192,
+          "endSeconds": 1.3119274376417234,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-97",
+          "pitchMidi": 41,
+          "startSeconds": 1.230657596371882,
+          "endSeconds": 1.3351473922902495,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-98",
+          "pitchMidi": 44,
+          "startSeconds": 1.230657596371882,
+          "endSeconds": 1.2770975056689342,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-99",
+          "pitchMidi": 50,
+          "startSeconds": 1.242267573696145,
+          "endSeconds": 1.3699773242630386,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-100",
+          "pitchMidi": 45,
+          "startSeconds": 1.2770975056689342,
+          "endSeconds": 1.3351473922902495,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-101",
+          "pitchMidi": 56,
+          "startSeconds": 1.2770975056689342,
+          "endSeconds": 1.3351473922902495,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-102",
+          "pitchMidi": 61,
+          "startSeconds": 1.2770975056689342,
+          "endSeconds": 1.3235374149659864,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-103",
+          "pitchMidi": 54,
+          "startSeconds": 1.3119274376417234,
+          "endSeconds": 1.3699773242630386,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-104",
+          "pitchMidi": 61,
+          "startSeconds": 1.3235374149659864,
+          "endSeconds": 1.3583673469387756,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-105",
+          "pitchMidi": 30,
+          "startSeconds": 1.3351473922902495,
+          "endSeconds": 1.3815873015873017,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-106",
+          "pitchMidi": 40,
+          "startSeconds": 1.3351473922902495,
+          "endSeconds": 1.4628571428571429,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-107",
+          "pitchMidi": 45,
+          "startSeconds": 1.3351473922902495,
+          "endSeconds": 1.4280272108843537,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-108",
+          "pitchMidi": 50,
+          "startSeconds": 1.3699773242630386,
+          "endSeconds": 1.4164172335600906,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-109",
+          "pitchMidi": 53,
+          "startSeconds": 1.3699773242630386,
+          "endSeconds": 1.4048072562358276,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-110",
+          "pitchMidi": 30,
+          "startSeconds": 1.3815873015873017,
+          "endSeconds": 1.4396371882086167,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-111",
+          "pitchMidi": 49,
+          "startSeconds": 1.4164172335600906,
+          "endSeconds": 1.4628571428571429,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-112",
+          "pitchMidi": 53,
+          "startSeconds": 1.4164172335600906,
+          "endSeconds": 1.474467120181406,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-113",
+          "pitchMidi": 30,
+          "startSeconds": 1.4396371882086167,
+          "endSeconds": 1.474467120181406,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-114",
+          "pitchMidi": 46,
+          "startSeconds": 1.4512471655328798,
+          "endSeconds": 1.5209070294784581,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-115",
+          "pitchMidi": 40,
+          "startSeconds": 1.4628571428571429,
+          "endSeconds": 1.5325170068027212,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-116",
+          "pitchMidi": 65,
+          "startSeconds": 1.4628571428571429,
+          "endSeconds": 1.5325170068027212,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-117",
+          "pitchMidi": 30,
+          "startSeconds": 1.474467120181406,
+          "endSeconds": 1.5673469387755101,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-118",
+          "pitchMidi": 48,
+          "startSeconds": 1.474467120181406,
+          "endSeconds": 1.5325170068027212,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-119",
+          "pitchMidi": 54,
+          "startSeconds": 1.474467120181406,
+          "endSeconds": 1.6021768707482993,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-120",
+          "pitchMidi": 34,
+          "startSeconds": 1.497687074829932,
+          "endSeconds": 1.5673469387755101,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-121",
+          "pitchMidi": 76,
+          "startSeconds": 1.497687074829932,
+          "endSeconds": 1.5325170068027212,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-122",
+          "pitchMidi": 32,
+          "startSeconds": 1.5209070294784581,
+          "endSeconds": 1.6602267573696146,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-123",
+          "pitchMidi": 76,
+          "startSeconds": 1.5325170068027212,
+          "endSeconds": 1.5673469387755101,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-124",
+          "pitchMidi": 30,
+          "startSeconds": 1.5673469387755101,
+          "endSeconds": 1.6718367346938776,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-125",
+          "pitchMidi": 50,
+          "startSeconds": 1.5673469387755101,
+          "endSeconds": 1.6253968253968254,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-126",
+          "pitchMidi": 85,
+          "startSeconds": 1.5789569160997732,
+          "endSeconds": 1.7066666666666668,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-127",
+          "pitchMidi": 47,
+          "startSeconds": 1.6021768707482993,
+          "endSeconds": 1.6370068027210884,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-128",
+          "pitchMidi": 54,
+          "startSeconds": 1.6021768707482993,
+          "endSeconds": 1.6718367346938776,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-129",
+          "pitchMidi": 50,
+          "startSeconds": 1.6253968253968254,
+          "endSeconds": 1.6718367346938776,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-130",
+          "pitchMidi": 47,
+          "startSeconds": 1.6370068027210884,
+          "endSeconds": 1.6718367346938776,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-131",
+          "pitchMidi": 60,
+          "startSeconds": 1.6370068027210884,
+          "endSeconds": 1.7182766439909296,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-132",
+          "pitchMidi": 31,
+          "startSeconds": 1.6718367346938776,
+          "endSeconds": 1.9040362811791383,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-133",
+          "pitchMidi": 47,
+          "startSeconds": 1.6718367346938776,
+          "endSeconds": 1.7066666666666668,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-134",
+          "pitchMidi": 64,
+          "startSeconds": 1.6718367346938776,
+          "endSeconds": 1.7298866213151927,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-135",
+          "pitchMidi": 58,
+          "startSeconds": 1.6834467120181407,
+          "endSeconds": 1.7647165532879818,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-136",
+          "pitchMidi": 36,
+          "startSeconds": 1.6950566893424037,
+          "endSeconds": 1.7647165532879818,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-137",
+          "pitchMidi": 47,
+          "startSeconds": 1.7066666666666668,
+          "endSeconds": 1.7763265306122449,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-138",
+          "pitchMidi": 85,
+          "startSeconds": 1.7066666666666668,
+          "endSeconds": 1.7647165532879818,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-139",
+          "pitchMidi": 60,
+          "startSeconds": 1.7182766439909296,
+          "endSeconds": 1.7763265306122449,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-140",
+          "pitchMidi": 64,
+          "startSeconds": 1.7298866213151927,
+          "endSeconds": 1.811156462585034,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-141",
+          "pitchMidi": 74,
+          "startSeconds": 1.7298866213151927,
+          "endSeconds": 1.7763265306122449,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-142",
+          "pitchMidi": 39,
+          "startSeconds": 1.7647165532879818,
+          "endSeconds": 1.811156462585034,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-143",
+          "pitchMidi": 58,
+          "startSeconds": 1.7647165532879818,
+          "endSeconds": 1.799546485260771,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-144",
+          "pitchMidi": 51,
+          "startSeconds": 1.7763265306122449,
+          "endSeconds": 1.8343764172335602,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-145",
+          "pitchMidi": 73,
+          "startSeconds": 1.7763265306122449,
+          "endSeconds": 1.8343764172335602,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-146",
+          "pitchMidi": 29,
+          "startSeconds": 1.799546485260771,
+          "endSeconds": 2.1723496598639453,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-147",
+          "pitchMidi": 33,
+          "startSeconds": 1.799546485260771,
+          "endSeconds": 1.8343764172335602,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-148",
+          "pitchMidi": 58,
+          "startSeconds": 1.799546485260771,
+          "endSeconds": 1.8808163265306121,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-149",
+          "pitchMidi": 33,
+          "startSeconds": 1.8343764172335602,
+          "endSeconds": 1.9156462585034013,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-150",
+          "pitchMidi": 77,
+          "startSeconds": 1.8692063492063493,
+          "endSeconds": 1.9620861678004535,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-151",
+          "pitchMidi": 57,
+          "startSeconds": 1.8808163265306121,
+          "endSeconds": 1.9620861678004535,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-152",
+          "pitchMidi": 31,
+          "startSeconds": 1.9040362811791383,
+          "endSeconds": 2.021419954648526,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-153",
+          "pitchMidi": 48,
+          "startSeconds": 1.9156462585034013,
+          "endSeconds": 1.9853061224489796,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-154",
+          "pitchMidi": 40,
+          "startSeconds": 1.9272562358276644,
+          "endSeconds": 1.9981999999999998,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-155",
+          "pitchMidi": 57,
+          "startSeconds": 1.9620861678004535,
+          "endSeconds": 2.0562498866213152,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-156",
+          "pitchMidi": 76,
+          "startSeconds": 1.9620861678004535,
+          "endSeconds": 2.009809977324263,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-157",
+          "pitchMidi": 85,
+          "startSeconds": 1.9620861678004535,
+          "endSeconds": 1.9981999999999998,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-158",
+          "pitchMidi": 61,
+          "startSeconds": 1.9736961451247166,
+          "endSeconds": 2.021419954648526,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-159",
+          "pitchMidi": 63,
+          "startSeconds": 1.9736961451247166,
+          "endSeconds": 2.009809977324263,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-160",
+          "pitchMidi": 48,
+          "startSeconds": 1.9853061224489796,
+          "endSeconds": 2.033029931972789,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-161",
+          "pitchMidi": 82,
+          "startSeconds": 1.986590022675737,
+          "endSeconds": 2.1142997732426303,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-162",
+          "pitchMidi": 99,
+          "startSeconds": 1.986590022675737,
+          "endSeconds": 2.033029931972789,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-163",
+          "pitchMidi": 40,
+          "startSeconds": 1.9981999999999998,
+          "endSeconds": 2.1026897959183675,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-164",
+          "pitchMidi": 85,
+          "startSeconds": 1.9981999999999998,
+          "endSeconds": 2.1142997732426303,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-165",
+          "pitchMidi": 33,
+          "startSeconds": 2.009809977324263,
+          "endSeconds": 2.091079818594104,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-166",
+          "pitchMidi": 54,
+          "startSeconds": 2.009809977324263,
+          "endSeconds": 2.067859863945578,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-167",
+          "pitchMidi": 31,
+          "startSeconds": 2.021419954648526,
+          "endSeconds": 2.0562498866213152,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-168",
+          "pitchMidi": 48,
+          "startSeconds": 2.033029931972789,
+          "endSeconds": 2.067859863945578,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-169",
+          "pitchMidi": 67,
+          "startSeconds": 2.033029931972789,
+          "endSeconds": 2.1026897959183675,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-170",
+          "pitchMidi": 31,
+          "startSeconds": 2.0562498866213152,
+          "endSeconds": 2.1142997732426303,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-171",
+          "pitchMidi": 65,
+          "startSeconds": 2.0562498866213152,
+          "endSeconds": 2.091079818594104,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-172",
+          "pitchMidi": 73,
+          "startSeconds": 2.0562498866213152,
+          "endSeconds": 2.091079818594104,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-173",
+          "pitchMidi": 47,
+          "startSeconds": 2.067859863945578,
+          "endSeconds": 2.125909750566893,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-174",
+          "pitchMidi": 54,
+          "startSeconds": 2.067859863945578,
+          "endSeconds": 2.1607396825396825,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-175",
+          "pitchMidi": 63,
+          "startSeconds": 2.067859863945578,
+          "endSeconds": 2.1026897959183675,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-176",
+          "pitchMidi": 78,
+          "startSeconds": 2.067859863945578,
+          "endSeconds": 2.1026897959183675,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-177",
+          "pitchMidi": 49,
+          "startSeconds": 2.091079818594104,
+          "endSeconds": 2.1375197278911564,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-178",
+          "pitchMidi": 65,
+          "startSeconds": 2.091079818594104,
+          "endSeconds": 2.125909750566893,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-179",
+          "pitchMidi": 73,
+          "startSeconds": 2.091079818594104,
+          "endSeconds": 2.1375197278911564,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-180",
+          "pitchMidi": 63,
+          "startSeconds": 2.1026897959183675,
+          "endSeconds": 2.2071795918367347,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-181",
+          "pitchMidi": 67,
+          "startSeconds": 2.1026897959183675,
+          "endSeconds": 2.1955696145124715,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-182",
+          "pitchMidi": 76,
+          "startSeconds": 2.1026897959183675,
+          "endSeconds": 2.1839596371882086,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-183",
+          "pitchMidi": 77,
+          "startSeconds": 2.1026897959183675,
+          "endSeconds": 2.1723496598639453,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-184",
+          "pitchMidi": 31,
+          "startSeconds": 2.1142997732426303,
+          "endSeconds": 2.1491297052154192,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-185",
+          "pitchMidi": 82,
+          "startSeconds": 2.1142997732426303,
+          "endSeconds": 2.1723496598639453,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-186",
+          "pitchMidi": 85,
+          "startSeconds": 2.1142997732426303,
+          "endSeconds": 2.1955696145124715,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-187",
+          "pitchMidi": 47,
+          "startSeconds": 2.125909750566893,
+          "endSeconds": 2.1723496598639453,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-188",
+          "pitchMidi": 49,
+          "startSeconds": 2.1375197278911564,
+          "endSeconds": 2.1955696145124715,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-189",
+          "pitchMidi": 31,
+          "startSeconds": 2.1491297052154192,
+          "endSeconds": 2.2420095238095237,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-190",
+          "pitchMidi": 44,
+          "startSeconds": 2.1491297052154192,
+          "endSeconds": 2.253619501133787,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-191",
+          "pitchMidi": 89,
+          "startSeconds": 2.1491297052154192,
+          "endSeconds": 2.2420095238095237,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-192",
+          "pitchMidi": 47,
+          "startSeconds": 2.1723496598639453,
+          "endSeconds": 2.3000594104308387,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-193",
+          "pitchMidi": 57,
+          "startSeconds": 2.1723496598639453,
+          "endSeconds": 2.253619501133787,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-194",
+          "pitchMidi": 29,
+          "startSeconds": 2.1839596371882086,
+          "endSeconds": 2.26522947845805,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-195",
+          "pitchMidi": 95,
+          "startSeconds": 2.1839596371882086,
+          "endSeconds": 2.253619501133787,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-196",
+          "pitchMidi": 49,
+          "startSeconds": 2.1955696145124715,
+          "endSeconds": 2.230399546485261,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-197",
+          "pitchMidi": 67,
+          "startSeconds": 2.1955696145124715,
+          "endSeconds": 2.2420095238095237,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-198",
+          "pitchMidi": 33,
+          "startSeconds": 2.2071795918367347,
+          "endSeconds": 2.26522947845805,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-199",
+          "pitchMidi": 63,
+          "startSeconds": 2.2071795918367347,
+          "endSeconds": 2.26522947845805,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-200",
+          "pitchMidi": 52,
+          "startSeconds": 2.2187895691609976,
+          "endSeconds": 2.26522947845805,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-201",
+          "pitchMidi": 61,
+          "startSeconds": 2.2187895691609976,
+          "endSeconds": 2.26522947845805,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-202",
+          "pitchMidi": 80,
+          "startSeconds": 2.2187895691609976,
+          "endSeconds": 2.288449433106576,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-203",
+          "pitchMidi": 37,
+          "startSeconds": 2.2420095238095237,
+          "endSeconds": 2.369719274376417,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-204",
+          "pitchMidi": 89,
+          "startSeconds": 2.2420095238095237,
+          "endSeconds": 2.323279365079365,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-205",
+          "pitchMidi": 44,
+          "startSeconds": 2.253619501133787,
+          "endSeconds": 2.311669387755102,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-206",
+          "pitchMidi": 57,
+          "startSeconds": 2.253619501133787,
+          "endSeconds": 2.288449433106576,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-207",
+          "pitchMidi": 29,
+          "startSeconds": 2.26522947845805,
+          "endSeconds": 2.3000594104308387,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-208",
+          "pitchMidi": 33,
+          "startSeconds": 2.26522947845805,
+          "endSeconds": 2.3000594104308387,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-209",
+          "pitchMidi": 52,
+          "startSeconds": 2.26522947845805,
+          "endSeconds": 2.311669387755102,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-210",
+          "pitchMidi": 62,
+          "startSeconds": 2.26522947845805,
+          "endSeconds": 2.3000594104308387,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-211",
+          "pitchMidi": 65,
+          "startSeconds": 2.26522947845805,
+          "endSeconds": 2.3000594104308387,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-212",
+          "pitchMidi": 29,
+          "startSeconds": 2.3000594104308387,
+          "endSeconds": 2.358109297052154,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-213",
+          "pitchMidi": 32,
+          "startSeconds": 2.3000594104308387,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-214",
+          "pitchMidi": 48,
+          "startSeconds": 2.3000594104308387,
+          "endSeconds": 2.346499319727891,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-215",
+          "pitchMidi": 62,
+          "startSeconds": 2.3000594104308387,
+          "endSeconds": 2.358109297052154,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-216",
+          "pitchMidi": 65,
+          "startSeconds": 2.3000594104308387,
+          "endSeconds": 2.3813292517006803,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-217",
+          "pitchMidi": 51,
+          "startSeconds": 2.311669387755102,
+          "endSeconds": 2.369719274376417,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-218",
+          "pitchMidi": 48,
+          "startSeconds": 2.346499319727891,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-219",
+          "pitchMidi": 49,
+          "startSeconds": 2.346499319727891,
+          "endSeconds": 2.4393791383219954,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-220",
+          "pitchMidi": 81,
+          "startSeconds": 2.346499319727891,
+          "endSeconds": 2.4277691609977325,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-221",
+          "pitchMidi": 84,
+          "startSeconds": 2.346499319727891,
+          "endSeconds": 2.392939229024943,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-222",
+          "pitchMidi": 29,
+          "startSeconds": 2.358109297052154,
+          "endSeconds": 2.4045492063492064,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-223",
+          "pitchMidi": 40,
+          "startSeconds": 2.358109297052154,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-224",
+          "pitchMidi": 47,
+          "startSeconds": 2.358109297052154,
+          "endSeconds": 2.4045492063492064,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-225",
+          "pitchMidi": 59,
+          "startSeconds": 2.358109297052154,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-226",
+          "pitchMidi": 51,
+          "startSeconds": 2.369719274376417,
+          "endSeconds": 2.4393791383219954,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-227",
+          "pitchMidi": 65,
+          "startSeconds": 2.3813292517006803,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-228",
+          "pitchMidi": 92,
+          "startSeconds": 2.3813292517006803,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-229",
+          "pitchMidi": 89,
+          "startSeconds": 2.392939229024943,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-230",
+          "pitchMidi": 95,
+          "startSeconds": 2.392939229024943,
+          "endSeconds": 2.4393791383219954,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-231",
+          "pitchMidi": 29,
+          "startSeconds": 2.4045492063492064,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-232",
+          "pitchMidi": 46,
+          "startSeconds": 2.4045492063492064,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-233",
+          "pitchMidi": 79,
+          "startSeconds": 2.4045492063492064,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-234",
+          "pitchMidi": 54,
+          "startSeconds": 2.4161591836734693,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-235",
+          "pitchMidi": 82,
+          "startSeconds": 2.4277691609977325,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-236",
+          "pitchMidi": 85,
+          "startSeconds": 2.4277691609977325,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-237",
+          "pitchMidi": 87,
+          "startSeconds": 2.4277691609977325,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-238",
+          "pitchMidi": 99,
+          "startSeconds": 2.4277691609977325,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-239",
+          "pitchMidi": 50,
+          "startSeconds": 2.4393791383219954,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-240",
+          "pitchMidi": 70,
+          "startSeconds": 2.4393791383219954,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-241",
+          "pitchMidi": 76,
+          "startSeconds": 2.4393791383219954,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-242",
+          "pitchMidi": 95,
+          "startSeconds": 2.4393791383219954,
+          "endSeconds": 2.4742090702947843,
+          "velocity": 96,
+          "origin": "detected"
+        }
+      ],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "near-silence-noise-1729",
+      "description": "Same quantized noise scaled by 1e-4 in Float32 PCM (not requantized)",
+      "reference": "no intentional pitched notes",
+      "pcmSha256": "957109eed6a630a2b3f235bec943a945d6119b620b87d564958156648589acba",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0.000029998778700246476,
+      "rms": 0.000017308460301664685,
+      "rmsDbfs": -95.23483127360907,
+      "preset": "fewer",
+      "settings": {
+        "onsetThreshold": 0.7,
+        "frameThreshold": 0.5,
+        "minDurationSeconds": 0.12,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 3289.921381,
+      "rawNoteCount": 0,
+      "noteCount": 0,
+      "notes": [],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "near-silence-noise-1729",
+      "description": "Same quantized noise scaled by 1e-4 in Float32 PCM (not requantized)",
+      "reference": "no intentional pitched notes",
+      "pcmSha256": "957109eed6a630a2b3f235bec943a945d6119b620b87d564958156648589acba",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0.000029998778700246476,
+      "rms": 0.000017308460301664685,
+      "rmsDbfs": -95.23483127360907,
+      "preset": "standard",
+      "settings": {
+        "onsetThreshold": 0.5,
+        "frameThreshold": 0.3,
+        "minDurationSeconds": 0.059,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 2911.537199999999,
+      "rawNoteCount": 8,
+      "noteCount": 8,
+      "notes": [
+        {
+          "id": "detected-0",
+          "pitchMidi": 23,
+          "startSeconds": 0.011609977324263039,
+          "endSeconds": 0.08126984126984127,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-1",
+          "pitchMidi": 27,
+          "startSeconds": 0.10448979591836735,
+          "endSeconds": 0.29024943310657597,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-2",
+          "pitchMidi": 34,
+          "startSeconds": 0.17414965986394557,
+          "endSeconds": 0.26702947845804986,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-3",
+          "pitchMidi": 29,
+          "startSeconds": 0.5340589569160997,
+          "endSeconds": 0.626938775510204,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-4",
+          "pitchMidi": 25,
+          "startSeconds": 0.603718820861678,
+          "endSeconds": 0.6733786848072563,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-5",
+          "pitchMidi": 43,
+          "startSeconds": 0.6501587301587302,
+          "endSeconds": 0.7546485260770975,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-6",
+          "pitchMidi": 29,
+          "startSeconds": 2.2420095238095237,
+          "endSeconds": 2.311669387755102,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-7",
+          "pitchMidi": 32,
+          "startSeconds": 2.323279365079365,
+          "endSeconds": 2.392939229024943,
+          "velocity": 96,
+          "origin": "detected"
+        }
+      ],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "near-silence-noise-1729",
+      "description": "Same quantized noise scaled by 1e-4 in Float32 PCM (not requantized)",
+      "reference": "no intentional pitched notes",
+      "pcmSha256": "957109eed6a630a2b3f235bec943a945d6119b620b87d564958156648589acba",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0.000029998778700246476,
+      "rms": 0.000017308460301664685,
+      "rmsDbfs": -95.23483127360907,
+      "preset": "more",
+      "settings": {
+        "onsetThreshold": 0.3,
+        "frameThreshold": 0.15,
+        "minDurationSeconds": 0.03,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 2902.3458680000003,
+      "rawNoteCount": 58,
+      "noteCount": 58,
+      "notes": [
+        {
+          "id": "detected-0",
+          "pitchMidi": 23,
+          "startSeconds": 0.011609977324263039,
+          "endSeconds": 0.4992290249433107,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-1",
+          "pitchMidi": 50,
+          "startSeconds": 0.011609977324263039,
+          "endSeconds": 0.046439909297052155,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-2",
+          "pitchMidi": 27,
+          "startSeconds": 0.10448979591836735,
+          "endSeconds": 0.35990929705215424,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-3",
+          "pitchMidi": 34,
+          "startSeconds": 0.12770975056689343,
+          "endSeconds": 0.16253968253968254,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-4",
+          "pitchMidi": 25,
+          "startSeconds": 0.16253968253968254,
+          "endSeconds": 0.905578231292517,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-5",
+          "pitchMidi": 34,
+          "startSeconds": 0.17414965986394557,
+          "endSeconds": 0.313469387755102,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-6",
+          "pitchMidi": 36,
+          "startSeconds": 0.19736961451247165,
+          "endSeconds": 0.2438095238095238,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-7",
+          "pitchMidi": 55,
+          "startSeconds": 0.2089795918367347,
+          "endSeconds": 0.34829931972789113,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-8",
+          "pitchMidi": 60,
+          "startSeconds": 0.2438095238095238,
+          "endSeconds": 0.29024943310657597,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-9",
+          "pitchMidi": 52,
+          "startSeconds": 0.313469387755102,
+          "endSeconds": 0.44117913832199546,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-10",
+          "pitchMidi": 35,
+          "startSeconds": 0.3831292517006803,
+          "endSeconds": 0.5224489795918368,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-11",
+          "pitchMidi": 47,
+          "startSeconds": 0.3947392290249433,
+          "endSeconds": 0.44117913832199546,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-12",
+          "pitchMidi": 53,
+          "startSeconds": 0.44117913832199546,
+          "endSeconds": 0.4876190476190476,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-13",
+          "pitchMidi": 29,
+          "startSeconds": 0.4527891156462585,
+          "endSeconds": 0.6849886621315193,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-14",
+          "pitchMidi": 38,
+          "startSeconds": 0.46439909297052157,
+          "endSeconds": 0.5340589569160997,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-15",
+          "pitchMidi": 63,
+          "startSeconds": 0.47600907029478456,
+          "endSeconds": 0.5456689342403628,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-16",
+          "pitchMidi": 43,
+          "startSeconds": 0.5572789115646258,
+          "endSeconds": 0.6385487528344671,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-17",
+          "pitchMidi": 32,
+          "startSeconds": 0.603718820861678,
+          "endSeconds": 0.7430385487528345,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-18",
+          "pitchMidi": 43,
+          "startSeconds": 0.6501587301587302,
+          "endSeconds": 0.8010884353741496,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-19",
+          "pitchMidi": 37,
+          "startSeconds": 0.6733786848072563,
+          "endSeconds": 0.7778684807256235,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-20",
+          "pitchMidi": 31,
+          "startSeconds": 0.8823582766439909,
+          "endSeconds": 0.9520181405895691,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-21",
+          "pitchMidi": 24,
+          "startSeconds": 1.0448979591836736,
+          "endSeconds": 1.1377777777777778,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-22",
+          "pitchMidi": 27,
+          "startSeconds": 1.0913378684807256,
+          "endSeconds": 1.253877551020408,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-23",
+          "pitchMidi": 61,
+          "startSeconds": 1.1029478458049886,
+          "endSeconds": 1.172607709750567,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-24",
+          "pitchMidi": 56,
+          "startSeconds": 1.172607709750567,
+          "endSeconds": 1.3235374149659864,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-25",
+          "pitchMidi": 44,
+          "startSeconds": 1.195827664399093,
+          "endSeconds": 1.3119274376417234,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-26",
+          "pitchMidi": 22,
+          "startSeconds": 1.2654875283446712,
+          "endSeconds": 1.3699773242630386,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-27",
+          "pitchMidi": 30,
+          "startSeconds": 1.4628571428571429,
+          "endSeconds": 1.6370068027210884,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-28",
+          "pitchMidi": 34,
+          "startSeconds": 1.497687074829932,
+          "endSeconds": 1.6834467120181407,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-29",
+          "pitchMidi": 54,
+          "startSeconds": 1.5673469387755101,
+          "endSeconds": 1.6834467120181407,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-30",
+          "pitchMidi": 47,
+          "startSeconds": 1.6370068027210884,
+          "endSeconds": 1.7414965986394557,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-31",
+          "pitchMidi": 30,
+          "startSeconds": 1.6486167800453515,
+          "endSeconds": 1.787936507936508,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-32",
+          "pitchMidi": 36,
+          "startSeconds": 1.6834467120181407,
+          "endSeconds": 1.7647165532879818,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-33",
+          "pitchMidi": 24,
+          "startSeconds": 1.7182766439909296,
+          "endSeconds": 1.9388662131519274,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-34",
+          "pitchMidi": 64,
+          "startSeconds": 1.7298866213151927,
+          "endSeconds": 1.7647165532879818,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-35",
+          "pitchMidi": 22,
+          "startSeconds": 1.8459863945578232,
+          "endSeconds": 1.9272562358276644,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-36",
+          "pitchMidi": 26,
+          "startSeconds": 1.9504761904761905,
+          "endSeconds": 2.0562498866213152,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-37",
+          "pitchMidi": 57,
+          "startSeconds": 1.9504761904761905,
+          "endSeconds": 2.021419954648526,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-38",
+          "pitchMidi": 76,
+          "startSeconds": 1.9620861678004535,
+          "endSeconds": 2.021419954648526,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-39",
+          "pitchMidi": 33,
+          "startSeconds": 1.986590022675737,
+          "endSeconds": 2.125909750566893,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-40",
+          "pitchMidi": 82,
+          "startSeconds": 1.986590022675737,
+          "endSeconds": 2.1142997732426303,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-41",
+          "pitchMidi": 40,
+          "startSeconds": 2.021419954648526,
+          "endSeconds": 2.1839596371882086,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-42",
+          "pitchMidi": 65,
+          "startSeconds": 2.0562498866213152,
+          "endSeconds": 2.125909750566893,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-43",
+          "pitchMidi": 54,
+          "startSeconds": 2.0794698412698414,
+          "endSeconds": 2.1491297052154192,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-44",
+          "pitchMidi": 62,
+          "startSeconds": 2.1026897959183675,
+          "endSeconds": 2.26522947845805,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-45",
+          "pitchMidi": 82,
+          "startSeconds": 2.1142997732426303,
+          "endSeconds": 2.1607396825396825,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-46",
+          "pitchMidi": 58,
+          "startSeconds": 2.1839596371882086,
+          "endSeconds": 2.2187895691609976,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-47",
+          "pitchMidi": 25,
+          "startSeconds": 2.1955696145124715,
+          "endSeconds": 2.288449433106576,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-48",
+          "pitchMidi": 29,
+          "startSeconds": 2.1955696145124715,
+          "endSeconds": 2.2420095238095237,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-49",
+          "pitchMidi": 37,
+          "startSeconds": 2.230399546485261,
+          "endSeconds": 2.26522947845805,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-50",
+          "pitchMidi": 44,
+          "startSeconds": 2.230399546485261,
+          "endSeconds": 2.311669387755102,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-51",
+          "pitchMidi": 52,
+          "startSeconds": 2.2420095238095237,
+          "endSeconds": 2.288449433106576,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-52",
+          "pitchMidi": 29,
+          "startSeconds": 2.253619501133787,
+          "endSeconds": 2.4045492063492064,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-53",
+          "pitchMidi": 23,
+          "startSeconds": 2.26522947845805,
+          "endSeconds": 2.323279365079365,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-54",
+          "pitchMidi": 32,
+          "startSeconds": 2.26522947845805,
+          "endSeconds": 2.450989115646258,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-55",
+          "pitchMidi": 62,
+          "startSeconds": 2.26522947845805,
+          "endSeconds": 2.346499319727891,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-56",
+          "pitchMidi": 48,
+          "startSeconds": 2.334889342403628,
+          "endSeconds": 2.4625990929705215,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-57",
+          "pitchMidi": 65,
+          "startSeconds": 2.3813292517006803,
+          "endSeconds": 2.450989115646258,
+          "velocity": 96,
+          "origin": "detected"
+        }
+      ],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "near-silence-c4",
+      "description": "PCM16 synthetic C4 scaled by 1e-4, no noise; intentional 0.25–2.25s C4",
+      "reference": "quiet intentional C4; detection is descriptive, not a required sensitivity threshold",
+      "pcmSha256": "0a43fb15a862f28bc2dda2880c2eb6f472b67020e097bb58f35824b1b36c42de",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0.00005999755740049295,
+      "rms": 0.00003775614269939816,
+      "rmsDbfs": -88.46024762325051,
+      "preset": "fewer",
+      "settings": {
+        "onsetThreshold": 0.7,
+        "frameThreshold": 0.5,
+        "minDurationSeconds": 0.12,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 3193.4922389999992,
+      "rawNoteCount": 1,
+      "noteCount": 1,
+      "notes": [
+        {
+          "id": "detected-0",
+          "pitchMidi": 60,
+          "startSeconds": 0.2438095238095238,
+          "endSeconds": 2.1723496598639453,
+          "velocity": 96,
+          "origin": "detected"
+        }
+      ],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "near-silence-c4",
+      "description": "PCM16 synthetic C4 scaled by 1e-4, no noise; intentional 0.25–2.25s C4",
+      "reference": "quiet intentional C4; detection is descriptive, not a required sensitivity threshold",
+      "pcmSha256": "0a43fb15a862f28bc2dda2880c2eb6f472b67020e097bb58f35824b1b36c42de",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0.00005999755740049295,
+      "rms": 0.00003775614269939816,
+      "rmsDbfs": -88.46024762325051,
+      "preset": "standard",
+      "settings": {
+        "onsetThreshold": 0.5,
+        "frameThreshold": 0.3,
+        "minDurationSeconds": 0.059,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 2921.8690849999984,
+      "rawNoteCount": 1,
+      "noteCount": 1,
+      "notes": [
+        {
+          "id": "detected-0",
+          "pitchMidi": 60,
+          "startSeconds": 0.23219954648526078,
+          "endSeconds": 2.2187895691609976,
+          "velocity": 96,
+          "origin": "detected"
+        }
+      ],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "near-silence-c4",
+      "description": "PCM16 synthetic C4 scaled by 1e-4, no noise; intentional 0.25–2.25s C4",
+      "reference": "quiet intentional C4; detection is descriptive, not a required sensitivity threshold",
+      "pcmSha256": "0a43fb15a862f28bc2dda2880c2eb6f472b67020e097bb58f35824b1b36c42de",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0.00005999755740049295,
+      "rms": 0.00003775614269939816,
+      "rmsDbfs": -88.46024762325051,
+      "preset": "more",
+      "settings": {
+        "onsetThreshold": 0.3,
+        "frameThreshold": 0.15,
+        "minDurationSeconds": 0.03,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 3049.3750940000027,
+      "rawNoteCount": 2,
+      "noteCount": 2,
+      "notes": [
+        {
+          "id": "detected-0",
+          "pitchMidi": 60,
+          "startSeconds": 0.19736961451247165,
+          "endSeconds": 0.23219954648526078,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-1",
+          "pitchMidi": 60,
+          "startSeconds": 0.2438095238095238,
+          "endSeconds": 2.2768394557823126,
+          "velocity": 96,
+          "origin": "detected"
+        }
+      ],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "c4-positive-control",
+      "description": "Existing F-01 PCM16 synthetic C4 at amplitude parameter 0.6, 0.25–2.25s",
+      "reference": "C4 must be detected at each preset",
+      "pcmSha256": "e1453f4ad7bf8ca3bd1a7d1e02b561070139039820f7f9322a388b97cd86dd6a",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0.5999755859375,
+      "rms": 0.37756142710508245,
+      "rmsDbfs": -8.460247620694604,
+      "preset": "fewer",
+      "settings": {
+        "onsetThreshold": 0.7,
+        "frameThreshold": 0.5,
+        "minDurationSeconds": 0.12,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 3053.8820389999964,
+      "rawNoteCount": 1,
+      "noteCount": 1,
+      "notes": [
+        {
+          "id": "detected-0",
+          "pitchMidi": 60,
+          "startSeconds": 0.25541950113378686,
+          "endSeconds": 2.1723496598639453,
+          "velocity": 96,
+          "origin": "detected"
+        }
+      ],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "c4-positive-control",
+      "description": "Existing F-01 PCM16 synthetic C4 at amplitude parameter 0.6, 0.25–2.25s",
+      "reference": "C4 must be detected at each preset",
+      "pcmSha256": "e1453f4ad7bf8ca3bd1a7d1e02b561070139039820f7f9322a388b97cd86dd6a",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0.5999755859375,
+      "rms": 0.37756142710508245,
+      "rmsDbfs": -8.460247620694604,
+      "preset": "standard",
+      "settings": {
+        "onsetThreshold": 0.5,
+        "frameThreshold": 0.3,
+        "minDurationSeconds": 0.059,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 2979.6067729999995,
+      "rawNoteCount": 1,
+      "noteCount": 1,
+      "notes": [
+        {
+          "id": "detected-0",
+          "pitchMidi": 60,
+          "startSeconds": 0.25541950113378686,
+          "endSeconds": 2.26522947845805,
+          "velocity": 96,
+          "origin": "detected"
+        }
+      ],
+      "tensorsAfter": 245
+    },
+    {
+      "id": "c4-positive-control",
+      "description": "Existing F-01 PCM16 synthetic C4 at amplitude parameter 0.6, 0.25–2.25s",
+      "reference": "C4 must be detected at each preset",
+      "pcmSha256": "e1453f4ad7bf8ca3bd1a7d1e02b561070139039820f7f9322a388b97cd86dd6a",
+      "sampleEncoding": "Float32 native-endian PCM",
+      "endianness": "LE",
+      "peak": 0.5999755859375,
+      "rms": 0.37756142710508245,
+      "rmsDbfs": -8.460247620694604,
+      "preset": "more",
+      "settings": {
+        "onsetThreshold": 0.3,
+        "frameThreshold": 0.15,
+        "minDurationSeconds": 0.03,
+        "minPitchMidi": 21,
+        "maxPitchMidi": 108
+      },
+      "elapsedMs": 2772.650910000004,
+      "rawNoteCount": 4,
+      "noteCount": 4,
+      "notes": [
+        {
+          "id": "detected-0",
+          "pitchMidi": 60,
+          "startSeconds": 0.19736961451247165,
+          "endSeconds": 0.2438095238095238,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-1",
+          "pitchMidi": 60,
+          "startSeconds": 0.25541950113378686,
+          "endSeconds": 2.2420095238095237,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-2",
+          "pitchMidi": 61,
+          "startSeconds": 0.25541950113378686,
+          "endSeconds": 0.301859410430839,
+          "velocity": 96,
+          "origin": "detected"
+        },
+        {
+          "id": "detected-3",
+          "pitchMidi": 60,
+          "startSeconds": 2.2420095238095237,
+          "endSeconds": 2.334889342403628,
+          "velocity": 96,
+          "origin": "detected"
+        }
+      ],
+      "tensorsAfter": 245
+    }
+  ],
+  "completed": true,
+  "gitHead": "76660bf40b1f5b0ae71fa5348bde7a558dce40c8",
+  "environment": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "release": "6.18.44",
+    "arch": "x64",
+    "cpu": "AMD EPYC 9V74 80-Core Processor"
+  },
+  "model": "@spotify/basic-pitch 1.0.1",
+  "tfjs": "3.21.0",
+  "sampleRate": 22050,
+  "duration": 2.5,
+  "scope": "Node CPU synthetic characterization; no browser/UI/device/real audio/DAW acceptance",
+  "criteria": "All cases complete, normalized notes obey the app contract, tensors return to baseline; exact silence has zero notes; C4 control detects MIDI60. Noise and quiet-tone note counts are observations, not pass/fail accuracy targets.",
+  "sourceHashes": {
+    "src/inference-worker.js": "3c6d302818224575fea2da87b4aee9c8015a0722ff834b64a022d1614fd0387f",
+    "src/audio-core.js": "bd3e09118ff6a95102ca1ed5834fd75992fdfb0641ee3e5fa57bf25cd0cb8602",
+    "src/detection-settings.js": "68a6e126dad891b2f047cd2175d3f0f1bf85b885104faf63f3e535a14a362831",
+    "tests/fixtures.cjs": "b86e8168ad0eba120f72f3cfbd7fac1588d624d42434f1505a02a0c8c5cfe6e8",
+    "tests/noise-characterization.cjs": "feaf21f7f8c1192ee468f51ec8b2e255c53acc61047bdd379fe3ee77bd9b965e",
+    "dependencies.lock.json": "fe3148ff9ceb3a647b261c271d3382423721bfb797140825b653f4ed5aa19140",
+    "modelWeights": "b142a95737a52e1e412d5f92e73d8bb80dfe8d04941acc0702f11f4524fb377c",
+    "modelJson": "1ed1aaee3409ec1dc098c8b01f430c0911f6fe9412e7af8086750f9e8f302f68",
+    "postprocess": "3b694475df24bf639a2e79a981c9e1a67c4ebbe219e8a9d6c1f399ebc349b6c1"
+  },
+  "backend": "cpu",
+  "baselineTensors": 245,
+  "tensorsAfterDispose": 0
+}

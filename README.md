@@ -35,7 +35,7 @@ Audio, notes and model inference stay in your browser. There are no runtime down
 
 ## Browser support and limits
 
-The **1.0.0 release is being prepared** for Windows and Android Chrome, with Web Audio, Workers and DecompressionStream. The final four owner checks and exact-head CI must pass before release; see the [release checklist](docs/RELEASE_CHECKLIST.md). Other OS/browser combinations, DAW playback and screen-reader support remain unverified. Automated Firefox/WebKit results are engine coverage, not physical-device certification.
+**Version 1.0.0** for Windows and Android Chrome, with Web Audio, Workers and DecompressionStream. The owner reported confirmation OK and approved proceeding on 2026-10-18. Individual final-check details were not supplied; see the [release decision and verification limits](docs/RELEASE_CHECKLIST.md). Final CI and owner merge remain required for publication. Other OS/browser combinations, DAW playback and screen-reader support remain unverified. Automated Firefox/WebKit results are engine coverage, not physical-device certification.
 
 Transcription is approximate. Mixed songs, noise and harmonics can create wrong notes. MIDI is note data, not audio. Output uses 120 BPM only to preserve seconds, channel 1, piano program 0 and fixed velocity 96. No tempo/loudness estimation or pitch bends. Same-pitch overlapping MIDI notes can be interpreted differently by music apps; CSV preserves each exact start/end interval.
 

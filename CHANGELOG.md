@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.0.0 — owner-accepted release candidate
+
+- Prepare the owner-approved Windows/Android Chrome release scope; retain other browsers, DAW playback and assistive technology as unverified. Owner reported confirmation OK and approved proceeding on 2026-10-18; individual final-check results are not claimed. Final CI and owner merge remain required for publication.
 
 - Add direct app links to both READMEs and clarify quiet-noise limitations and the Fewer-preset tradeoff in bilingual detection help. No inference or preset changes.
 

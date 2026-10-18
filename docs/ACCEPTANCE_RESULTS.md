@@ -1,5 +1,12 @@
 # Audio to MIDI — Acceptance results
 
+## 2026-10-17: approved bounded v1.0 release scope
+
+The owner approved completing v1.0 around Windows and Android Chrome rather than extending the broad all-platform audit. The authoritative final decision checklist is [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). On 2026-10-18 the owner reported Audio to MIDI OK and approved proceeding to v1.0.0. This is general owner acceptance; individual R1–R4 results and device versions were not supplied and are not recorded as PASS. See the checklist for the evidence limits and final CI requirement.
+
+For this release, the broad historical matrix remains an evidence inventory, not a requirement to certify every browser/device, actual DAW, screen reader, low-memory device, sleep/BFCache scenario, codec or 100 physical cancellation cycles. These unverified areas stay explicitly unverified; no historical row is relabeled PASS or N/A. Core local-processing, correct exports, permission boundaries, safe interruption and edit-preservation requirements remain blocking if a known failure exists. No model tuning, longer input support or pitch bends are added.
+
+
 更新日: **2026-10-17 UTC** / 対象: **0.9.0-rc.1（未検証項目を残した開発版として統合済み）**
 判定契約: [ACCEPTANCE_MATRIX.md](ACCEPTANCE_MATRIX.md) / [APP_SPEC.md](../APP_SPEC.md)
 

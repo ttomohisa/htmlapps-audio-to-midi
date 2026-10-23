@@ -684,6 +684,10 @@
     .recording-export { margin-top:12px; }
     .recording-export .export-field { margin-top:12px; }
     @media(max-width:600px) { .app-toast { bottom:calc(var(--app-mobile-bottom-bar-height) + 12px + env(safe-area-inset-bottom)); } }
+    @media (max-width: 600px) { body > footer { display: none; } }
+    #helpDialog .help-build { margin-top:20px; padding-top:12px; border-top:1px solid var(--line); color:var(--muted); font-size:11px; overflow-wrap:anywhere; }
+    #helpDialog .help-build summary { font-size:11px; }
+    #helpDialog .help-build .build-grid { grid-template-columns:minmax(0,1fr); }
   </style>
 </head>
 <body class="has-mobile-bottom-bar has-mobile-page-tabs">
@@ -867,16 +871,7 @@
     </div>
     <!-- APP:END -->
 
-    <section class="section">
-      <details>
-        <summary data-i18n="buildInfo">Build information</summary>
-        <div class="build-grid">
-          <div class="build-item"><span data-i18n="appVersion">App version</span><strong id="buildVersion">—</strong></div>
-          <div class="build-item"><span data-i18n="builtAt">Built at</span><strong id="builtAt">—</strong></div>
-          <div class="build-item"><span data-i18n="dependencies">Embedded dependencies</span><strong id="dependencyCount">0</strong></div>
-        </div>
-      </details>
-    </section>
+
   </main>
   <nav class="app-mobile-bottom-bar" id="mobileBottomBar" style="--app-mobile-bottom-items:3" data-i18n-aria-label="mobileNavigation" aria-label="Workflow pages">
     <button type="button" class="app-mobile-bottom-item" data-mobile-key="input" data-mobile-page-target="inputCard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-4-8 4-4 4 4M5 14v6h14v-6"/></svg><span data-i18n="tabInput">Input</span></button>
@@ -930,6 +925,16 @@
       <p data-i18n="helpPerformance"></p>
       <p data-i18n="helpExport"></p>
           <!-- APP:HELP:END -->
+    <section class="help-build">
+      <details>
+        <summary data-i18n="buildInfo">Build information</summary>
+        <div class="build-grid">
+          <div class="build-item"><span data-i18n="appVersion">App version</span><strong id="buildVersion">—</strong></div>
+          <div class="build-item"><span data-i18n="builtAt">Built at</span><strong id="builtAt">—</strong></div>
+          <div class="build-item"><span data-i18n="dependencies">Embedded dependencies</span><strong id="dependencyCount">0</strong></div>
+        </div>
+      </details>
+    </section>
     </div>
   </dialog>
 

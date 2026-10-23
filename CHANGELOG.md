@@ -8,6 +8,8 @@
 
 ## Unreleased — acceptance evidence
 
+- Hide only the informational footer at the existing 600px phone workflow boundary and move the unchanged build disclosure to quiet final Help. Preserve functional tabs, local-processing copy, model/runtime behavior and modal scrolling; keep keyboard disclosure activation inside Help.
+
 - Reconcile final v0.9 automated audit and development-version publication evidence while retaining manual release gates.
 - Add opt-in synthetic noise/near-silence characterization; ordinary CI, model settings and product behavior remain unchanged.
 

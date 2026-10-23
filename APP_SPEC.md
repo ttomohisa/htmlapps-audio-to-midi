@@ -93,6 +93,12 @@ For this release, the broad historical matrix remains an evidence inventory, not
 - 下部UIはセーフエリアを尊重し、保存ボタンは有効なノートがあるときのみ押せる。固定UIの二重化禁止。
 - 幅320/360/390px、短い画面、長いファイル名、モーダル表示中も操作可能。
 
+### Phone footer and Help metadata
+
+- At the existing 600px phone page-tab boundary, hide only the informational page footer. Preserve Input / Notes / Export controls, canonical local-processing copy and header version.
+- Keep the original three build fields, their IDs and population intact in a quiet final Help disclosure after all guidance and license notes. Metadata remains available on phones; preserve independent Help scrolling, background locking and native keyboard disclosure activation.
+- No model, runtime, inference, recording, permission, dependency, export or release-version behavior changes.
+
 ### 3.4 共通
 
 - ヘッダーの `EN / JA` とヘルプ。ヘルプを開いている間は背景スクロール停止。モーダル本文は独立スクロールでき、最下部まで到達できる。

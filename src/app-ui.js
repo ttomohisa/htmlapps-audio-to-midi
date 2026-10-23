@@ -294,7 +294,7 @@ $('#downloadButton').addEventListener('click',()=>{
 $('#outputFormat').addEventListener('change',render);
 $('#languageButton').addEventListener('click',()=>{language=language==='ja'?'en':'ja';writeStorage(languageKey,language);applyLanguage();});
 const helpDialog=$('#helpDialog');AppDialog.watch(helpDialog);$('#helpButton').addEventListener('click',()=>AppDialog.open(helpDialog));$('#closeHelpButton').addEventListener('click',()=>AppDialog.close(helpDialog));
-helpDialog.addEventListener('click',event=>{const r=helpDialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)AppDialog.close(helpDialog);});
+helpDialog.addEventListener('click',event=>{if(event.target!==helpDialog)return;const r=helpDialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)AppDialog.close(helpDialog);});
 $('#licensesDetails').addEventListener('toggle',()=>{if($('#licensesDetails').open)$('#licenseText').textContent=THIRD_PARTY_NOTICES;});
 window.addEventListener('pagehide',event=>{
  const wasBusy=busy();invalidate();review.pause();

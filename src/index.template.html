@@ -95,7 +95,7 @@
       border-radius: 999px;
       color: var(--muted);
       background: var(--surface-muted);
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 650;
       vertical-align: 2px;
     }
@@ -146,6 +146,8 @@
     .icon-button:hover { border-color: var(--line-strong); background: var(--surface-hover); }
     .icon-button:active { transform: translateY(1px); }
     .icon-button svg { width: 18px; height: 18px; display: block; }
+    .dialog-close { display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 9px; background: transparent; cursor: pointer; }
+    .dialog-close svg { width: 18px; height: 18px; }
     .header-icon-button {
       width: auto;
       height: auto;
@@ -184,13 +186,13 @@
       gap: 7px;
       flex: 0 0 auto;
       margin-top: 3px;
-      padding: 7px 10px;
-      border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
-      border-radius: 999px;
+      padding: 7px 0;
+      border: 0;
+      border-radius: 0;
       color: var(--accent);
-      background: var(--accent-soft);
+      background: transparent;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 500;
       white-space: nowrap;
     }
     .local-badge svg { width: 15px; height: 15px; display: block; }
@@ -880,7 +882,7 @@
   </nav>
 
 
-  <footer><span id="footerName">Audio to MIDI</span> · MIT License · <span data-i18n="footer">Generated as one self-contained HTML file</span></footer>
+  <footer><span id="footerName">Audio to MIDI</span> · MIT License · <span data-i18n="footer">Audio-to-MIDI conversion stays in the browser</span></footer>
   <div class="app-toast" id="appToast" role="status" aria-live="polite" aria-atomic="true" data-tone="default">
     <span class="app-toast-message" id="appToastMessage"></span>
     <button class="app-toast-action" id="appToastAction" type="button" hidden></button>
@@ -906,8 +908,8 @@
   <dialog id="helpDialog" aria-labelledby="helpTitle">
     <div class="dialog-header">
       <h2 id="helpTitle" data-i18n="helpTitle">使い方と注意事項</h2>
-      <button class="icon-button" id="closeHelpButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      <button class="dialog-close" id="closeHelpButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
       </button>
     </div>
     <div class="dialog-body">

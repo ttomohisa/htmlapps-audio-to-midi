@@ -1,16 +1,19 @@
 // Only enabled in the ordinary preview workflow, using its returned deployment URL.
 const {test,expect}=require('@playwright/test');
-const fs=require('node:fs'),path=require('node:path');
-const {buildArtifactDigest}=require('./build-artifact-digest.cjs');
+const fs=require('node:fs');
+const {createHash}=require('node:crypto');
 const {parseMidi}=require('midi-file');const {makeWav}=require('../fixtures.cjs');
 const previewUrl=process.env.PREVIEW_URL;
 test('deployed HTTPS preview matches build and converts offline with MIDI readback',async({page,context,request},testInfo)=>{
  test.skip(!previewUrl,'Run after the existing preview workflow returns a URL.');
  const url=new URL(previewUrl);expect(url.protocol).toBe('https:');expect(url.hostname.endsWith('.ttomohisa.workers.dev')).toBeTruthy();
  const response=await request.get(url.href);expect(response.status()).toBe(200);
- // The isolated verify job has the checked-in official artifact, not dist/.
- // Compare every byte except the sole validated generatedAtUtc value.
- expect(buildArtifactDigest(await response.body())).toBe(buildArtifactDigest(fs.readFileSync(path.join(__dirname,'../../audio-to-midi.html'))));
+ // Compare the served response with the exact pr-preview-site artifact used to deploy.
+ // Separate builds may produce different gzip bytes even when inputs match.
+ expect(process.env.PREVIEW_ARTIFACT_PATH,'Expected the deployed preview artifact path').toBeTruthy();
+ const expectedHtml=fs.readFileSync(process.env.PREVIEW_ARTIFACT_PATH);
+ const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
+ expect(sha256(await response.body())).toBe(sha256(expectedHtml));
  const errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url.href);await expect(page.locator('body')).toHaveAttribute('data-phase','empty');
  page.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});await context.setOffline(true);

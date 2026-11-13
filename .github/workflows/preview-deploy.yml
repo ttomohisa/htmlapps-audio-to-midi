@@ -133,6 +133,7 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
+      actions: read
     steps:
     - name: Checkout exact PR revision for unprivileged public tests
       uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
@@ -143,6 +144,15 @@ jobs:
       uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
       with:
         node-version: 24
+    # The preview is published from this validated workflow_run's pr-preview-site.
+    # Compare it byte-for-byte rather than against a separately rebuilt root HTML.
+    - name: Download exact deployed preview artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: pr-preview-site
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ github.token }}
+        path: ${{ runner.temp }}/expected-preview
     - name: Probe Preview
       shell: pwsh
       env:
@@ -176,6 +186,7 @@ jobs:
     - name: Verify deployed preview in Chromium
       env:
         PREVIEW_URL: ${{ needs.deploy.outputs.preview_url }}
+        PREVIEW_ARTIFACT_PATH: ${{ runner.temp }}/expected-preview/index.html
       run: npx playwright test preview.spec.cjs recording.spec.cjs editing.spec.cjs settings-history.spec.cjs cleanup.spec.cjs
         performance.spec.cjs worker-lifecycle.spec.cjs export.spec.cjs release-audit.spec.cjs --grep "deployed"
     - name: Upload preview browser evidence

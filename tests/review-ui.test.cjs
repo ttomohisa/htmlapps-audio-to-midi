@@ -10,7 +10,7 @@ function harness({translate=key=>key}={}){
   setAttribute(key,value){this.attrs[key]=String(value);if(key.startsWith('data-'))this.dataset[key.slice(5).replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]=String(value);}
   getAttribute(key){return this.attrs[key]??null;}
   append(...children){this.children.push(...children);}
-  replaceChildren(...children){this.replacements++;this.children=children;}
+  replaceChildren(...children){this.replacements++;this.children=children.flatMap(child=>child.name==='fragment'?child.children:[child]);}
   querySelectorAll(selector){const result=[];const matches=el=>selector==='[data-note-id]'?el.dataset.noteId!==undefined:selector==='.playhead'?(el.attrs.class||'').split(' ').includes('playhead'):el.name===selector;const visit=el=>{for(const child of el.children){if(matches(child))result.push(child);visit(child);}};visit(this);return result;}
   querySelector(selector){if(selector==='[value="synth"]')return this.synth||(this.synth=new Element('option'));return this.querySelectorAll(selector)[0]||null;}
   addEventListener(name,callback){(this.events[name]??=[]).push(callback);}
@@ -25,7 +25,7 @@ function harness({translate=key=>key}={}){
  }
  const frames=new Map();let nextFrame=0,observerCallback,disconnected=false;
  let playback={duration:0,position:0,mode:'original',status:'empty',activeSources:0},player;
- const sandbox={AudioMidiTimeline:timeline,document:{getElementById:get,createElementNS:(_,name)=>new Element(name),createElement:name=>new Element(name)},requestAnimationFrame:callback=>{const id=++nextFrame;frames.set(id,callback);return id;},cancelAnimationFrame:id=>frames.delete(id),ResizeObserver:class {constructor(callback){observerCallback=callback;}observe(){}disconnect(){disconnected=true;}},AudioMidiPlayback:{createPlayer:({onChange})=>{
+ const sandbox={AudioMidiTimeline:timeline,document:{getElementById:get,createElementNS:(_,name)=>new Element(name),createElement:name=>new Element(name),createDocumentFragment:()=>new Element('fragment')},requestAnimationFrame:callback=>{const id=++nextFrame;frames.set(id,callback);return id;},cancelAnimationFrame:id=>frames.delete(id),ResizeObserver:class {constructor(callback){observerCallback=callback;}observe(){}disconnect(){disconnected=true;}},AudioMidiPlayback:{createPlayer:({onChange})=>{
   const update=patch=>{Object.assign(playback,patch);onChange();};
   player={snapshot:()=>({...playback}),load:buffer=>update({duration:buffer?.duration||0,position:0,status:buffer?'stopped':'empty'}),setNotes:()=>{},setMode:mode=>update({mode}),seek:position=>update({position}),play:()=>update({status:'playing'}),pause:()=>update({status:'paused'}),stop:()=>update({status:'stopped',position:0}),dispose:()=>update({status:'disposed'})};return player;
  }}};
@@ -42,14 +42,14 @@ function fixture(duration=300){
 
 test('review renders bounded note/axis/wave content, coalesces scroll and reveals offscreen selection',()=>{
  const h=harness(),{buffer,notes}=fixture(),before=JSON.stringify(notes);h.review.setSession(buffer,notes);h.flush();
- assert.equal(+h.svg.getAttribute('width'),24000);assert.equal(+h.svg.getAttribute('height'),2816);assert.equal(h.get('notePicker').children.length,notes.length);
+ assert.equal(+h.svg.getAttribute('width'),24000);assert.equal(+h.svg.getAttribute('height'),2816);assert.ok(h.get('notePicker').children.length<=242);
  assert.ok(h.svg.querySelectorAll('[data-note-id]').length<300);assert.ok(h.get('pitchLabels').children.length<20);
  assert.ok((h.waveform.querySelector('path').getAttribute('d').match(/M/g)||[]).length<80);
  const redraws=h.svg.replacements;h.piano.scrollLeft=150*80;h.piano.scrollTop=(127-60)*22-100;for(let i=0;i<20;i++)h.piano.fire('scroll');
  assert.equal(h.frames.size,1);assert.equal(h.svg.replacements,redraws);h.flush();assert.equal(h.svg.replacements,redraws+1);assert.equal(h.wave.scrollLeft,h.piano.scrollLeft);
  assert.ok(h.svg.querySelectorAll('[data-note-id]').some(n=>n.dataset.noteId==='sustain'));
  assert.ok(!h.svg.querySelectorAll('[data-note-id]').some(n=>n.dataset.noteId==='last'));
- h.get('notePicker').value='last';h.get('notePicker').fire('change');
+ h.review.select('last');
  let selected=h.svg.querySelectorAll('[data-note-id]').find(n=>n.dataset.noteId==='last');assert.ok(selected);assert.match(selected.getAttribute('class'),/selected/);assert.equal(+selected.getAttribute('x'),299.8*80);assert.equal(h.piano.scrollTop,0);assert.ok(h.piano.scrollLeft>23000);
  const center=(h.piano.scrollLeft+h.piano.clientWidth/2)/80;h.get('zoomIn').fire('click');assert.equal((h.piano.scrollLeft+h.piano.clientWidth/2)/160,center);h.review.select('last');selected=h.svg.querySelectorAll('[data-note-id]').find(n=>n.dataset.noteId==='last');assert.ok(selected);assert.equal(+h.svg.getAttribute('width'),48000);assert.equal(+selected.getAttribute('x'),299.8*160);assert.equal(h.wave.scrollLeft,h.piano.scrollLeft);
  assert.equal(JSON.stringify(notes),before);
@@ -88,4 +88,24 @@ test('hidden/mobile resize, note replacement, reset and dispose reject stale vis
  const selected=h.svg.querySelectorAll('[data-note-id]').find(n=>n.dataset.noteId==='last');assert.ok(selected);assert.equal(selected.dataset.pitch,'0');assert.equal(h.get('editStart').value,'40');assert.ok(h.piano.scrollTop>2500);
  h.piano.fire('scroll');assert.equal(h.frames.size,1);h.review.setSession(null,[]);assert.equal(h.frames.size,0);h.flush();assert.equal(h.svg.children.length,0);assert.equal(h.waveform.children.length,0);
  h.review.setSession(buffer,notes);h.piano.fire('scroll');h.review.dispose();assert.equal(h.frames.size,0);assert.equal(h.disconnected(),true);
+});
+
+test('native note picker pages through large lists and translates page labels',()=>{
+ let language='en';
+ const h=harness({translate:key=>({pickerNext:language==='en'?'Later notes':'次の音符',pickerPrevious:language==='en'?'Earlier notes':'前の音符'})[key]||key});
+ const {buffer,notes}=fixture();h.review.setSession(buffer,notes);
+ const picker=h.get('notePicker');
+ assert.ok(picker.children.length<=242);
+ assert.equal(picker.children[0].value,'0');
+ assert.equal(picker.children.at(-1).value,'__next_notes__');
+ picker.value='__next_notes__';picker.fire('change');
+ assert.equal(h.review.selectedId(),'240');
+ assert.ok(picker.children.length<=242);
+ assert.equal(picker.children[0].value,'__previous_notes__');
+ assert.match(picker.children[0].textContent,/Earlier notes/);
+ language='ja';h.review.render();assert.match(picker.children[0].textContent,/前の音符/);
+ assert.equal(picker.value,'240');
+ h.review.select('last');
+ assert.ok(picker.children.length<=242);
+ assert.equal(picker.children.at(-1).value,'last');
 });

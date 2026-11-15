@@ -77,7 +77,7 @@ const AudioMidiRecordingUI=(()=>{
   });
   $('stopRecordButton').addEventListener('click',()=>stop());
   $('listenRecording').addEventListener('click',()=>{if(accepted&&!active())onListen();});
-  $('discardRecording').addEventListener('click',async()=>{if(await beforeReplace()&&await replace())onDiscard();});
+  $('discardRecording').addEventListener('click',async()=>{const wasAccepted=accepted;if(await beforeReplace()&&await replace())onDiscard({accepted:wasAccepted});});
   $('downloadRecording').addEventListener('click',()=>{
    if(!lastBlob||preparing)return;
    const name=safeName($('recordingFilename').value);$('recordingFilename').value=name;

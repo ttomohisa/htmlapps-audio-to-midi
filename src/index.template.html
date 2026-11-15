@@ -316,6 +316,9 @@
     .dialog-body p { margin: 8px 0 0; }
     .dialog-body ul, .dialog-body ol { margin: 8px 0 0; padding-left: 22px; }
     .dialog-body li + li { margin-top: 7px; }
+    .dialog-body .help-tips { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .dialog-body .help-tips summary { font-size: 13px; font-weight: 600; cursor: pointer; }
+    .dialog-body .help-tips ul { margin-top: 12px; }
     .dialog-note {
       margin-top: 12px;
       padding: 11px 12px;
@@ -589,6 +592,7 @@
   }
 
   @media (max-width: 600px) {
+    .page-intro .local-badge { display: none; }
     body.has-mobile-bottom-bar {
       padding-bottom: calc(var(--app-mobile-bottom-bar-height) + env(safe-area-inset-bottom));
     }
@@ -717,7 +721,7 @@
     <section class="page-intro" aria-labelledby="heroTitle">
       <div>
         <h2 id="heroTitle" data-i18n="introTitle">メロディーをMIDIへ</h2>
-        <p data-i18n="lead">短い録音から音符を見つけて、いつもの音楽アプリへ。</p>
+        <p data-i18n="lead">録音や音声ファイルから音符を検出します。音程や長さを直して、MIDIやCSVで保存できます。</p>
       </div>
       <div class="local-badge">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.8 8 7 10 4.2-2 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-5"/></svg>
@@ -915,17 +919,21 @@
     <div class="dialog-body">
       <!-- APP:HELP:BEGIN -->
       <h3 data-i18n="helpBasicsTitle">Basics</h3><ol><li data-i18n="helpStep1"></li><li data-i18n="helpStep2"></li><li data-i18n="helpStep3"></li></ol>
-      <p data-i18n="helpDialogNote"></p>
       <h3 data-i18n="helpPrivacyTitle"></h3><p data-i18n="helpPrivacyBody"></p>
       <h3 data-i18n="helpNotesTitle"></h3><ul><li data-i18n="helpNoteStorage"></li><li data-i18n="helpNoteBrowser"></li><li data-i18n="scopeNote"></li></ul>
       <p class="dialog-note" data-i18n="helpOffline"></p>
+      <details class="help-tips">
+        <summary data-i18n="helpMore">操作の補足</summary>
+        <ul>
+          <li data-i18n="helpRecording"></li>
+          <li data-i18n="helpEditing"></li>
+          <li data-i18n="helpDetection"></li>
+          <li data-i18n="helpCleanup"></li>
+          <li data-i18n="helpPerformance"></li>
+          <li data-i18n="helpExport"></li>
+        </ul>
+      </details>
       <details id="licensesDetails"><summary data-i18n="licenses">Open-source licenses</summary><pre class="license-text" id="licenseText"></pre></details>
-      <p data-i18n="helpRecording"></p>
-      <p data-i18n="helpEditing"></p>
-      <p data-i18n="helpDetection"></p>
-      <p data-i18n="helpCleanup"></p>
-      <p data-i18n="helpPerformance"></p>
-      <p data-i18n="helpExport"></p>
           <!-- APP:HELP:END -->
     <section class="help-build">
       <details>

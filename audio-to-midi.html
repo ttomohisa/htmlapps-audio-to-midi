@@ -1485,6 +1485,15 @@ const AudioMidiTimeline = (() => {
     }
     return Object.freeze({query,get:id=>byId.get(id)});
   }
+  // Native select menus become unresponsive when thousands of note options are
+  // installed at once. Keep a moving window around the selected note instead.
+  function notePickerWindow(count,selectedIndex,maxVisible=240){
+    const total=Math.max(0,Math.floor(Number(count)||0)),limit=Math.max(1,Math.floor(Number(maxVisible)||240));
+    if(!total)return {start:0,end:0};
+    const selected=Math.max(0,Math.min(total-1,Number.isInteger(selectedIndex)?selectedIndex:0));
+    const start=Math.max(0,Math.min(total-limit,selected-Math.floor(limit/2)));
+    return {start,end:Math.min(total,start+limit)};
+  }
   function waveformRange(peaks,view,range){
     return {start:Math.max(0,Math.floor(range.left/view.width*peaks.length)),end:Math.min(peaks.length,Math.ceil(range.right/view.width*peaks.length))};
   }
@@ -1493,7 +1502,7 @@ const AudioMidiTimeline = (() => {
     const length=channels[0].length,count=Math.min(length,Math.max(1,Math.min(2400,Math.floor(bins)||1200))),out=[];
     for(let bin=0;bin<count;bin++){let min=0,max=0;const start=Math.floor(bin*length/count),end=Math.floor((bin+1)*length/count);for(const channel of channels)for(let i=start;i<end;i++){const value=channel[i];if(Number.isFinite(value)){min=Math.min(min,value);max=Math.max(max,value);}}out.push({min,max});}return out;
   }
-  return Object.freeze({ROW_HEIGHT,MIN_PITCH,MAX_PITCH,pitchName,geometry,noteRect,xToTime,visibleRange,ticks,createNoteIndex,waveformRange,waveformPeaks});
+  return Object.freeze({ROW_HEIGHT,MIN_PITCH,MAX_PITCH,pitchName,geometry,noteRect,xToTime,visibleRange,ticks,createNoteIndex,notePickerWindow,waveformRange,waveformPeaks});
 })();
 if(typeof module!=='undefined'&&module.exports)module.exports=AudioMidiTimeline;
 
@@ -1974,13 +1983,23 @@ const AudioMidiRecordingUI=(()=>{
   $('recordButton').addEventListener('click',async()=>{
    if(active()||preparing||actionPending||isBusy())return;
    actionPending=true;render();
-   try{if(!await beforeReplace()||!await askDiscard())return;clear();onStart();engine.start();}
+   try{
+    if(!await beforeReplace()||!await askDiscard())return;
+    // Keep the old take until the new microphone capture actually starts.
+    // A rejected permission request must not erase the old downloadable take.
+    const ticket=++revision;
+    onStart();
+    engine.start().then(started=>{
+     if(disposed||ticket!==revision)return;
+     if(started){lastBlob=null;accepted=false;saved=false;changed();}
+    }).catch(()=>{});
+   }
    // Permission may remain pending: do not hold the confirmation lock.
    finally{actionPending=false;changed();}
   });
   $('stopRecordButton').addEventListener('click',()=>stop());
   $('listenRecording').addEventListener('click',()=>{if(accepted&&!active())onListen();});
-  $('discardRecording').addEventListener('click',async()=>{if(await beforeReplace()&&await replace())onDiscard();});
+  $('discardRecording').addEventListener('click',async()=>{const wasAccepted=accepted;if(await beforeReplace()&&await replace())onDiscard({accepted:wasAccepted});});
   $('downloadRecording').addEventListener('click',()=>{
    if(!lastBlob||preparing)return;
    const name=safeName($('recordingFilename').value);$('recordingFilename').value=name;
@@ -2155,7 +2174,7 @@ const AudioMidiReview = (() => {
     const editFields={pitch:$('editPitch'),start:$('editStart'),end:$('editEnd')};
     const splitSeconds=$('splitSeconds'),mergePicker=$('mergeNoteId'),quantizeEnabled=$('quantizeEnabled');
     const editing={enabled:false,dirty:false,canUndo:false,canRedo:false,error:null,mergeCandidates:[]};
-    let fieldSignature,mergeSignature;
+    let fieldSignature,mergeSignature,pickerRange={start:0,end:0};
     let noteIndex=t.createNoteIndex([]);
     function node(name,attributes={},text){const el=document.createElementNS('http://www.w3.org/2000/svg',name);for(const [key,value] of Object.entries(attributes))el.setAttribute(key,String(value));if(text!==undefined)el.textContent=text;return el;}
     function selectedNote(){return noteIndex.get(selected);}
@@ -2216,10 +2235,30 @@ const AudioMidiReview = (() => {
       for(const el of svg.querySelectorAll('[data-note-id]'))el.classList.toggle('selected',el.dataset.noteId===selected);
       refreshEditor();
     }
+    function refreshNotePicker(){
+      const index=notes.findIndex(note=>note.id===selected);
+      pickerRange=t.notePickerWindow(notes.length,index);
+      const {start,end}=pickerRange,fragment=document.createDocumentFragment();
+      const pageOption=(value,key,count)=>{
+        const option=document.createElement('option');option.value=value;
+        option.textContent=`${translate(key)} (${count})`;fragment.append(option);
+      };
+      if(start>0)pageOption('__previous_notes__','pickerPrevious',start);
+      for(let i=start;i<end;i++){
+        const note=notes[i],option=document.createElement('option');
+        option.value=note.id;
+        option.textContent=`${i+1}. ${t.pitchName(note.pitchMidi)} · ${note.startSeconds.toFixed(3)}–${note.endSeconds.toFixed(3)} s`;
+        fragment.append(option);
+      }
+      if(end<notes.length)pageOption('__next_notes__','pickerNext',notes.length-end);
+      picker.replaceChildren(fragment);
+      picker.disabled=!notes.length;
+      picker.value=selected||'';
+    }
     function select(id){
       const next=noteIndex.get(id)?id:null,changed=selected!==next;
       selected=next;
-      if(changed){editing.error=null;fillEditor();}
+      if(changed){editing.error=null;fillEditor();refreshNotePicker();}
       selectedDetails();showSelection();
       if(changed&&typeof onSelection==='function')onSelection(selected);
       return selected;
@@ -2334,8 +2373,7 @@ const AudioMidiReview = (() => {
       if(!noteIndex.get(selected))selected=notes[0]?.id||null;
       if(selected!==previousSelected)editing.error=null;
       fillEditor();
-      picker.replaceChildren(...notes.map((n,i)=>{const option=document.createElement('option');option.value=n.id;option.textContent=`${i+1}. ${t.pitchName(n.pitchMidi)} · ${n.startSeconds.toFixed(3)}–${n.endSeconds.toFixed(3)} s`;return option;}));
-      picker.disabled=!notes.length;panel.hidden=!buffer;$('timelineEmpty').hidden=!!buffer;
+      refreshNotePicker();panel.hidden=!buffer;$('timelineEmpty').hidden=!!buffer;
       if(buffer){needsReveal=sourceChanged||notesChanged;draw();revealPosition();}
       else{if(renderFrame){cancelAnimationFrame(renderFrame);renderFrame=0;}needsReveal=false;view=null;svg.replaceChildren();waveform.replaceChildren();pitchLabels.replaceChildren();selectedDetails();}
       updateTransport();
@@ -2351,7 +2389,12 @@ const AudioMidiReview = (() => {
     mode.addEventListener('change',()=>guard(()=>player.setMode(mode.value)));
     seek.addEventListener('input',()=>guard(()=>player.seek(Number(seek.value))));
     $('zoomIn').addEventListener('click',()=>changeZoom(2));$('zoomOut').addEventListener('click',()=>changeZoom(.5));
-    picker.addEventListener('change',()=>select(picker.value));
+    picker.addEventListener('change',()=>{
+      const choice=picker.value;
+      if(choice==='__previous_notes__')select(notes[pickerRange.start-1]?.id);
+      else if(choice==='__next_notes__')select(notes[pickerRange.end]?.id);
+      else select(choice);
+    });
     svg.addEventListener('click',event=>{const note=event.target.closest('[data-note-id]');if(note)select(note.dataset.noteId);});
     $('addNoteButton').addEventListener('click',()=>emitEdit('add'));
     $('deleteNoteButton').addEventListener('click',()=>emitEdit('delete'));
@@ -2516,6 +2559,8 @@ for(const key of ['resultHint','resetBody','helpStep3','helpNoteStorage','noteLi
  translations.en[key]=translations.en[key].replaceAll('MIDI','MIDI or CSV');
  translations.ja[key]=translations.ja[key].replaceAll('MIDI','MIDIまたはCSV');
 }
+Object.assign(translations.en,{pickerPrevious:'Earlier notes',pickerNext:'Later notes'});
+Object.assign(translations.ja,{pickerPrevious:'前の音符',pickerNext:'次の音符'});
 const languageKey=APP_CONFIG.slug+':language';
 function readStorage(key){try{return localStorage.getItem(key);}catch{return null;}}
 function writeStorage(key,value){try{localStorage.setItem(key,value);}catch{}}
@@ -2753,7 +2798,7 @@ function render(){
  $('#sourceMeta').textContent=state.file?`${translate('size')}: ${(state.file.size/1048576).toFixed(2)} MiB${state.duration?' · '+translate('duration')+': '+state.duration.toFixed(2)+' '+translate('seconds'):''}`:'';
  $('#analyzeButton').disabled=busy()||!state.samples||recording?.active()||recording?.preparing();
  $('#cancelButton').hidden=!busy();$('#resetButton').disabled=state.phase==='empty'&&!recording?.active()&&!recording?.hasRecording();
- $('#downloadButton').disabled=state.phase!=='result'||!state.notes.length||recording?.active();
+ $('#downloadButton').disabled=state.phase!=='result'||!state.notes.length||recording?.active()||recording?.preparing();
  const csv=$('#outputFormat').value==='csv';
  $('#outputExtension').textContent=csv?'.csv':'.mid';
  $('#downloadButton').textContent=translate(csv?'downloadCsv':'download');
@@ -2763,7 +2808,8 @@ function render(){
  $('#progressBar').hidden=!busy();
  if(state.phase==='analyzing'||state.phase==='postprocessing')$('#progressBar').value=state.progress;else $('#progressBar').removeAttribute('value');
  $('#noteCount').textContent=['result','no-notes'].includes(state.phase)?state.notes.length:'—';
- $('#resultMeta').textContent=state.notes.length?`${translate('range')}: ${pitchName(Math.min(...state.notes.map(n=>n.pitchMidi)))}–${pitchName(Math.max(...state.notes.map(n=>n.pitchMidi)))} · ${translate('elapsed')}: ${(state.elapsed/1000).toFixed(1)} ${translate('seconds')}`:'';
+ const pitchBounds=state.notes.reduce((bounds,n)=>({low:Math.min(bounds.low,n.pitchMidi),high:Math.max(bounds.high,n.pitchMidi)}),{low:127,high:0});
+ $('#resultMeta').textContent=state.notes.length?`${translate('range')}: ${pitchName(pitchBounds.low)}–${pitchName(pitchBounds.high)} · ${translate('elapsed')}: ${(state.elapsed/1000).toFixed(1)} ${translate('seconds')}`:'';
  $('#notesDetails').hidden=!state.notes.length;
  $('#noteRows').replaceChildren(...state.notes.slice(0,100).map(n=>{const row=document.createElement('div');row.className='note-row';[`${pitchName(n.pitchMidi)} (${n.pitchMidi})`,n.startSeconds.toFixed(3),n.endSeconds.toFixed(3)].forEach(text=>{const cell=document.createElement('span');cell.textContent=text;row.append(cell);});return row;}));
  $('#noteLimit').textContent=state.notes.length>100?translate('noteLimit'):'';
@@ -2787,31 +2833,32 @@ function applyLanguage(){
  document.title=language==='ja'?APP_CONFIG.nameJa:APP_CONFIG.name;$('#brandName').textContent=document.title;$('#footerName').textContent=document.title;render();
 }
 async function selectFiles(files,{recorded=false}={}){
- if(files.length!==1){if(files.length){state.inputError='multipleFiles';render();}return;}
+ if(files.length!==1){if(files.length){state.inputError='multipleFiles';render();}return false;}
  const file=files[0],error=core.validateFile(file);
  if(error){state.inputError=error;render();return false;}
  const request=++sourceRequest,requestGeneration=generation.capture();
  if(!recorded){
-  // Concurrent file selections share the same loss-confirmation decision; only
-  // the latest valid request may install a source after it resolves.
-  if(!sourcePermission)sourcePermission=(async()=>await confirmEdits()&&await recording.replace())();
+  // A failed decode must not discard an existing recording or an edited score.
+  // Concurrent selections share the same edit confirmation; only the latest
+  // request can stage or commit a replacement.
+  if(!sourcePermission)sourcePermission=confirmEdits();
   const permission=sourcePermission;let allowed;
   try{allowed=await permission;}finally{if(sourcePermission===permission)sourcePermission=null;}
   if(!allowed)return false;
  }
  if(request!==sourceRequest||!generation.isCurrent(requestGeneration))return false;
- clearEditing();
- const token=invalidate({keepIdleWorker:true});Object.assign(state,{phase:'decoding',file,duration:0,samples:null,originalBuffer:null,notes:[],error:null,inputError:null,progress:0,elapsed:0,sourceKind:recorded?'recording':'file',detectionWarning:false});
- outputFilename.value=core.defaultMidiName(file.name).replace(/\.mid$/,'');render();
+ const previousPhase=busy()?(editor?(state.notes.length?'result':'no-notes'):(state.samples?'ready':'empty')):state.phase;
+ const previousError=state.error;
+ const token=invalidate({keepIdleWorker:true});
+ state.phase='decoding';state.error=null;state.inputError=null;state.progress=0;review.pause();render();
  let context;
  try{
   const AudioContextClass=window.AudioContext||window.webkitAudioContext;
   if(!AudioContextClass||!window.OfflineAudioContext||!window.Worker)throw new Error('browserUnsupported');
   context=new AudioContextClass();decodeContext=context;
-  const bytes=await file.arrayBuffer();if(!generation.isCurrent(token))return;
-  const audio=await context.decodeAudioData(bytes);if(!generation.isCurrent(token))return;
+  const bytes=await file.arrayBuffer();if(!generation.isCurrent(token)||request!==sourceRequest)return false;
+  const audio=await context.decodeAudioData(bytes);if(!generation.isCurrent(token)||request!==sourceRequest)return false;
   const durationError=core.validateDuration(audio.duration);if(durationError)throw new Error(durationError);
-  state.duration=audio.duration;
   const mono=core.mixChannels(Array.from({length:audio.numberOfChannels},(_,i)=>audio.getChannelData(i)));
   let samples=mono;
   if(audio.sampleRate!==core.SAMPLE_RATE){
@@ -2820,10 +2867,26 @@ async function selectFiles(files,{recorded=false}={}){
    const source=offline.createBufferSource();source.buffer=input;source.connect(offline.destination);source.start();
    const rendered=await offline.startRendering();source.disconnect();samples=new Float32Array(rendered.getChannelData(0));
   }
-  if(!generation.isCurrent(token))return;
-  state.samples=samples;state.originalBuffer=audio;state.phase='ready';render();return true;
- }catch(error){if(generation.isCurrent(token)){stopWorker();state.phase='error';state.error=['invalidDuration','browserUnsupported'].includes(error.message)?error.message:(recorded?'recordingDecodeFailed':'decodeFailed');render();}return false;}
- finally{if(decodeContext===context)closeDecoder();}
+  if(!generation.isCurrent(token)||request!==sourceRequest)return false;
+  // Do not clear a previous capture until the new file is proven decodable.
+  // The user can still cancel the recording-discard confirmation at this point.
+  if(!recorded){
+   const allowed=await recording.replace();
+   if(!generation.isCurrent(token)||request!==sourceRequest)return false;
+   if(!allowed){state.phase=previousPhase;state.error=previousError;render();return false;}
+  }
+  clearEditing();
+  Object.assign(state,{phase:'ready',file,duration:audio.duration,samples,originalBuffer:audio,notes:[],error:null,inputError:null,progress:0,elapsed:0,sourceKind:recorded?'recording':'file',detectionWarning:false});
+  outputFilename.value=core.defaultMidiName(file.name).replace(/\.mid$/,'');render();return true;
+ }catch(error){
+  if(generation.isCurrent(token)&&request===sourceRequest){
+   const reason=['invalidDuration','browserUnsupported'].includes(error.message)?error.message:(recorded?'recordingDecodeFailed':'decodeFailed');
+   if(state.file){state.phase=previousPhase;state.error=previousError;state.inputError=reason;}
+   else{state.phase='error';state.error=reason;}
+   render();
+  }
+  return false;
+ }finally{if(decodeContext===context)closeDecoder();}
 }
 async function analyze(){
  if(busy()||!state.samples||recording.active()||recording.preparing())return;
@@ -2868,8 +2931,8 @@ function clearSource(){
  clearEditing();invalidate();$('#outputFormat').value='mid';Object.assign(state,{phase:'empty',file:null,samples:null,originalBuffer:null,notes:[],duration:0,error:null,inputError:null,sourceKind:null,detectionWarning:false});outputFilename.value='audio-to-midi-notes';render();
 }
 recording=AudioMidiRecordingUI.create({translate,onChange:render,isBusy:busy,confirm:options=>AppConfirm.ask(options),toast:showToast,
- beforeReplace:confirmEdits,onStart:()=>{review.pause();clearSource();},onRecording:file=>selectFiles([file],{recorded:true}),
- onDiscard:()=>{if(state.sourceKind==='recording')clearSource();},
+ beforeReplace:confirmEdits,onStart:()=>{review.pause();},onRecording:file=>selectFiles([file],{recorded:true}),
+ onDiscard:({accepted})=>{if(accepted&&state.sourceKind==='recording')clearSource();},
  onListen:()=>{mobile.showPage('notes');review.playOriginal();}
 });
 mobile=AppMobileBottomBar.mount($('#mobileBottomBar'),{initialPage:'input',pageTopOffset:90,

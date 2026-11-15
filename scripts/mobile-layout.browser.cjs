@@ -41,7 +41,8 @@ async function main() {
         await page.waitForFunction(() => /^\d+\.\d+\.\d+$/.test(document.querySelector('#buildVersion').textContent));
         if (await page.locator('html').getAttribute('lang') !== language) await page.locator('#languageButton').click();
         assert.equal((await page.locator('[data-i18n="localBadge"]').textContent()).trim(), language === 'ja' ? '完全ローカル処理' : 'Fully local processing');
-        await bounds(page.locator('.local-badge'), width, height, label, false);
+        assert.equal(await page.locator('.local-badge').isVisible(), width > cfg.bp, label + ': local badge at initial width');
+        if (width > cfg.bp) await bounds(page.locator('.local-badge'), width, height, label, false);
         assert.equal(await page.locator('body > footer').isVisible(), width > cfg.bp, label + ': initial footer');
         assert.equal(await page.locator('[data-mobile-key="notes"]').isDisabled(), true);
         assert.equal(await page.locator('[data-mobile-key="export"]').isDisabled(), true);
@@ -62,6 +63,7 @@ async function main() {
           await page.setViewportSize({width:w,height}); await settle(page);
           assert.equal(await page.locator('body > footer').isVisible(), w > cfg.bp, label + ': footer resize');
           assert.equal(await page.locator(cfg.nav).isVisible(), w <= cfg.bp, label + ': functional bar');
+          assert.equal(await page.locator('.local-badge').isVisible(), w > cfg.bp, label + ': local badge after resize');
           if (w <= cfg.bp) await bounds(page.locator(cfg.nav), w, height, label);
         }
         await page.evaluate(() => scrollTo({left:0,top:0,behavior:'instant'})); await settle(page);

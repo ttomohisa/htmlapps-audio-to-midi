@@ -10,7 +10,7 @@ const AudioMidiReview = (() => {
     const editFields={pitch:$('editPitch'),start:$('editStart'),end:$('editEnd')};
     const splitSeconds=$('splitSeconds'),mergePicker=$('mergeNoteId'),quantizeEnabled=$('quantizeEnabled');
     const editing={enabled:false,dirty:false,canUndo:false,canRedo:false,error:null,mergeCandidates:[]};
-    let fieldSignature,mergeSignature;
+    let fieldSignature,mergeSignature,pickerRange={start:0,end:0};
     let noteIndex=t.createNoteIndex([]);
     function node(name,attributes={},text){const el=document.createElementNS('http://www.w3.org/2000/svg',name);for(const [key,value] of Object.entries(attributes))el.setAttribute(key,String(value));if(text!==undefined)el.textContent=text;return el;}
     function selectedNote(){return noteIndex.get(selected);}
@@ -71,10 +71,30 @@ const AudioMidiReview = (() => {
       for(const el of svg.querySelectorAll('[data-note-id]'))el.classList.toggle('selected',el.dataset.noteId===selected);
       refreshEditor();
     }
+    function refreshNotePicker(){
+      const index=notes.findIndex(note=>note.id===selected);
+      pickerRange=t.notePickerWindow(notes.length,index);
+      const {start,end}=pickerRange,fragment=document.createDocumentFragment();
+      const pageOption=(value,key,count)=>{
+        const option=document.createElement('option');option.value=value;
+        option.textContent=`${translate(key)} (${count})`;fragment.append(option);
+      };
+      if(start>0)pageOption('__previous_notes__','pickerPrevious',start);
+      for(let i=start;i<end;i++){
+        const note=notes[i],option=document.createElement('option');
+        option.value=note.id;
+        option.textContent=`${i+1}. ${t.pitchName(note.pitchMidi)} · ${note.startSeconds.toFixed(3)}–${note.endSeconds.toFixed(3)} s`;
+        fragment.append(option);
+      }
+      if(end<notes.length)pageOption('__next_notes__','pickerNext',notes.length-end);
+      picker.replaceChildren(fragment);
+      picker.disabled=!notes.length;
+      picker.value=selected||'';
+    }
     function select(id){
       const next=noteIndex.get(id)?id:null,changed=selected!==next;
       selected=next;
-      if(changed){editing.error=null;fillEditor();}
+      if(changed){editing.error=null;fillEditor();refreshNotePicker();}
       selectedDetails();showSelection();
       if(changed&&typeof onSelection==='function')onSelection(selected);
       return selected;
@@ -189,8 +209,7 @@ const AudioMidiReview = (() => {
       if(!noteIndex.get(selected))selected=notes[0]?.id||null;
       if(selected!==previousSelected)editing.error=null;
       fillEditor();
-      picker.replaceChildren(...notes.map((n,i)=>{const option=document.createElement('option');option.value=n.id;option.textContent=`${i+1}. ${t.pitchName(n.pitchMidi)} · ${n.startSeconds.toFixed(3)}–${n.endSeconds.toFixed(3)} s`;return option;}));
-      picker.disabled=!notes.length;panel.hidden=!buffer;$('timelineEmpty').hidden=!!buffer;
+      refreshNotePicker();panel.hidden=!buffer;$('timelineEmpty').hidden=!!buffer;
       if(buffer){needsReveal=sourceChanged||notesChanged;draw();revealPosition();}
       else{if(renderFrame){cancelAnimationFrame(renderFrame);renderFrame=0;}needsReveal=false;view=null;svg.replaceChildren();waveform.replaceChildren();pitchLabels.replaceChildren();selectedDetails();}
       updateTransport();
@@ -206,7 +225,12 @@ const AudioMidiReview = (() => {
     mode.addEventListener('change',()=>guard(()=>player.setMode(mode.value)));
     seek.addEventListener('input',()=>guard(()=>player.seek(Number(seek.value))));
     $('zoomIn').addEventListener('click',()=>changeZoom(2));$('zoomOut').addEventListener('click',()=>changeZoom(.5));
-    picker.addEventListener('change',()=>select(picker.value));
+    picker.addEventListener('change',()=>{
+      const choice=picker.value;
+      if(choice==='__previous_notes__')select(notes[pickerRange.start-1]?.id);
+      else if(choice==='__next_notes__')select(notes[pickerRange.end]?.id);
+      else select(choice);
+    });
     svg.addEventListener('click',event=>{const note=event.target.closest('[data-note-id]');if(note)select(note.dataset.noteId);});
     $('addNoteButton').addEventListener('click',()=>emitEdit('add'));
     $('deleteNoteButton').addEventListener('click',()=>emitEdit('delete'));

@@ -4,7 +4,7 @@ const fixture = [
   'const BUILD_MANIFEST = {"schemaVersion":2,"version":"1.0.0","generatedAtUtc":"2026-10-23T12:00:00.1234567Z","marker":"fixed-runtime-pin","dependencies":[]};',
   'const assetBundle = {"schemaVersion":2,"dependencies":{}};',
   '<script>unchanged source</script>'
-].join('\\n')+'\\n';
+].join('\n')+'\n';
 test('preview identity permits only the official build timestamp to differ', () => {
   assert.equal(buildArtifactDigest(Buffer.from(fixture)), buildArtifactDigest(Buffer.from(fixture.replace('12:00:00.1234567Z','13:00:01.2345678Z'))));
 });

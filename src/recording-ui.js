@@ -71,7 +71,17 @@ const AudioMidiRecordingUI=(()=>{
   $('recordButton').addEventListener('click',async()=>{
    if(active()||preparing||actionPending||isBusy())return;
    actionPending=true;render();
-   try{if(!await beforeReplace()||!await askDiscard())return;clear();onStart();engine.start();}
+   try{
+    if(!await beforeReplace()||!await askDiscard())return;
+    // Keep the old take until the new microphone capture actually starts.
+    // A rejected permission request must not erase the old downloadable take.
+    const ticket=++revision;
+    onStart();
+    engine.start().then(started=>{
+     if(disposed||ticket!==revision)return;
+     if(started){lastBlob=null;accepted=false;saved=false;changed();}
+    }).catch(()=>{});
+   }
    // Permission may remain pending: do not hold the confirmation lock.
    finally{actionPending=false;changed();}
   });

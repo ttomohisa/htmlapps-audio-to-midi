@@ -20,8 +20,10 @@ for(const variant of ['index.html','index.self-extract.html'])test(`${variant}: 
 });
 test('silence, corrupt input, duration boundaries and retry',async({page})=>{
  await open(page);await upload(page,makeWav({notes:[],duration:1}),'silence.wav');await phase(page,'ready');await page.locator('#analyzeButton').click();await phase(page,'no-notes');await expect(page.locator('#downloadButton')).toBeDisabled();
- for(const duration of [.4,60.1]){await upload(page,makeWav({duration,notes:[],sampleRate:8000}));await phase(page,'error');await expect(page.locator('#statusHint')).toContainText(/0.5/);}
- await upload(page,Buffer.from('not an audio file'),'broken.wav');await phase(page,'error');
+ // A valid zero-note source must survive subsequent invalid file choices.
+ for(const duration of [.4,60.1]){await upload(page,makeWav({duration,notes:[],sampleRate:8000}));await phase(page,'no-notes');await expect(page.locator('#inputError')).toContainText(/0.5/);}
+ await upload(page,Buffer.from('not an audio file'),'broken.wav');await phase(page,'no-notes');await expect(page.locator('#inputError')).toBeVisible();
+ await expect(page.locator('#sourceName')).toHaveText('silence.wav');
  // The contract is decoded duration: avoid a source-rate conversion rounding this boundary below 0.5 s.
  const nativeRate=await page.evaluate(async()=>{const context=new AudioContext();const rate=context.sampleRate;await context.close();return rate;});
  await upload(page,makeWav({duration:.5,notes:[],sampleRate:nativeRate,channels:2}),'retry.wav');await phase(page,'ready');await expect(page.locator('#sourceMeta')).toContainText('0.50');

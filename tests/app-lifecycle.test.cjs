@@ -34,7 +34,7 @@ function deferred(){let resolve;const promise=new Promise(r=>resolve=r);return {
 function selections(permission){
  const reads=[],generation=core.createGeneration();let confirmationCalls=0,replacementCalls=0,stops=0;
  class Decoder{constructor(){this.state='running';}close(){this.state='closed';return Promise.resolve();}async decodeAudioData(){return {duration:1,sampleRate:22050,numberOfChannels:1,getChannelData:()=>new Float32Array(22050)};}}
- const context={sourceRequest:0,sourcePermission:null,decodeContext:null,generation,core,state:{phase:'ready'},window:{AudioContext:Decoder,OfflineAudioContext:class{},Worker:class{}},outputFilename:{value:''},confirmEdits:()=>{confirmationCalls++;return permission.promise;},recording:{replace:async()=>{replacementCalls++;return true;}},clearEditing(){},invalidate:()=>generation.next(),render(){},stopWorker:()=>stops++,closeDecoder:()=>{context.decodeContext=null;}};
+ const context={sourceRequest:0,sourcePermission:null,decodeContext:null,generation,core,state:{phase:'ready'},window:{AudioContext:Decoder,OfflineAudioContext:class{},Worker:class{}},outputFilename:{value:''},confirmEdits:()=>{confirmationCalls++;return permission.promise;},recording:{active:()=>false,replace:async()=>{replacementCalls++;return true;}},review:{pause(){}},busy:()=>false,clearEditing(){},invalidate:()=>generation.next(),render(){},stopWorker:()=>stops++,closeDecoder:()=>{context.decodeContext=null;}};
  vm.createContext(context);vm.runInContext(source.slice(source.indexOf('async function selectFiles('),source.indexOf('async function analyze(')),context);
  const file=name=>({name:name+'.wav',size:20,type:'audio/wav',async arrayBuffer(){reads.push(name);return new ArrayBuffer(1);}});
  return {context,reads,file,calls:()=>({confirmationCalls,replacementCalls,stops})};
@@ -56,6 +56,7 @@ test('another generation boundary invalidates pending source permission',async()
 });
 test('new request during pending recording discard shares that decision and wins',async()=>{
  const permission=deferred(),recordingPermission=deferred(),{context,reads,file}=selections(permission);let replacements=0;
+ context.recording.active=()=>true;
  context.recording.replace=()=>{replacements++;return recordingPermission.promise;};
  const old=context.selectFiles([file('old')]);permission.resolve(true);await new Promise(resolve=>setImmediate(resolve));
  assert.equal(replacements,1);const latest=context.selectFiles([file('latest')]);recordingPermission.resolve(true);

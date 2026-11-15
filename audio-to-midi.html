@@ -2882,14 +2882,19 @@ async function selectFiles(files,{recorded=false}={}){
  const file=files[0],error=core.validateFile(file);
  if(error){state.inputError=error;render();return false;}
  const request=++sourceRequest,requestGeneration=generation.capture();
+ let replacedActiveRecording=false;
  if(!recorded){
-  // A failed decode must not discard an existing recording or an edited score.
-  // Concurrent selections share the same edit confirmation; only the latest
-  // request can stage or commit a replacement.
-  if(!sourcePermission)sourcePermission=(async()=>await confirmEdits()&&(!recording.active()||await recording.replace()))();
-  const permission=sourcePermission;let allowed;
-  try{allowed=await permission;}finally{if(sourcePermission===permission)sourcePermission=null;}
-  if(!allowed)return false;
+  // Preserve the existing take for a failed decode. Active capture must stop
+  // before decoding, but concurrent selections share that single decision.
+  if(!sourcePermission)sourcePermission=(async()=>{
+   if(!await confirmEdits())return {allowed:false,replacedActive:false};
+   const active=recording.active();
+   return {allowed:!active||await recording.replace(),replacedActive:active};
+  })();
+  const permission=sourcePermission;let decision;
+  try{decision=await permission;}finally{if(sourcePermission===permission)sourcePermission=null;}
+  if(!decision.allowed)return false;
+  replacedActiveRecording=decision.replacedActive;
  }
  if(request!==sourceRequest||!generation.isCurrent(requestGeneration))return false;
  const previousPhase=busy()?(editor?(state.notes.length?'result':'no-notes'):(state.samples?'ready':'empty')):state.phase;
@@ -2915,7 +2920,7 @@ async function selectFiles(files,{recorded=false}={}){
   if(!generation.isCurrent(token)||request!==sourceRequest)return false;
   // Do not clear a previous capture until the new file is proven decodable.
   // The user can still cancel the recording-discard confirmation at this point.
-  if(!recorded){
+  if(!recorded&&!replacedActiveRecording){
    const allowed=await recording.replace();
    if(!generation.isCurrent(token)||request!==sourceRequest)return false;
    if(!allowed){state.phase=previousPhase;state.error=previousError;render();return false;}

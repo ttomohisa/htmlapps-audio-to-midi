@@ -178,7 +178,7 @@ async function selectFiles(files,{recorded=false}={}){
   // A failed decode must not discard an existing recording or an edited score.
   // Concurrent selections share the same edit confirmation; only the latest
   // request can stage or commit a replacement.
-  if(!sourcePermission)sourcePermission=confirmEdits();
+  if(!sourcePermission)sourcePermission=(async()=>await confirmEdits()&&(!recording.active()||await recording.replace()))();
   const permission=sourcePermission;let allowed;
   try{allowed=await permission;}finally{if(sourcePermission===permission)sourcePermission=null;}
   if(!allowed)return false;

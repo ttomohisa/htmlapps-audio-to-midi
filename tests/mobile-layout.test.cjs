@@ -24,7 +24,8 @@ test('Help descendant keyboard click cannot close the dialog but actual backdrop
   callback({target:helpDialog,clientX:50,clientY:50}); assert.equal(closes,0);
   callback({target:helpDialog,clientX:0,clientY:0}); assert.equal(closes,1);
 });
-test('Japanese and English local-processing badges remain canonical', () => {
+test('local-processing badge keeps bilingual text on desktop but hides at the phone breakpoint', () => {
   assert.match(ui, /localBadge:'完全ローカル処理'/);
   assert.match(ui, /localBadge:'Fully local processing'/);
+  assert.match(html, /@media \(max-width: 600px\)\s*\{\s*\.page-intro \.local-badge \{ display: none; \}/);
 });

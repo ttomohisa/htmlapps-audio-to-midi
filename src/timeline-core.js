@@ -53,6 +53,15 @@ const AudioMidiTimeline = (() => {
     }
     return Object.freeze({query,get:id=>byId.get(id)});
   }
+  // Native select menus become unresponsive when thousands of note options are
+  // installed at once. Keep a moving window around the selected note instead.
+  function notePickerWindow(count,selectedIndex,maxVisible=240){
+    const total=Math.max(0,Math.floor(Number(count)||0)),limit=Math.max(1,Math.floor(Number(maxVisible)||240));
+    if(!total)return {start:0,end:0};
+    const selected=Math.max(0,Math.min(total-1,Number.isInteger(selectedIndex)?selectedIndex:0));
+    const start=Math.max(0,Math.min(total-limit,selected-Math.floor(limit/2)));
+    return {start,end:Math.min(total,start+limit)};
+  }
   function waveformRange(peaks,view,range){
     return {start:Math.max(0,Math.floor(range.left/view.width*peaks.length)),end:Math.min(peaks.length,Math.ceil(range.right/view.width*peaks.length))};
   }
@@ -61,6 +70,6 @@ const AudioMidiTimeline = (() => {
     const length=channels[0].length,count=Math.min(length,Math.max(1,Math.min(2400,Math.floor(bins)||1200))),out=[];
     for(let bin=0;bin<count;bin++){let min=0,max=0;const start=Math.floor(bin*length/count),end=Math.floor((bin+1)*length/count);for(const channel of channels)for(let i=start;i<end;i++){const value=channel[i];if(Number.isFinite(value)){min=Math.min(min,value);max=Math.max(max,value);}}out.push({min,max});}return out;
   }
-  return Object.freeze({ROW_HEIGHT,MIN_PITCH,MAX_PITCH,pitchName,geometry,noteRect,xToTime,visibleRange,ticks,createNoteIndex,waveformRange,waveformPeaks});
+  return Object.freeze({ROW_HEIGHT,MIN_PITCH,MAX_PITCH,pitchName,geometry,noteRect,xToTime,visibleRange,ticks,createNoteIndex,notePickerWindow,waveformRange,waveformPeaks});
 })();
 if(typeof module!=='undefined'&&module.exports)module.exports=AudioMidiTimeline;

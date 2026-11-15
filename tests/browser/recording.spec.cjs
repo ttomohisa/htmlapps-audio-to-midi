@@ -18,6 +18,21 @@ test('recording denial, missing device and unsupported MIME preserve file fallba
  await page.evaluate(()=>MediaRecorder.isTypeSupported=()=>false);await page.locator('#recordButton').click();await expect(page.locator('#recordingError')).toContainText(/format|形式/);
  await page.locator('#audioFile').setInputFiles({name:'fallback.wav',mimeType:'audio/wav',buffer:makeWav()});await expect(page.locator('body')).toHaveAttribute('data-phase','ready');await expect(page.locator('#analyzeButton')).toBeEnabled();
 });
+test('denied microphone permission does not clear the current analyzed score',async({page})=>{
+ await page.addInitScript(()=>{navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('denied','NotAllowedError');};});
+ await page.goto(file('index.html'));
+ await page.locator('#audioFile').setInputFiles({name:'keep-C4.wav',mimeType:'audio/wav',buffer:makeWav()});
+ await expect(page.locator('body')).toHaveAttribute('data-phase','ready');
+ await page.locator('#analyzeButton').click();
+ await expect(page.locator('body')).toHaveAttribute('data-phase','result',{timeout:90000});
+ const count=await page.locator('#noteCount').textContent();
+ await page.locator('#recordButton').click();
+ await expect(page.locator('#recordingError')).toContainText(/permission|許可/);
+ await expect(page.locator('body')).toHaveAttribute('data-phase','result');
+ await expect(page.locator('#sourceName')).toHaveText('keep-C4.wav');
+ await expect(page.locator('#noteCount')).toHaveText(count);
+ await expect(page.locator('#downloadButton')).toBeEnabled();
+});
 test('active recording reset cancellation, discard, hidden and late permission cleanup',async({page})=>{
  await instrumentMicrophone(page);await page.goto(file('index.html'));await page.locator('#recordButton').click();await expect(page.locator('#recordingPanel')).toHaveAttribute('data-recording','recording');
  await page.locator('#resetButton').click();await page.locator('#appConfirmCancel').click();await expect(page.locator('#recordingPanel')).toHaveAttribute('data-recording','recording');

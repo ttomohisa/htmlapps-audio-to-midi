@@ -40,6 +40,30 @@ test('invalid replacement preserves result; reset cancellation and language keep
  await page.locator('#resetButton').click();await page.locator('#appConfirmCancel').click();await phase(page,'result');
  await page.locator('#resetButton').click();await page.locator('#appConfirmOk').click();await phase(page,'empty');
 });
+test('decode failure after confirming replacement retains edited notes and source',async({page})=>{
+ await open(page);await upload(page,makeWav(),'kept.wav');await phase(page,'ready');
+ await page.locator('#analyzeButton').click();await phase(page,'result');
+ await page.locator('#pitchUp').click();
+ const pitch=await page.locator('#editPitch').inputValue(),count=await page.locator('#noteCount').textContent();
+ for(const bad of [
+  {name:'broken.wav',buffer:Buffer.from('not audio')},
+  {name:'too-short.wav',buffer:makeWav({duration:.4,notes:[],sampleRate:8000})}
+ ]){
+  await upload(page,bad.buffer,bad.name);await expect(page.locator('#appConfirmDialog')).toBeVisible();
+  await page.locator('#appConfirmOk').click();
+  await phase(page,'result');
+  await expect(page.locator('#sourceName')).toHaveText('kept.wav');
+  await expect(page.locator('#inputError')).toBeVisible();
+  await expect(page.locator('#editPitch')).toHaveValue(pitch);
+  await expect(page.locator('#noteCount')).toHaveText(count);
+  await expect(page.locator('#noteDirty')).toBeVisible();
+  await expect(page.locator('#downloadButton')).toBeEnabled();
+ }
+ await upload(page,makeWav({duration:1,notes:[]}),'accepted.wav');
+ await page.locator('#appConfirmOk').click();await phase(page,'ready');
+ await expect(page.locator('#sourceName')).toHaveText('accepted.wav');
+ await expect(page.locator('#noteDirty')).toBeHidden();
+});
 test('reset dialog cancellation during analysis does not strand job',async({page})=>{
  await open(page);await upload(page,makeWav());await phase(page,'ready');await page.locator('#analyzeButton').click();await phase(page,'analyzing');await page.locator('#resetButton').click();await page.locator('#appConfirmCancel').click();await phase(page,'result');
 });

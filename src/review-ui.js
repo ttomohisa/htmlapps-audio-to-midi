@@ -10,7 +10,7 @@ const AudioMidiReview = (() => {
     const editFields={pitch:$('editPitch'),start:$('editStart'),end:$('editEnd')};
     const splitSeconds=$('splitSeconds'),mergePicker=$('mergeNoteId'),quantizeEnabled=$('quantizeEnabled');
     const editing={enabled:false,dirty:false,canUndo:false,canRedo:false,error:null,mergeCandidates:[]};
-    let fieldSignature,mergeSignature,pickerRange={start:0,end:0};
+    let fieldSignature,mergeSignature,pickerRange={start:0,end:0},pickerLocale='';
     let noteIndex=t.createNoteIndex([]);
     function node(name,attributes={},text){const el=document.createElementNS('http://www.w3.org/2000/svg',name);for(const [key,value] of Object.entries(attributes))el.setAttribute(key,String(value));if(text!==undefined)el.textContent=text;return el;}
     function selectedNote(){return noteIndex.get(selected);}
@@ -72,6 +72,7 @@ const AudioMidiReview = (() => {
       refreshEditor();
     }
     function refreshNotePicker(){
+      pickerLocale=translate('pickerPrevious')+'|'+translate('pickerNext');
       const index=notes.findIndex(note=>note.id===selected);
       pickerRange=t.notePickerWindow(notes.length,index);
       const {start,end}=pickerRange,fragment=document.createDocumentFragment();
@@ -217,7 +218,7 @@ const AudioMidiReview = (() => {
       // (including replacing the source or deleting the selected note) notifies.
       if(selected!==previousSelected&&typeof onSelection==='function')onSelection(selected);
     }
-    function render(){selectedDetails();updateTransport();}
+    function render(){if(pickerLocale!==translate('pickerPrevious')+'|'+translate('pickerNext'))refreshNotePicker();selectedDetails();updateTransport();}
     function changeZoom(factor){if(!view)return;const center=(piano.scrollLeft+piano.clientWidth/2)/view.pixelsPerSecond;zoom=Math.max(20,Math.min(Math.max(320,piano.clientWidth/buffer.duration*4),zoom*factor));draw();piano.scrollLeft=Math.max(0,center*view.pixelsPerSecond-piano.clientWidth/2);syncScroll();drawViewport();}
     $('playButton').addEventListener('click',()=>guard(()=>player.play()));
     $('pauseButton').addEventListener('click',()=>guard(()=>player.pause()));

@@ -308,7 +308,11 @@ for(const variant of variants){
     await expect(page.locator('body')).toHaveCSS('position','fixed');
     await page.mouse.move(1,240);await page.mouse.wheel(0,450);
     expect(Math.abs(await page.locator('#inputTitle').evaluate(node=>node.getBoundingClientRect().top)-before.top)).toBeLessThan(1);
-    const body=page.locator('#helpDialog .dialog-body'),last=page.locator('#helpDialog [data-i18n="helpExport"]');
+    const body=page.locator('#helpDialog .dialog-body'),tips=page.locator('#helpDialog .help-tips'),last=page.locator('#helpDialog [data-i18n="helpExport"]');
+    await expect(tips).toHaveJSProperty('open',false);
+    await tips.locator('summary').focus();await page.keyboard.press('Enter');
+    await expect(tips).toHaveJSProperty('open',true);
+    await page.locator('#closeHelpButton').focus();
     await body.hover();await page.mouse.wheel(0,500);
     await expect.poll(()=>body.evaluate(node=>node.scrollTop)).toBeGreaterThan(0);
     await last.scrollIntoViewIfNeeded();

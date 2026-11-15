@@ -32,6 +32,8 @@ for(const key of ['resultHint','resetBody','helpStep3','helpNoteStorage','noteLi
  translations.en[key]=translations.en[key].replaceAll('MIDI','MIDI or CSV');
  translations.ja[key]=translations.ja[key].replaceAll('MIDI','MIDIまたはCSV');
 }
+Object.assign(translations.en,{pickerPrevious:'Earlier notes',pickerNext:'Later notes'});
+Object.assign(translations.ja,{pickerPrevious:'前の音符',pickerNext:'次の音符'});
 const languageKey=APP_CONFIG.slug+':language';
 function readStorage(key){try{return localStorage.getItem(key);}catch{return null;}}
 function writeStorage(key,value){try{localStorage.setItem(key,value);}catch{}}
@@ -143,7 +145,8 @@ function render(){
  $('#progressBar').hidden=!busy();
  if(state.phase==='analyzing'||state.phase==='postprocessing')$('#progressBar').value=state.progress;else $('#progressBar').removeAttribute('value');
  $('#noteCount').textContent=['result','no-notes'].includes(state.phase)?state.notes.length:'—';
- $('#resultMeta').textContent=state.notes.length?`${translate('range')}: ${pitchName(Math.min(...state.notes.map(n=>n.pitchMidi)))}–${pitchName(Math.max(...state.notes.map(n=>n.pitchMidi)))} · ${translate('elapsed')}: ${(state.elapsed/1000).toFixed(1)} ${translate('seconds')}`:'';
+ const pitchBounds=state.notes.reduce((bounds,n)=>({low:Math.min(bounds.low,n.pitchMidi),high:Math.max(bounds.high,n.pitchMidi)}),{low:127,high:0});
+ $('#resultMeta').textContent=state.notes.length?`${translate('range')}: ${pitchName(pitchBounds.low)}–${pitchName(pitchBounds.high)} · ${translate('elapsed')}: ${(state.elapsed/1000).toFixed(1)} ${translate('seconds')}`:'';
  $('#notesDetails').hidden=!state.notes.length;
  $('#noteRows').replaceChildren(...state.notes.slice(0,100).map(n=>{const row=document.createElement('div');row.className='note-row';[`${pitchName(n.pitchMidi)} (${n.pitchMidi})`,n.startSeconds.toFixed(3),n.endSeconds.toFixed(3)].forEach(text=>{const cell=document.createElement('span');cell.textContent=text;row.append(cell);});return row;}));
  $('#noteLimit').textContent=state.notes.length>100?translate('noteLimit'):'';

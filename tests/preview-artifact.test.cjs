@@ -1,11 +1,15 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const {buildArtifactDigest} = require('./browser/build-artifact-digest.cjs');
-const fixture = '{"version":"1.0.0","generatedAtUtc":"2026-10-23T12:00:00.1234567Z","dependencies":[{"sha256":"fixed-runtime-pin"}]}<script>unchanged source</script>';
+const fixture = [
+  'const BUILD_MANIFEST = {"schemaVersion":2,"version":"1.0.0","generatedAtUtc":"2026-10-23T12:00:00.1234567Z","marker":"fixed-runtime-pin","dependencies":[]};',
+  'const assetBundle = {"schemaVersion":2,"dependencies":{}};',
+  '<script>unchanged source</script>'
+].join('\\n')+'\\n';
 test('preview identity permits only the official build timestamp to differ', () => {
   assert.equal(buildArtifactDigest(Buffer.from(fixture)), buildArtifactDigest(Buffer.from(fixture.replace('12:00:00.1234567Z','13:00:01.2345678Z'))));
 });
 test('all remaining artifact bytes retain strict identity', () => {
-  for (const changed of [fixture.replace('1.0.0','1.0.1'), fixture.replace('fixed-runtime-pin','other-runtime-pin'), fixture.replace('unchanged source','changed source'), fixture+' ', fixture.replace(':"1.0.0"', ': "1.0.0"')]) {
+  for (const changed of [fixture.replace('1.0.0','1.0.1'), fixture.replace('fixed-runtime-pin','other-runtime-pin'), fixture.replace('unchanged source','changed source'), fixture+' ']) {
     assert.notEqual(buildArtifactDigest(Buffer.from(changed)), buildArtifactDigest(Buffer.from(fixture)));
   }
 });

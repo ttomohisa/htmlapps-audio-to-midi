@@ -17,10 +17,14 @@ test('patch release version is consistent in app and npm manifests',()=>{
 });
 
 test('only a merged PR on main may create the tag and GitHub release',()=>{
- assert.match(flow,/pull_request_target:\s*\n\s*types: \[closed\]\s*\n\s*branches: \[main\]/);
- assert.match(flow,/if: github\.event\.pull_request\.merged == true/);
+ assert.match(flow,/push:\s*\n\s*branches: \[main\]/);
+ assert.doesNotMatch(flow,/pull_request_target/);
+ assert.match(flow,/\/commits\/\$env:MERGED_SHA\/pulls/);
+ assert.match(flow,/\$_.merged_at -and \$_.base.ref -eq 'main' -and \$_.merge_commit_sha -eq \$env:MERGED_SHA/);
+ assert.match(flow,/persist-credentials: false/);
+ assert.match(flow,/pull-requests: read/);
  assert.match(flow,/contents: write/);
- assert.match(flow,/ref: \$\{\{ github\.event\.pull_request\.merge_commit_sha \}\}/);
+ assert.match(flow,/ref: \$\{\{ github.sha \}\}/);
  assert.match(flow,/--target \$env:MERGED_SHA/);
  assert.match(flow,/gh release create/);
  assert.match(flow,/releases\/tags\/\$tag/);

@@ -316,9 +316,11 @@
     .dialog-body p { margin: 8px 0 0; }
     .dialog-body ul, .dialog-body ol { margin: 8px 0 0; padding-left: 22px; }
     .dialog-body li + li { margin-top: 7px; }
-    .dialog-body .help-tips { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
-    .dialog-body .help-tips summary { font-size: 13px; font-weight: 600; cursor: pointer; }
-    .dialog-body .help-tips ul { margin-top: 12px; }
+    /* Keep supplemental tips compact; generic details are framed elsewhere. */
+    .dialog-body .help-tips { margin-top: 6px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; }
+    .dialog-body .help-tips summary { padding: 9px 0; font-size: 13px; font-weight: 650; cursor: pointer; }
+    .dialog-body .help-tips ul { margin: 3px 0 12px; }
+    #helpDialog #licensesDetails { margin-top: 6px; }
     .dialog-note {
       margin-top: 12px;
       padding: 11px 12px;
@@ -760,7 +762,7 @@
         <section class="detection-settings" aria-labelledby="detectionSettingsTitle">
           <h3 id="detectionSettingsTitle" data-i18n="detectionSettingsTitle">Note detection</h3>
           <label class="control-field" for="sensitivityPreset"><span data-i18n="sensitivityPreset">Sensitivity</span><select id="sensitivityPreset" aria-describedby="detectionSettingsHint"><option value="fewer" data-i18n="presetFewer">Fewer notes</option><option value="standard" selected data-i18n="presetStandard">Standard</option><option value="more" data-i18n="presetMore">More notes</option><option value="custom" data-i18n="presetCustom">Custom</option></select></label>
-          <p class="muted detection-settings-hint" id="detectionSettingsHint" data-i18n="detectionSettingsHint">Settings apply when you press Analyze audio. Changing them never starts analysis automatically.</p>
+          <p class="muted detection-settings-hint" id="detectionSettingsHint" data-i18n="detectionSettingsHint">Fewer can reduce unwanted notes, while More may detect quieter notes. Changes apply on the next analysis.</p>
           <details class="detection-advanced" id="detectionAdvanced">
             <summary data-i18n="detectionAdvanced">Advanced detection settings</summary>
             <div class="detection-fields">

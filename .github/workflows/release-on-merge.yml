@@ -1,12 +1,12 @@
 name: Create GitHub Release after PR merge
 
 on:
-  pull_request_target:
-    types: [closed]
+  push:
     branches: [main]
 
 permissions:
   contents: write
+  pull-requests: read
 
 concurrency:
   group: audio-to-midi-release
@@ -14,24 +14,37 @@ concurrency:
 
 jobs:
   release:
-    if: github.event.pull_request.merged == true
     runs-on: windows-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout the exact merged commit
+      - name: Checkout the exact main commit
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: ${{ github.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Verify semantic version and detect an existing release
         id: version
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          MERGED_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          MERGED_SHA: ${{ github.sha }}
         run: |
           $ErrorActionPreference = 'Stop'
+          # Release only the exact commit that was produced by a merged PR.
+          # Direct pushes to main are not eligible.
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' }
+          $commitApi = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/commits/$env:MERGED_SHA/pulls"
+          $associatedPrs = @(Invoke-RestMethod -Method Get -Uri $commitApi -Headers $headers -ErrorAction Stop)
+          $mergedPrs = @($associatedPrs | Where-Object {
+            $_.merged_at -and $_.base.ref -eq 'main' -and $_.merge_commit_sha -eq $env:MERGED_SHA
+          })
+          if (-not $mergedPrs.Count) {
+            Write-Host 'This main commit is not the merge commit of a merged PR; skipping release.'
+            "publish=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            exit 0
+          }
           $app = Get-Content -Raw -Encoding UTF8 app.config.json | ConvertFrom-Json
           $package = Get-Content -Raw -Encoding UTF8 package.json | ConvertFrom-Json
           $lock = Get-Content -Raw -Encoding UTF8 package-lock.json | ConvertFrom-Json -AsHashtable
@@ -50,7 +63,6 @@ jobs:
           $releaseExists = $false
           try {
             $uri = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/$tag"
-            $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' }
             $null = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers -ErrorAction Stop
             $releaseExists = $true
           } catch {
@@ -109,7 +121,7 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          MERGED_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          MERGED_SHA: ${{ github.sha }}
           RELEASE_TAG: ${{ steps.version.outputs.tag }}
         run: |
           $ErrorActionPreference = 'Stop'

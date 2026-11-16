@@ -37,7 +37,8 @@ jobs:
           $lock = Get-Content -Raw -Encoding UTF8 package-lock.json | ConvertFrom-Json
           $version = [string]$app.version
           if ($version -cnotmatch '^\d+\.\d+\.\d+$') { throw "Expected a stable semantic version, got '$version'." }
-          if ($version -cne [string]$package.version -or $version -cne [string]$lock.version -or $version -cne [string]$lock.packages.''.version) {
+          $rootLock = $lock.packages.PSObject.Properties[''].Value
+          if ($null -eq $rootLock -or $version -cne [string]$package.version -or $version -cne [string]$lock.version -or $version -cne [string]$rootLock.version) {
             throw "Version mismatch between app.config.json, package.json and package-lock.json."
           }
           $head = (& git rev-parse HEAD).Trim()

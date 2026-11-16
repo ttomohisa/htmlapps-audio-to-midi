@@ -60,18 +60,12 @@ jobs:
           "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           # A missing release (HTTP 404) is expected for a new version.
           # Other API failures must not be mistaken for a missing release.
-          $releaseExists = $false
+          $release = $null
           try {
             $uri = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/$tag"
-            $null = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers -ErrorAction Stop
-            $releaseExists = $true
+            $release = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers -ErrorAction Stop
           } catch {
             if ([int]$_.Exception.Response.StatusCode -ne 404) { throw }
-          }
-          if ($releaseExists) {
-            Write-Host "$tag already has a GitHub Release. No duplicate release will be created."
-            "publish=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-            exit 0
           }
           $remoteTag = & git ls-remote --tags origin "refs/tags/$tag"
           if ($LASTEXITCODE -ne 0) { throw 'Could not inspect remote release tags.' }
@@ -82,7 +76,21 @@ jobs:
             if ($tagTarget -cne $env:MERGED_SHA) {
               throw "$tag already exists on a different commit. Bump the app patch version before releasing."
             }
+          } elseif ($null -ne $release) {
+            throw "$tag has a Release but no corresponding remote Git tag."
           }
+          if ($null -ne $release) {
+            $existingNames = @($release.assets | ForEach-Object { [string]$_.name })
+            $requiredNames = @('index.html', 'index.self-extract.html', 'audio-to-midi.html', 'dependency-manifest.json', 'self-extract-manifest.json')
+            $missing = @($requiredNames | Where-Object { $existingNames -notcontains $_ })
+            if (-not $missing.Count) {
+              Write-Host "$tag already has all expected assets. No duplicate release will be created."
+              "publish=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+              exit 0
+            }
+            Write-Host "$tag exists but needs missing assets: $($missing -join ', ')"
+          }
+          "repair=$($null -ne $release)".ToLowerInvariant() | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           "publish=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Validate and build the standalone HTML
@@ -123,6 +131,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           MERGED_SHA: ${{ github.sha }}
           RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          REPAIR_RELEASE: ${{ steps.version.outputs.repair }}
         run: |
           $ErrorActionPreference = 'Stop'
           $assets = @(
@@ -135,6 +144,29 @@ jobs:
           foreach ($asset in $assets) {
             if (-not (Test-Path -LiteralPath $asset -PathType Leaf)) { throw "Release artifact missing: $asset" }
           }
-          & gh release create $env:RELEASE_TAG @assets --repo $env:GITHUB_REPOSITORY --target $env:MERGED_SHA --title "Audio to MIDI $env:RELEASE_TAG" --generate-notes
-          if ($LASTEXITCODE -ne 0) { throw 'Failed to create GitHub tag and release.' }
-          Write-Host "Created GitHub Release $env:RELEASE_TAG with standalone HTML assets."
+          if ($env:REPAIR_RELEASE -eq 'true') {
+            # Reattach only absent files. Do not clobber an already published
+            # artifact, which could be destroyed by a failed replacement upload.
+            $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' }
+            $uri = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/$env:RELEASE_TAG"
+            $release = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers -ErrorAction Stop
+            $existingNames = @($release.assets | ForEach-Object { [string]$_.name })
+            $missingAssets = @($assets | Where-Object { $existingNames -notcontains [System.IO.Path]::GetFileName($_) })
+            if ($missingAssets.Count) {
+              & gh release upload $env:RELEASE_TAG @missingAssets --repo $env:GITHUB_REPOSITORY
+              if ($LASTEXITCODE -ne 0) { throw 'Failed to repair missing GitHub Release assets.' }
+            }
+          } else {
+            & gh release create $env:RELEASE_TAG @assets --repo $env:GITHUB_REPOSITORY --target $env:MERGED_SHA --title "Audio to MIDI $env:RELEASE_TAG" --generate-notes
+            if ($LASTEXITCODE -ne 0) { throw 'Failed to create GitHub tag and release.' }
+          }
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' }
+          $uri = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/$env:RELEASE_TAG"
+          $published = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers -ErrorAction Stop
+          $publishedNames = @($published.assets | ForEach-Object { [string]$_.name })
+          foreach ($asset in $assets) {
+            if ($publishedNames -notcontains [System.IO.Path]::GetFileName($asset)) {
+              throw "GitHub Release is incomplete: $asset was not uploaded."
+            }
+          }
+          Write-Host "GitHub Release $env:RELEASE_TAG has all expected standalone assets."

@@ -38,5 +38,10 @@ test('tag and release are gated by fresh build, contract, model and browser test
  for(const command of ['./scripts/check-repository.ps1','npm ci --ignore-scripts --no-audit --no-fund','npm test','npm run test:model','npx playwright install chromium','npm run test:browser'])assert.ok(flow.includes(command),command);
  for(const asset of ['dist/index.html','dist/index.self-extract.html','audio-to-midi.html','dist/dependency-manifest.json','dist/self-extract-manifest.json'])assert.ok(flow.includes("'"+asset+"'"),asset);
  assert.match(flow,/--generate-notes/);
+ assert.match(flow,/gh release upload/);
+ assert.match(flow,/REPAIR_RELEASE: \$\{\{ steps\.version\.outputs\.repair \}\}/);
+ assert.match(flow,/existingNames -notcontains/);
+ assert.match(flow,/GitHub Release is incomplete/);
+ assert.match(flow,/already exists on a different commit/);
  assert.match(flow,/if: steps\.version\.outputs\.publish == 'true'/);
 });

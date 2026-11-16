@@ -26,6 +26,8 @@ test('only a merged PR on main may create the tag and GitHub release',()=>{
  assert.match(flow,/releases\/tags\/\$tag/);
  assert.match(flow,/publish=false/);
  assert.match(flow,/Version mismatch between app\.config\.json, package\.json and package-lock\.json/);
+ assert.match(flow,/package-lock\.json \| ConvertFrom-Json -AsHashtable/);
+ assert.match(flow,/\$lock\['packages'\]\[''\]/);
 });
 
 test('tag and release are gated by fresh build, contract, model and browser tests',()=>{

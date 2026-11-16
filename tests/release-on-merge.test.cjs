@@ -24,7 +24,7 @@ test('only a merged PR on main may create the tag and GitHub release',()=>{
  assert.match(flow,/ref: \$\{\{ github\.event\.pull_request\.merge_commit_sha \}\}/);
  assert.match(flow,/--target \$env:MERGED_SHA/);
  assert.match(flow,/gh release create/);
- assert.match(flow,/gh release view/);
+ assert.match(flow,/releases\/tags\/\$tag/);
  assert.match(flow,/publish=false/);
  assert.match(flow,/Version mismatch between app\.config\.json, package\.json and package-lock\.json/);
 });

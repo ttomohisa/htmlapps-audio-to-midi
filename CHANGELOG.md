@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1 — release candidate (2026-11-17)
+
+- Preserve the existing audio and edited notes if microphone permission is denied or a replacement audio file cannot be decoded. Keep the previous source until a new file is validated, and cover cancellation and replacement races with regression tests.
+- Limit long native note-selection menus to a moving window with accessible previous/next entries, avoiding thousands of simultaneous options.
+- Simplify the Japanese and English help text and MIDI export guidance; update the hero, detection sensitivity description, mobile help layout, save-button spacing and compact note-editing controls. Keep the full third-party license notices and the offline/no-upload policy.
+- Align the version across app metadata, npm manifests, README documents and the standalone HTML. Add a post-merge-only GitHub Release workflow that checks the exact merged PR commit and reruns release verification before creating `v1.0.1` and attaching both HTML variants.
+- Strengthen contract/browser/mobile release checks. Automated Chromium, Firefox and WebKit checks do not constitute new physical-device, DAW or assistive-technology acceptance. PR merge and post-merge release execution remain owner-controlled and unverified until performed.
+
 ## 1.0.0 — owner-accepted release candidate
 
 - Prepare the owner-approved Windows/Android Chrome release scope; retain other browsers, DAW playback and assistive technology as unverified. Owner reported confirmation OK and approved proceeding on 2026-10-18; individual final-check results are not claimed. Final CI and owner merge remain required for publication.

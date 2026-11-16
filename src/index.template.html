@@ -479,6 +479,8 @@
     .export-field { width:100%; }
     .filename-control { min-width:0; }
     .filename-input { width:100%; min-width:0; }
+    .output-card #downloadButton { margin-top:16px; }
+    .output-card #midiNote { margin:16px 0 18px; line-height:1.65; }
     .compact-note { border-left:3px solid var(--accent); padding:0 0 0 13px; color:var(--muted); font-size:13px; margin-top:20px; }
     .license-text { white-space:pre-wrap; overflow-wrap:anywhere; max-height:240px; overflow:auto; font-size:11px; }
     .review-card h2 { margin:8px 0; }
@@ -531,8 +533,17 @@
     .note-origin { padding:2px 7px; border:1px solid var(--line); border-radius:999px; color:var(--accent); background:var(--accent-soft); }
     .note-origin[data-origin="manual"] { border-color:#aabdd1; color:#244d76; background:#eaf0f7; }
     .note-dirty { color:var(--muted); }
-    .note-editor-actions { display:flex; flex-wrap:wrap; gap:8px; }
+    .note-editor-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px 12px; }
+    .note-editor-main-actions { display:flex; flex-wrap:wrap; gap:6px; min-width:0; }
     .note-editor .button { min-width:44px; min-height:44px; padding:8px 10px; font-size:12px; }
+    .note-editor-main-actions .button { display:inline-flex; align-items:center; justify-content:center; gap:6px; font-weight:650; }
+    .note-editor-main-actions .button svg { width:16px; height:16px; flex:none; }
+    .note-editor-main-actions .note-add-action { color:var(--accent); background:var(--accent-soft); border-color:transparent; }
+    .note-editor-main-actions .note-delete-action { color:var(--danger); background:transparent; }
+    .note-editor-history-actions { display:flex; overflow:hidden; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
+    .note-editor-history-actions .button { border:0; border-radius:0; background:transparent; padding-inline:12px; font-weight:600; }
+    .note-editor-history-actions .button + .button { border-left:1px solid var(--line); }
+    .note-editor-history-actions .button:hover:not(:disabled) { background:var(--surface-hover); }
     .note-edit-fields { display:grid; gap:10px; margin:12px 0; }
     .note-edit-field { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:6px 8px; }
     .note-edit-field .control-field { min-width:0; color:var(--text); font-weight:600; }
@@ -541,8 +552,12 @@
     .note-edit-value input:disabled { color:var(--muted); background:var(--surface-muted); }
     .note-edit-value input[aria-invalid="true"] { border-color:var(--danger); }
     .note-edit-unit { color:var(--muted); font-size:12px; font-weight:400; }
-    .note-step-controls { display:flex; gap:6px; }
-    .note-step-controls .button { min-width:44px; padding:8px 6px; font-variant-numeric:tabular-nums; }
+    .note-step-controls { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:124px; border:1px solid var(--line); border-radius:10px; background:var(--surface-muted); overflow:hidden; }
+    .note-step-controls .button { min-width:0; min-height:44px; padding:7px 4px; border:0; border-radius:0; background:transparent; font-size:12px; font-weight:650; font-variant-numeric:tabular-nums; }
+    .note-step-controls .button + .button { border-left:1px solid var(--line); }
+    .note-step-controls .button:hover:not(:disabled) { background:var(--surface-hover); }
+    .note-step-controls .button:focus-visible { position:relative; z-index:1; outline:3px solid var(--focus); outline-offset:-3px; }
+    @media (max-width:350px) { .note-edit-field { grid-template-columns:minmax(0,1fr); } .note-step-controls { justify-self:start; } }
     .note-edit-hint { margin:5px 0 0; color:var(--muted); font-size:11px; overflow-wrap:anywhere; }
     .note-edit-field .note-edit-hint { grid-column:1 / -1; margin:0; }
     .note-editor .input-error { margin:0 0 10px; }
@@ -722,7 +737,7 @@
   <main class="main">
     <section class="page-intro" aria-labelledby="heroTitle">
       <div>
-        <h2 id="heroTitle" data-i18n="introTitle">メロディーをMIDIへ</h2>
+        <h2 id="heroTitle" data-i18n="introTitle">メロディーをMIDIに変換</h2>
         <p data-i18n="lead">録音や音声ファイルから音符を検出します。音程や長さを直して、MIDIやCSVで保存できます。</p>
       </div>
       <div class="local-badge">
@@ -805,7 +820,16 @@
           <p class="selected-note" id="selectedNoteDetails" role="status"></p>
           <section class="note-editor" id="noteEditor" aria-labelledby="noteEditorTitle">
             <div class="note-editor-head"><h3 id="noteEditorTitle" data-i18n="editNotes">Edit notes</h3><span class="note-origin" id="noteOrigin" hidden></span><span class="note-dirty" id="noteDirty" role="status" hidden></span></div>
-            <div class="note-editor-actions"><button class="button" type="button" id="addNoteButton" data-i18n="addNote" disabled>Add note</button><button class="button danger" type="button" id="deleteNoteButton" data-i18n="deleteNote" disabled>Delete note</button><button class="button" type="button" id="undoNoteButton" data-i18n="undoEdit" disabled>Undo</button><button class="button" type="button" id="redoNoteButton" data-i18n="redoEdit" disabled>Redo</button></div>
+            <div class="note-editor-actions">
+              <div class="note-editor-main-actions">
+                <button class="button note-add-action" type="button" id="addNoteButton" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="addNote">Add note</span></button>
+                <button class="button note-delete-action" type="button" id="deleteNoteButton" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M10 4h4M7 7l1 13h8l1-13M10 10v7m4-7v7"/></svg><span data-i18n="deleteNote">Delete note</span></button>
+              </div>
+              <div class="note-editor-history-actions">
+                <button class="button" type="button" id="undoNoteButton" data-i18n="undoEdit" disabled>Undo</button>
+                <button class="button" type="button" id="redoNoteButton" data-i18n="redoEdit" disabled>Redo</button>
+              </div>
+            </div>
             <div class="note-edit-fields">
               <div class="note-edit-field">
                 <label class="control-field" for="editPitch"><span data-i18n="editPitch">Pitch</span><span class="note-edit-value"><input id="editPitch" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="editPitchHint noteEditError" disabled></span></label>

@@ -25,6 +25,7 @@ on:
       - "scripts/build-self-extract.ps1"
       - "scripts/verify-self-extract.ps1"
       - ".github/workflows/build-standalone.yml"
+      - ".github/workflows/release-on-merge.yml"
 
 permissions:
   contents: read

@@ -1,0 +1,37 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+
+const root=path.resolve(__dirname,'..');
+const readJson=file=>JSON.parse(fs.readFileSync(path.join(root,file),'utf8'));
+const flow=fs.readFileSync(path.join(root,'.github/workflows/release-on-merge.yml'),'utf8');
+
+test('patch release version is consistent in app and npm manifests',()=>{
+ const app=readJson('app.config.json'),pkg=readJson('package.json'),lock=readJson('package-lock.json');
+ assert.equal(app.version,'1.0.1');
+ assert.equal(pkg.version,app.version);
+ assert.equal(lock.version,app.version);
+ assert.equal(lock.packages[''].version,app.version);
+ assert.match(app.version,/^\d+\.\d+\.\d+$/);
+});
+
+test('only a merged PR on main may create the tag and GitHub release',()=>{
+ assert.match(flow,/pull_request:\s*\n\s*types: \[closed\]\s*\n\s*branches: \[main\]/);
+ assert.match(flow,/if: github\.event\.pull_request\.merged == true/);
+ assert.match(flow,/contents: write/);
+ assert.match(flow,/ref: \$\{\{ github\.event\.pull_request\.merge_commit_sha \}\}/);
+ assert.match(flow,/--target \$env:MERGED_SHA/);
+ assert.match(flow,/gh release create/);
+ assert.match(flow,/gh release view/);
+ assert.match(flow,/publish=false/);
+ assert.match(flow,/Version mismatch between app\.config\.json, package\.json and package-lock\.json/);
+});
+
+test('tag and release are gated by fresh build, contract, model and browser tests',()=>{
+ for(const command of ['./scripts/check-repository.ps1','npm ci --ignore-scripts --no-audit --no-fund','npm test','npm run test:model','npx playwright install chromium','npm run test:browser'])assert.ok(flow.includes(command),command);
+ for(const asset of ['dist/index.html','dist/index.self-extract.html','audio-to-midi.html','dist/dependency-manifest.json','dist/self-extract-manifest.json'])assert.ok(flow.includes("'"+asset+"'"),asset);
+ assert.match(flow,/--generate-notes/);
+ assert.match(flow,/if: steps\.version\.outputs\.publish == 'true'/);
+});

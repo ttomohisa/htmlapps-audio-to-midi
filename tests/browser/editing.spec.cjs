@@ -20,7 +20,30 @@ for(const variant of ['index.html','index.self-extract.html','deployed'])test(`$
  await page.locator('#outputFilename').fill('編集したメロディー');const saved=page.waitForEvent('download');await page.locator('#downloadButton').click();const d=await saved;expect(d.suggestedFilename()).toBe('編集したメロディー.mid');const decoded=readMidi(fs.readFileSync(await d.path()));expect(decoded.length).toBe(current.length);for(const n of current)expect(decoded.some(x=>x.pitch===n.pitch&&Math.abs(x.start-n.start)<.0011&&Math.abs(x.end-n.end)<.0011)).toBe(true);await expect(page.locator('#noteDirty')).not.toBeVisible();
  await page.locator('#pitchUp').click();await expect(page.locator('#noteDirty')).toBeVisible();
  await expect(page.locator('#appToast')).not.toHaveClass(/show/,{timeout:10000});await page.setViewportSize({width:1360,height:900});await page.locator('#noteEditor').scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('desktop-note-editor.png'),fullPage:false});
- for(const width of [320,360,390]){await page.setViewportSize({width,height:760});await page.locator('[data-mobile-key="notes"]').click();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);for(const id of ['pitchUp','startLater','deleteNoteButton','applyNoteButton']){const box=await page.locator('#'+id).boundingBox();expect(box.height).toBeGreaterThanOrEqual(44);}}
+ for(const width of [320,360,390]){
+  await page.setViewportSize({width,height:760});
+  await page.locator('[data-mobile-key="notes"]').click();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await expect(page.locator('#addNoteButton')).toHaveAccessibleName(/Add note|音符を追加/);
+  await expect(page.locator('#pitchUp')).toHaveAccessibleName(/Pitch|音程/);
+  for(const id of ['pitchUp','startLater','deleteNoteButton','applyNoteButton']){
+   const box=await page.locator('#'+id).boundingBox();
+   expect(box.height).toBeGreaterThanOrEqual(44);
+  }
+  const stepper=await page.locator('#startEarlier').locator('..').evaluate(el=>{
+   const rect=el.getBoundingClientRect(),style=getComputedStyle(el),left=el.firstElementChild.getBoundingClientRect(),right=el.lastElementChild.getBoundingClientRect();
+   return {width:rect.width,borderRadius:style.borderRadius,buttonGap:right.left-left.right};
+  });
+  expect(stepper.width).toBeLessThanOrEqual(126);
+  expect(stepper.buttonGap).toBeLessThanOrEqual(2);
+  expect(stepper.borderRadius).not.toBe('0px');
+  await page.locator('[data-mobile-key="export"]').click();
+  const field=await page.locator('.output-card .filename-control').boundingBox();
+  const save=await page.locator('#downloadButton').boundingBox();
+  expect(save.y-(field.y+field.height)).toBeGreaterThanOrEqual(12);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+ await page.locator('[data-mobile-key="notes"]').click();
  await page.locator('#editStart').fill('0.55');await page.locator('#languageButton').click();await expect(page.locator('#editStart')).toHaveValue('0.55');await page.locator('#editStart').press('Enter');expect((await notes(page)).some(n=>n.pitch===68&&n.start===.55)).toBe(true);await page.screenshot({path:info.outputPath('mobile-note-editor.png'),fullPage:true});
  expect(observed.errors).toEqual([]);expect(observed.requests).toEqual([]);
 });

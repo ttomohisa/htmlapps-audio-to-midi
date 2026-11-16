@@ -82,3 +82,29 @@ test('supplemental help is unframed while license disclosure remains framed',()=
  assert.match(html,/\.dialog-body \.help-tips summary \{ padding: 9px 0;/);
  assert.ok(html.includes('<details id="licensesDetails">'));
 });
+
+test('compact MIDI explanation, hero and note controls keep bilingual copy and behavior',()=>{
+ const vm=require('node:vm');
+ const source=fs.readFileSync(path.join(__dirname,'../src/app-ui.js'),'utf8');
+ const t=vm.runInNewContext(source.slice(source.indexOf('const translations='),source.indexOf('const languageKey='))+';translations');
+ assert.equal(t.ja.introTitle,'メロディーをMIDIに変換');
+ assert.ok(html.includes('id="heroTitle" data-i18n="introTitle">メロディーをMIDIに変換'));
+ for(const lang of ['ja','en']){
+  assert.ok(t[lang].midiNote.length<175,lang+' MIDI explanation is too long');
+  assert.match(t[lang].midiNote,/120 BPM/);
+  assert.match(t[lang].midiNote,/96/);
+ }
+ assert.match(t.ja.midiNote,/音声ではありません/);
+ assert.match(t.en.midiNote,/not audio/);
+ assert.match(html,/\.output-card #downloadButton \{ margin-top:16px; \}/);
+ assert.match(html,/\.note-step-controls \{[^}]*width:124px;[^}]*border-radius:10px;/);
+ for(const id of ['pitchDown','pitchUp','startEarlier','startLater','endEarlier','endLater']){
+  assert.ok(html.includes('id="'+id+'"'),id+' missing');
+  assert.ok(html.includes('data-i18n-aria-label="'+id+'"'),id+' accessible label missing');
+ }
+ for(const key of ['addNote','deleteNote','undoEdit','redoEdit']){
+  assert.ok(html.includes('data-i18n="'+key+'"'),key+' translated control missing');
+ }
+ assert.match(html,/class="note-editor-main-actions"/);
+ assert.match(html,/class="note-editor-history-actions"/);
+});

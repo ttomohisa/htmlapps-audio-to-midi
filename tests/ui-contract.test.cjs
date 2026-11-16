@@ -61,3 +61,24 @@ test('concise bilingual help retains licenses and hides the local badge on phone
  assert.ok(html.includes('<pre class="license-text" id="licenseText"></pre>'));
  assert.ok(html.indexOf('id="licensesDetails"')>html.indexOf('class="help-tips"'));
 });
+
+test('detection preset explanation matches the visible choices without unexplained thresholds',()=>{
+ const vm=require('node:vm');
+ const source=fs.readFileSync(path.join(__dirname,'../src/app-ui.js'),'utf8');
+ const t=vm.runInNewContext(source.slice(source.indexOf('const translations='),source.indexOf('const languageKey='))+';translations');
+ const settings=require('../src/detection-settings.js');
+ assert.ok(settings.presets.fewer.onsetThreshold>settings.presets.standard.onsetThreshold);
+ assert.ok(settings.presets.standard.onsetThreshold>settings.presets.more.onsetThreshold);
+ assert.match(t.ja.detectionSettingsHint,/少なめ/);
+ assert.match(t.ja.detectionSettingsHint,/多め/);
+ assert.doesNotMatch(t.ja.detectionSettingsHint,/しきい値/);
+ assert.match(t.en.detectionSettingsHint,/Fewer/);
+ assert.match(t.en.detectionSettingsHint,/More/);
+ assert.ok(html.includes('aria-describedby="detectionSettingsHint"'));
+});
+
+test('supplemental help is unframed while license disclosure remains framed',()=>{
+ assert.match(html,/\.dialog-body \.help-tips \{[^}]*border: 0;[^}]*box-shadow: none;/);
+ assert.match(html,/\.dialog-body \.help-tips summary \{ padding: 9px 0;/);
+ assert.ok(html.includes('<details id="licensesDetails">'));
+});

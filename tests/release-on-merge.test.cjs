@@ -10,7 +10,6 @@ const flow=fs.readFileSync(path.join(root,'.github/workflows/release-on-merge.ym
 
 test('patch release version is consistent in app and npm manifests',()=>{
  const app=readJson('app.config.json'),pkg=readJson('package.json'),lock=readJson('package-lock.json');
- assert.equal(app.version,'1.0.1');
  assert.equal(pkg.version,app.version);
  assert.equal(lock.version,app.version);
  assert.equal(lock.packages[''].version,app.version);

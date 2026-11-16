@@ -2,11 +2,11 @@
 const AudioMidiRecordingUI=(()=>{
  function create({translate,onRecording,onChange,onStart,onDiscard,onListen,isBusy,confirm,toast,beforeReplace=async()=>true}){
   const $=id=>document.getElementById(id);
-  let engine=null, capture=null, lastBlob=null, accepted=false, saved=false, preparing=false;
+  let engine=null, capture=null, lastBlob=null, lastMimeType='', accepted=false, saved=false, preparing=false;
   let revision=0, disposed=false, pendingDecode=Promise.resolve(false), actionPending=false;
   const urls=new Set();
   const active=()=>['requesting','recording','stopping'].includes(capture?.status);
-  const extension=()=>/mp4/.test(capture?.mimeType||'')?'m4a':/ogg/.test(capture?.mimeType||'')?'ogg':'webm';
+  const extension=()=>/mp4/.test(lastBlob?lastMimeType:(capture?.mimeType||''))?'m4a':/ogg/.test(lastBlob?lastMimeType:(capture?.mimeType||''))?'ogg':'webm';
   function defaultName(){const d=new Date(),pad=n=>String(n).padStart(2,'0');return `audio-to-midi-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;}
   function safeName(value){return String(value||'').replace(/[\\/:*?"<>|\x00-\x1f\x7f]/g,'_').replace(/\.(webm|ogg|mp4|m4a)$/i,'').replace(/[. ]+$/g,'').trim().slice(0,110)||'audio-to-midi-recording';}
   function render(){
@@ -33,7 +33,7 @@ const AudioMidiRecordingUI=(()=>{
    if(disposed)return;
    const previous=capture;capture=next;
    if(next.blob&&next.blob!==lastBlob){
-    const ticket=++revision;lastBlob=next.blob;accepted=false;saved=false;preparing=true;
+    const ticket=++revision;lastBlob=next.blob;lastMimeType=next.mimeType||next.blob.type||'';accepted=false;saved=false;preparing=true;
     const name=defaultName();$('recordingFilename').value=name;
     // Validate the completed encoded Blob with the same decoder used for files.
     pendingDecode=Promise.resolve().then(()=>disposed||ticket!==revision?false:onRecording(new File([next.blob],name+'.'+extension(),{type:next.mimeType}))).then(ok=>{
@@ -53,7 +53,7 @@ const AudioMidiRecordingUI=(()=>{
    return ok&&!disposed&&ticket===revision;
   }
   function clear(){
-   revision++;lastBlob=null;accepted=false;saved=false;preparing=false;pendingDecode=Promise.resolve(false);
+   revision++;lastBlob=null;lastMimeType='';accepted=false;saved=false;preparing=false;pendingDecode=Promise.resolve(false);
    engine.discard();capture=engine.snapshot();changed();
   }
   async function replace(){
@@ -79,7 +79,7 @@ const AudioMidiRecordingUI=(()=>{
     onStart();
     engine.start().then(started=>{
      if(disposed||ticket!==revision)return;
-     if(started){lastBlob=null;accepted=false;saved=false;changed();}
+     if(started){lastBlob=null;lastMimeType='';accepted=false;saved=false;changed();}
     }).catch(()=>{});
    }
    // Permission may remain pending: do not hold the confirmation lock.
@@ -97,7 +97,7 @@ const AudioMidiRecordingUI=(()=>{
   render();
   return Object.freeze({render,active,preparing:()=>preparing,hasRecording:()=>!!lastBlob,unsaved:()=>!!lastBlob&&!saved,replace,clear,stop,leave,
    suspend:()=>{if(active())return stop();return Promise.resolve(accepted);},
-   dispose:()=>{disposed=true;revision++;engine.dispose();for(const url of urls)URL.revokeObjectURL(url);urls.clear();lastBlob=null;},
+   dispose:()=>{disposed=true;revision++;engine.dispose();for(const url of urls)URL.revokeObjectURL(url);urls.clear();lastBlob=null;lastMimeType='';},
    snapshot:()=>({...capture,accepted,preparing,saved})});
  }
  return Object.freeze({create});

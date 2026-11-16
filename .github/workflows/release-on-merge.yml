@@ -1,0 +1,117 @@
+name: Create GitHub Release after PR merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: audio-to-midi-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout the exact merged commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+
+      - name: Verify semantic version and detect an existing release
+        id: version
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MERGED_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $app = Get-Content -Raw -Encoding UTF8 app.config.json | ConvertFrom-Json
+          $package = Get-Content -Raw -Encoding UTF8 package.json | ConvertFrom-Json
+          $lock = Get-Content -Raw -Encoding UTF8 package-lock.json | ConvertFrom-Json
+          $version = [string]$app.version
+          if ($version -cnotmatch '^\d+\.\d+\.\d+$') { throw "Expected a stable semantic version, got '$version'." }
+          if ($version -cne [string]$package.version -or $version -cne [string]$lock.version -or $version -cne [string]$lock.packages.''.version) {
+            throw "Version mismatch between app.config.json, package.json and package-lock.json."
+          }
+          $head = (& git rev-parse HEAD).Trim()
+          if ($LASTEXITCODE -ne 0 -or $head -cne $env:MERGED_SHA) { throw 'The checkout is not the merged PR commit.' }
+          $tag = "v$version"
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          & gh release view $tag --repo $env:GITHUB_REPOSITORY --json tagName --jq '.tagName' 2>$null | Out-Null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "$tag already has a GitHub Release. No duplicate release will be created."
+            "publish=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            exit 0
+          }
+          $remoteTag = & git ls-remote --tags origin "refs/tags/$tag"
+          if ($LASTEXITCODE -ne 0) { throw 'Could not inspect remote release tags.' }
+          if ($remoteTag) {
+            & git fetch origin "refs/tags/$tag:refs/tags/$tag"
+            if ($LASTEXITCODE -ne 0) { throw 'Could not fetch existing tag.' }
+            $tagTarget = (& git rev-list -n 1 $tag).Trim()
+            if ($tagTarget -cne $env:MERGED_SHA) {
+              throw "$tag already exists on a different commit. Bump the app patch version before releasing."
+            }
+          }
+          "publish=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Validate and build the standalone HTML
+        if: steps.version.outputs.publish == 'true'
+        shell: pwsh
+        run: ./scripts/check-repository.ps1
+
+      - name: Set up Node.js
+        if: steps.version.outputs.publish == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install test dependencies
+        if: steps.version.outputs.publish == 'true'
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Run unit and contract tests
+        if: steps.version.outputs.publish == 'true'
+        run: npm test
+
+      - name: Verify the real audio model
+        if: steps.version.outputs.publish == 'true'
+        run: npm run test:model
+
+      - name: Install Chromium
+        if: steps.version.outputs.publish == 'true'
+        run: npx playwright install chromium
+
+      - name: Run offline browser regression tests
+        if: steps.version.outputs.publish == 'true'
+        run: npm run test:browser
+
+      - name: Create version tag and GitHub Release
+        if: steps.version.outputs.publish == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MERGED_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $assets = @(
+            'dist/index.html',
+            'dist/index.self-extract.html',
+            'audio-to-midi.html',
+            'dist/dependency-manifest.json',
+            'dist/self-extract-manifest.json'
+          )
+          foreach ($asset in $assets) {
+            if (-not (Test-Path -LiteralPath $asset -PathType Leaf)) { throw "Release artifact missing: $asset" }
+          }
+          & gh release create $env:RELEASE_TAG @assets --repo $env:GITHUB_REPOSITORY --target $env:MERGED_SHA --title "Audio to MIDI $env:RELEASE_TAG" --generate-notes
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to create GitHub tag and release.' }
+          Write-Host "Created GitHub Release $env:RELEASE_TAG with standalone HTML assets."

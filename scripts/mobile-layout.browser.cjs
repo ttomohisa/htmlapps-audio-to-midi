@@ -70,6 +70,17 @@ async function main() {
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), label + ': page width');
         await page.locator('#helpButton').click();
         const body = page.locator(cfg.body), details = page.locator(cfg.details);
+        const helpSpacing=await page.locator('#helpDialog .help-tips').evaluate(el=>{
+          const css=getComputedStyle(el),previous=el.previousElementSibling;
+          return {
+            border:css.borderTopWidth+' '+css.borderRightWidth+' '+css.borderBottomWidth+' '+css.borderLeftWidth,
+            shadow:css.boxShadow,
+            gap:el.getBoundingClientRect().top-previous.getBoundingClientRect().bottom
+          };
+        });
+        assert.equal(helpSpacing.border,'0px 0px 0px 0px',label+': supplemental help has no frame');
+        assert.equal(helpSpacing.shadow,'none',label+': supplemental help has no shadow');
+        assert.ok(helpSpacing.gap>=0&&helpSpacing.gap<=16,label+': no excessive blank space before supplemental help '+JSON.stringify(helpSpacing));
         await metadata(page);
         assert.ok(await body.evaluate(e => e.lastElementChild.classList.contains('help-build')), label + ': final Help child');
         const hiddenBuild = cfg.hideBuild && width <= cfg.bp;

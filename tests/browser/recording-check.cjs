@@ -10,6 +10,7 @@ async function checkRecording(page,context,testInfo,{mobile=false}={}){
  expect(await page.evaluate(()=>window.__micCalls)).toBe(0);
  if(mobile)await page.setViewportSize({width:390,height:700});
  await page.locator('#recordButton').click();await expect(page.locator('#recordingPanel')).toHaveAttribute('data-recording','recording');
+ if(mobile)await expect(page.locator('.page-intro')).not.toBeVisible();
  expect(await page.evaluate(()=>window.__micCalls)).toBe(1);await expect(page.locator('#analyzeButton')).toBeDisabled();await expect(page.locator('#playButton')).toBeDisabled();
  await expect.poll(()=>page.locator('#recordingMeter').evaluate(el=>el.value)).toBeGreaterThan(.01);
  // Real native encoder sees a deterministic C4 virtual device, not user audio.
@@ -19,6 +20,7 @@ async function checkRecording(page,context,testInfo,{mobile=false}={}){
   await page.locator('[data-mobile-key="notes"]').click();await page.locator('#appConfirmOk').click();
  }else await page.locator('#stopRecordButton').click();
  await expect(page.locator('body')).toHaveAttribute('data-phase','ready');await expect(page.locator('#recordingPanel')).toHaveAttribute('data-recording','recorded');
+ if(mobile){await expect(page.locator('.page-intro')).not.toBeVisible();await expect(page.locator('#sourceInfo')).toBeVisible();await expect(page.locator('#dropZone')).toHaveClass(/is-compact/);}
  expect(await page.evaluate(()=>window.__micTracks.every(track=>track.readyState==='ended'))).toBe(true);
  expect(await page.locator('#noteCount').textContent()).toBe('—');await expect(page.locator('#downloadButton')).toBeDisabled();
  if(mobile)await page.locator('[data-mobile-key="input"]').click();

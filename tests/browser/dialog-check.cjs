@@ -6,7 +6,11 @@ async function checkModalScroll(page,testInfo){
    await page.evaluate(()=>window.scrollTo({top:220,behavior:'instant'}));
    const before=await page.evaluate(()=>({y:scrollY,top:document.querySelector('#inputTitle').getBoundingClientRect().top}));
    expect(before.y).toBeGreaterThan(0);
-   await page.locator('#helpButton').click();await expect(page.locator('#helpDialog')).toBeVisible();
+   // On phones the header scrolls away. A Playwright locator click would scroll
+   // back to the top before opening Help, invalidating the scroll-lock baseline.
+   // Focus without scrolling, then invoke the same click handler at the chosen offset.
+   await page.locator('#helpButton').evaluate(button=>{button.focus({preventScroll:true});button.click();});
+   await expect(page.locator('#helpDialog')).toBeVisible();
    await expect(page.locator('body')).toHaveCSS('position','fixed');
    await page.mouse.move(1,240);await page.mouse.wheel(0,500);
    expect(Math.abs(await page.locator('#inputTitle').evaluate(el=>el.getBoundingClientRect().top)-before.top)).toBeLessThan(1);

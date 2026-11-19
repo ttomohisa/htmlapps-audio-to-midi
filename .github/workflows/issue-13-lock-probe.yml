@@ -14,7 +14,10 @@ jobs:
       - name: Generate npm-verified dependency lock
         shell: pwsh
         run: |
-          ./scripts/update-dependency.ps1 -Id tfjs -Version 4.22.0 -SkipBuild
+          $config = Get-Content -Raw -Encoding UTF8 dependencies.json | ConvertFrom-Json
+          ($config.dependencies | Where-Object id -eq 'tfjs').version = '4.22.0'
+          $config | ConvertTo-Json -Depth 30 | Set-Content -Encoding utf8 dependencies.json
+          ./scripts/sync-dependency-lock.ps1 -ForceDownload
           Write-Host "LOCK_JSON_BEGIN"
           Get-Content -Raw -Encoding UTF8 dependencies.lock.json
           Write-Host "LOCK_JSON_END"

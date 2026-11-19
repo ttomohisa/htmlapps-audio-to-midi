@@ -37,3 +37,8 @@ test('input tray arrows point down in the drop area and mobile navigation', () =
  assert.ok(drop?.includes(inputPath), 'drop area arrow points down');
  assert.ok(nav?.includes(inputPath), 'mobile Input arrow points down');
 });
+
+test('phone header is not sticky, and mobile page changes use the smaller scroll offset', () => {
+ assert.match(html, /@media \(max-width: 600px\)\s*\{[^}]*\.app-header \{ position: static; \}/);
+ assert.match(ui, /initialPage:'input',pageTopOffset:12/);
+});

@@ -318,7 +318,7 @@ recording=AudioMidiRecordingUI.create({translate,onChange:render,isBusy:busy,con
  onDiscard:({accepted})=>{if(accepted&&state.sourceKind==='recording')clearSource();},
  onListen:()=>{mobile.showPage('notes');review.playOriginal();}
 });
-mobile=AppMobileBottomBar.mount($('#mobileBottomBar'),{initialPage:'input',pageTopOffset:90,
+mobile=AppMobileBottomBar.mount($('#mobileBottomBar'),{initialPage:'input',pageTopOffset:12,
  beforePageChange:async key=>{if(!await recording.leave())return false;return key==='input'||(key==='notes'?!!state.originalBuffer:state.phase==='result');},
  onPageChange:({key})=>{if(key==='notes')review.reveal();else review.pause();}
 });

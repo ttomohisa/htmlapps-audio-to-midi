@@ -98,6 +98,22 @@ for(const variant of ['index.html','index.self-extract.html'])test(`${variant}: 
  await expect(page.locator('.page-intro')).toBeVisible();
  await expect(page.locator('#dropZone')).not.toHaveClass(/is-compact/);
 });
+test('phone header scrolls away while mobile tabs stay fixed and desktop header remains sticky',async({page})=>{
+ await page.setViewportSize({width:390,height:650});await open(page);
+ await upload(page,makeWav({duration:1}),'mobile-scroll.wav');await phase(page,'ready');
+ await expect(page.locator('.app-header')).toHaveCSS('position','static');
+ await page.evaluate(()=>window.scrollTo({top:400,behavior:'instant'}));
+ await expect.poll(()=>page.locator('.app-header').evaluate(el=>el.getBoundingClientRect().bottom)).toBeLessThan(0);
+ await expect(page.locator('#mobileBottomBar')).toBeVisible();
+ await page.locator('[data-mobile-key="notes"]').click();
+ await expect(page.locator('#reviewCard')).toBeVisible();
+ await expect.poll(()=>page.locator('#reviewCard').evaluate(el=>el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
+ await expect.poll(()=>page.locator('#reviewCard').evaluate(el=>el.getBoundingClientRect().top)).toBeLessThan(40);
+ await page.setViewportSize({width:1360,height:650});
+ await expect(page.locator('.app-header')).toHaveCSS('position','sticky');
+ await page.evaluate(()=>window.scrollTo({top:400,behavior:'instant'}));
+ await expect.poll(()=>page.locator('.app-header').evaluate(el=>el.getBoundingClientRect().top)).toBe(0);
+});
 test('320px bilingual layout, help scroll, keyboard and stereo input',async({page},testInfo)=>{
  await page.setViewportSize({width:320,height:640});await open(page);await upload(page,makeWav({sampleRate:48000,channels:2}), '長いファイル名'.repeat(12)+'.wav');await phase(page,'ready');
  // Establish a desktop viewport, then analyze while that same Notes view is hidden.

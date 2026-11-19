@@ -617,6 +617,8 @@
   }
 
   @media (max-width: 600px) {
+    /* The mobile bottom navigation stays fixed, but the header scrolls away. */
+    .app-header { position: static; }
     .page-intro .local-badge { display: none; }
     body.has-audio-input .page-intro { display: none; }
     body.has-mobile-bottom-bar {

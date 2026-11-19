@@ -1,7 +1,7 @@
 // Actual model gate. Uses only pinned assets extracted by the standard build.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const root=path.join(__dirname,'..'),cache=path.join(root,'.cache');
-const tf=require(path.join(cache,'-tensorflow-tfjs-3.21.0/extracted/package/dist/tf.min.js'));
+const tf=require(path.join(cache,'-tensorflow-tfjs-4.22.0/extracted/package/dist/tf.min.js'));
 const Midi=require(path.join(cache,'-tonejs-midi-2.0.28/extracted/package/build/Midi.js'));
 const post={exports:{}};vm.runInNewContext(fs.readFileSync(path.join(cache,'-spotify-basic-pitch-1.0.1/extracted/package/cjs/toMidi.js'),'utf8'),{exports:post.exports,require:id=>{assert.equal(id,'@tonejs/midi');return Midi;},Buffer});
 const {runBasicPitch}=require('../src/inference-worker.js'),core=require('../src/audio-core.js');
@@ -11,11 +11,13 @@ const {parseMidi}=require('midi-file');
 // as CSP console errors, so also fail on every access to the real WASM API.
 const workerContext={self:null,console,TextEncoder,TextDecoder,setTimeout,clearTimeout,performance};workerContext.self=workerContext;
 let wasmAccesses=0;
-Object.defineProperty(workerContext,'WebAssembly',{get(){wasmAccesses++;throw new Error('Unexpected worker WASM probe');}});
+Object.defineProperty(workerContext,'WebAssembly',{get(){wasmAccesses++;throw new Error('Unexpected worker WASM probe');},configurable:true});
 vm.createContext(workerContext,{codeGeneration:{strings:false,wasm:false}});
-vm.runInContext(core.buildWorkerSource(fs.readFileSync(path.join(cache,'-tensorflow-tfjs-3.21.0/extracted/package/dist/tf.min.js'),'utf8'),fs.readFileSync(path.join(cache,'-tonejs-midi-2.0.28/extracted/package/build/Midi.js'),'utf8'),fs.readFileSync(path.join(cache,'-spotify-basic-pitch-1.0.1/extracted/package/cjs/toMidi.js'),'utf8'),fs.readFileSync(path.join(root,'src/detection-settings.js'),'utf8')+'\n'+fs.readFileSync(path.join(root,'src/inference-worker.js'),'utf8')),workerContext);
+const wasmDescriptor=Object.getOwnPropertyDescriptor(workerContext,'WebAssembly');
+vm.runInContext(core.buildWorkerSource(fs.readFileSync(path.join(cache,'-tensorflow-tfjs-4.22.0/extracted/package/dist/tf.min.js'),'utf8'),fs.readFileSync(path.join(cache,'-tonejs-midi-2.0.28/extracted/package/build/Midi.js'),'utf8'),fs.readFileSync(path.join(cache,'-spotify-basic-pitch-1.0.1/extracted/package/cjs/toMidi.js'),'utf8'),fs.readFileSync(path.join(root,'src/detection-settings.js'),'utf8')+'\n'+fs.readFileSync(path.join(root,'src/inference-worker.js'),'utf8')),workerContext);
+assert.equal(Object.getOwnPropertyDescriptor(workerContext,'WebAssembly').get,wasmDescriptor.get,'Worker WebAssembly descriptor must be restored');
 assert.equal(wasmAccesses,0,'Pinned worker bootstrap must not probe WASM');
-assert.equal(workerContext.tf.version.tfjs,'3.21.0');
+assert.equal(workerContext.tf.version.tfjs,'4.22.0');
 assert.equal(typeof workerContext.tf.findBackendFactory('cpu'),'function');
 assert.equal(typeof workerContext.Midi,'function');
 assert.equal(vm.runInContext('typeof BasicPitchPostprocess.outputToNotesPoly',workerContext),'function');

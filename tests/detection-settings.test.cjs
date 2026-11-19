@@ -168,7 +168,7 @@ test('standard keeps six-frame notes even when they cross the official timing co
 });
 
 test('real tensor inference uses a detached settings snapshot and releases tensors after configured postprocessing', async () => {
-  const tf = require(path.join(cache, '-tensorflow-tfjs-3.21.0/extracted/package/dist/tf.min.js'));
+  const tf = require(path.join(cache, '-tensorflow-tfjs-4.22.0/extracted/package/dist/tf.min.js'));
   await tf.setBackend('cpu');
   await tf.ready();
   const baseline = tf.memory().numTensors;
@@ -195,7 +195,7 @@ test('real tensor inference uses a detached settings snapshot and releases tenso
 });
 
 test('embedded worker receives settings for each request and reuses its model without leaking tensors', async () => {
-  const tf = require(path.join(cache, '-tensorflow-tfjs-3.21.0/extracted/package/dist/tf.min.js'));
+  const tf = require(path.join(cache, '-tensorflow-tfjs-4.22.0/extracted/package/dist/tf.min.js'));
   await tf.setBackend('cpu');
   await tf.ready();
   const baseline = tf.memory().numTensors;

@@ -70,6 +70,8 @@ Object.assign(translations.ja,{
  helpExport:'MIDIとCSVに音声は含まれません。MIDIのテンポは120 BPM固定（推定値ではありません）、ベロシティは96固定です。CSVは音符の時刻を秒数で保存します。音色や重なった音符の再生は音楽アプリによって異なる場合があります。'
 });
 
+Object.assign(translations.en,{replaceFile:'Choose another audio file or drop it here'});
+Object.assign(translations.ja,{replaceFile:'別の音声ファイルを選ぶか、ここにドロップ'});
 const languageKey=APP_CONFIG.slug+':language';
 function readStorage(key){try{return localStorage.getItem(key);}catch{return null;}}
 function writeStorage(key,value){try{localStorage.setItem(key,value);}catch{}}
@@ -161,6 +163,9 @@ function invalidate({keepIdleWorker=false}={}){const token=generation.next();if(
 function pitchName(pitch){return ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][pitch%12]+(Math.floor(pitch/12)-1);}
 function render(){
  document.body.dataset.phase=state.phase;
+ document.body.classList.toggle('has-audio-input',!!state.file||!!recording?.active()||!!recording?.hasRecording());
+ $('#dropZone').classList.toggle('is-compact',!!state.file);
+ $('#dropZone label').textContent=translate(state.file?'replaceFile':'chooseFile');
  const invalidFields=invalidSettingsFields();
  $('#detectionSettingsError').hidden=!settingsError;$('#detectionSettingsError').textContent=settingsError?[...invalidFields.map(translate),translate('invalidDetectionSettings')].join(' · '):'';
  for(const key of settingsFields)$('#'+key).setAttribute('aria-invalid',String(invalidFields.includes(key)));
@@ -313,7 +318,7 @@ recording=AudioMidiRecordingUI.create({translate,onChange:render,isBusy:busy,con
  onDiscard:({accepted})=>{if(accepted&&state.sourceKind==='recording')clearSource();},
  onListen:()=>{mobile.showPage('notes');review.playOriginal();}
 });
-mobile=AppMobileBottomBar.mount($('#mobileBottomBar'),{initialPage:'input',pageTopOffset:90,
+mobile=AppMobileBottomBar.mount($('#mobileBottomBar'),{initialPage:'input',pageTopOffset:12,
  beforePageChange:async key=>{if(!await recording.leave())return false;return key==='input'||(key==='notes'?!!state.originalBuffer:state.phase==='result');},
  onPageChange:({key})=>{if(key==='notes')review.reveal();else review.pause();}
 });

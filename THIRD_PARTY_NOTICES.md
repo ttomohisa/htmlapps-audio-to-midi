@@ -3,7 +3,7 @@
 Runtime assets are pinned in dependencies.json and verified against the SHA-256 lock. Full source/model assets are obtained at build time from the official npm packages. They are embedded in the HTML, never fetched while analyzing audio.
 
 - @spotify/basic-pitch 1.0.1, including its packaged GraphModel JSON and weights: Copyright 2022 Spotify AB, Apache-2.0. https://github.com/spotify/basic-pitch-ts
-- @tensorflow/tfjs 3.21.0: Copyright 2022 Google LLC, Apache-2.0. https://github.com/tensorflow/tfjs/tree/tfjs-v3.21.0
+- @tensorflow/tfjs 4.22.0: Copyright Google LLC, Apache-2.0. https://github.com/tensorflow/tfjs/tree/tfjs-v4.22.0
 - @tonejs/midi 2.0.28: Copyright 2016 Yotam Mann, MIT. Required by the unchanged Basic Pitch post-processing module; app MIDI export uses its own type-1 encoder. https://github.com/Tonejs/Midi
 - Bundled MIT components: midi-file (Carter Thaxton), array-flatten (Blake Embrey), seedrandom (David Bau and algorithm contributors). Notices reproduced below.
 

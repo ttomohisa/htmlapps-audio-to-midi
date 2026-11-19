@@ -29,3 +29,16 @@ test('local-processing badge keeps bilingual text on desktop but hides at the ph
   assert.match(ui, /localBadge:'Fully local processing'/);
   assert.match(html, /@media \(max-width: 600px\)\s*\{\s*\.page-intro \.local-badge \{ display: none; \}/);
 });
+
+test('input tray arrows point down in the drop area and mobile navigation', () => {
+ const inputPath = 'M12 3v12m-4-4 4 4 4-4M5 17v4h14v-4';
+ const drop = html.match(/<div class="drop-zone" id="dropZone">([\s\S]*?)<\/div>/)?.[1];
+ const nav = html.match(/<button type="button" class="app-mobile-bottom-item" data-mobile-key="input"[^>]*>([\s\S]*?)<\/button>/)?.[1];
+ assert.ok(drop?.includes(inputPath), 'drop area arrow points down');
+ assert.ok(nav?.includes(inputPath), 'mobile Input arrow points down');
+});
+
+test('phone header is not sticky, and mobile page changes use the smaller scroll offset', () => {
+ assert.match(html, /\.app-header \{ position: static; \}/);
+ assert.match(ui, /initialPage:'input',pageTopOffset:12/);
+});

@@ -69,6 +69,51 @@ test('decode failure after confirming replacement retains edited notes and sourc
 test('reset dialog cancellation during analysis does not strand job',async({page})=>{
  await open(page);await upload(page,makeWav());await phase(page,'ready');await page.locator('#analyzeButton').click();await phase(page,'analyzing');await page.locator('#resetButton').click();await page.locator('#appConfirmCancel').click();await phase(page,'result');
 });
+for(const variant of ['index.html','index.self-extract.html'])test(`${variant}: compact mobile drop accepts another file and reset restores intro`,async({page})=>{
+ await page.setViewportSize({width:390,height:720});await open(page,variant);
+ await expect(page.locator('.page-intro')).toBeVisible();
+ const before=await page.locator('#dropZone').boundingBox();
+ await upload(page,makeWav({duration:1}),'first.wav');await phase(page,'ready');
+ await expect(page.locator('.page-intro')).not.toBeVisible();
+ await expect(page.locator('#sourceInfo')).toBeVisible();
+ await expect(page.locator('#sourceName')).toHaveText('first.wav');
+ await expect(page.locator('#dropZone')).toHaveClass(/is-compact/);
+ const source=await page.locator('#sourceInfo').boundingBox(),drop=await page.locator('#dropZone').boundingBox();
+ expect(source.y+source.height).toBeLessThan(drop.y);
+ expect(drop.height).toBeLessThan(before.height);
+ await expect(page.locator('#dropZone label')).toContainText(/another|別の/);
+ await expect(page.locator('#audioFile')).toHaveCSS('clip-path','inset(50%)');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ // The visible label still opens the native picker when the filename field is visually hidden.
+ const chooserPromise=page.waitForEvent('filechooser');
+ await page.locator('#dropZone label').click();
+ const chooser=await chooserPromise;
+ await chooser.setFiles({name:'picker-replacement.wav',mimeType:'audio/wav',buffer:makeWav({duration:1.2})});
+ await phase(page,'ready');
+ await expect(page.locator('#sourceName')).toHaveText('picker-replacement.wav');
+ const data=await page.evaluateHandle(bytes=>{const dt=new DataTransfer();dt.items.add(new File([new Uint8Array(bytes)],'replacement.wav',{type:'audio/wav'}));return dt;},Array.from(makeWav({duration:1.5})));
+ await page.locator('#dropZone').dispatchEvent('drop',{dataTransfer:data});await data.dispose();await phase(page,'ready');
+ await expect(page.locator('#sourceName')).toHaveText('replacement.wav');
+ await page.locator('#resetButton').click();await page.locator('#appConfirmOk').click();await phase(page,'empty');
+ await expect(page.locator('.page-intro')).toBeVisible();
+ await expect(page.locator('#dropZone')).not.toHaveClass(/is-compact/);
+});
+test('phone header scrolls away while mobile tabs stay fixed and desktop header remains sticky',async({page})=>{
+ await page.setViewportSize({width:390,height:650});await open(page);
+ await upload(page,makeWav({duration:1}),'mobile-scroll.wav');await phase(page,'ready');
+ await expect(page.locator('.app-header')).toHaveCSS('position','static');
+ await page.evaluate(()=>window.scrollTo({top:400,behavior:'instant'}));
+ await expect.poll(()=>page.locator('.app-header').evaluate(el=>el.getBoundingClientRect().bottom)).toBeLessThan(0);
+ await expect(page.locator('#mobileBottomBar')).toBeVisible();
+ await page.locator('[data-mobile-key="notes"]').click();
+ await expect(page.locator('#reviewCard')).toBeVisible();
+ await expect.poll(()=>page.locator('#reviewCard').evaluate(el=>el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
+ await expect.poll(()=>page.locator('#reviewCard').evaluate(el=>el.getBoundingClientRect().top)).toBeLessThan(40);
+ await page.setViewportSize({width:1360,height:650});
+ await expect(page.locator('.app-header')).toHaveCSS('position','sticky');
+ await page.evaluate(()=>window.scrollTo({top:400,behavior:'instant'}));
+ await expect.poll(()=>page.locator('.app-header').evaluate(el=>el.getBoundingClientRect().top)).toBe(0);
+});
 test('320px bilingual layout, help scroll, keyboard and stereo input',async({page},testInfo)=>{
  await page.setViewportSize({width:320,height:640});await open(page);await upload(page,makeWav({sampleRate:48000,channels:2}), '長いファイル名'.repeat(12)+'.wav');await phase(page,'ready');
  // Establish a desktop viewport, then analyze while that same Notes view is hidden.

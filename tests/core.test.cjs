@@ -79,7 +79,7 @@ test('worker bootstrap disables the optional TF WASM probe without changing othe
  const worker={self:null,expectedWasm:{},WebAssembly:null};worker.self=worker;
  Object.defineProperty(worker,'WebAssembly',{get(){wasmAccesses++;throw new Error('WASM must not be probed');},configurable:true});
  vm.createContext(worker,{codeGeneration:{strings:false,wasm:false}});
- // Match the pinned bundle's strict legacy assignment, UMD this binding, and
+ // Exercise legacy assignment, UMD this binding, and
  // caught long.js optimization attempt. Throwing alone cannot detect a probe.
  const tf='(function(root){"use strict";regeneratorRuntime={};try{new WebAssembly.Module(new Uint8Array());}catch(error){}root.tf={cpu:true};})(this);';
  const midi='self.Midi=function Midi(){};';
@@ -87,6 +87,7 @@ test('worker bootstrap disables the optional TF WASM probe without changing othe
  const inference='self.bootstrapReady=tf.cpu && BasicPitchPostprocess.midi===self.Midi;';
  vm.runInContext(core.buildWorkerSource(tf,midi,post,inference),worker);
  assert.equal(wasmAccesses,0,'TF must never access the real WASM API');
+ assert.equal(typeof Object.getOwnPropertyDescriptor(worker,'WebAssembly').get,'function','original WASM descriptor restored');
  assert.equal(worker.bootstrapReady,true);
  // The shadow is limited to the TF source, not a replacement of the global API.
  Object.defineProperty(worker,'WebAssembly',{value:worker.expectedWasm,configurable:true});

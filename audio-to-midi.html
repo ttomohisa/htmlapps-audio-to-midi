@@ -460,10 +460,18 @@
     .drop-zone { margin:22px 0 16px; border:2px dashed var(--line-strong); border-radius:12px; padding:30px 16px; text-align:center; background:var(--surface-muted); }
     .drop-zone.dragging { border-color:var(--accent); background:var(--accent-soft); }
     .drop-zone svg { width:36px; height:36px; color:var(--accent); display:block; margin:0 auto 12px; }
+    /* Make the selected audio obvious without disabling drag-and-drop. */
+    .drop-zone.is-compact { margin:10px 0 16px; padding:12px 14px; display:grid; grid-template-columns:24px minmax(0,1fr); align-items:center; gap:6px 12px; text-align:left; }
+    .drop-zone.is-compact svg { width:24px; height:24px; margin:0; grid-column:1; }
+    .drop-zone.is-compact label { grid-column:2; display:flex; align-items:center; min-height:44px; cursor:pointer; }
+    .drop-zone.is-compact br, .drop-zone.is-compact #formatHint { display:none; }
+    /* Keep the native picker available to the label and keyboard, but hide its empty filename display. */
+    .drop-zone.is-compact #audioFile { position:absolute; width:1px; height:1px; padding:0; margin:-1px; border:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+
     #audioFile { max-width:100%; margin:12px 0; }
     /* Paint the keyboard indicator outside the native file-control renderer. */
     .drop-zone:focus-within { outline:3px solid var(--focus); outline-offset:2px; }
-    .source-info { padding:14px; border-radius:8px; background:var(--accent-soft); margin-bottom:18px; }
+    .source-info { padding:14px; border-radius:8px; background:var(--accent-soft); margin:14px 0 0; }
     #sourceName { display:block; overflow-wrap:anywhere; }
     .status-panel { min-height:100px; margin:18px 0; padding:16px; border:1px solid var(--line); border-radius:10px; }
     #statusText { margin:0 0 8px; font-weight:650; }
@@ -610,6 +618,9 @@
 
   @media (max-width: 600px) {
     .page-intro .local-badge { display: none; }
+    /* The mobile bottom navigation stays fixed, but the header scrolls away. */
+    .app-header { position: static; }
+    body.has-audio-input .page-intro { display: none; }
     body.has-mobile-bottom-bar {
       padding-bottom: calc(var(--app-mobile-bottom-bar-height) + env(safe-area-inset-bottom));
     }
@@ -752,8 +763,9 @@
         <span class="step" data-i18n="stepInput">01 / INPUT</span>
         <h2 id="inputTitle" data-i18n="inputTitle">Choose a short recording</h2>
         <p class="muted" data-i18n="inputHint">One instrument or melody. 0.5–60 seconds · up to 50 MiB.</p>
+        <div class="source-info" id="sourceInfo" hidden><strong id="sourceName"></strong><span class="muted" id="sourceMeta"></span></div>
         <div class="drop-zone" id="dropZone">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3v12m-4-8 4-4 4 4M5 14v6h14v-6"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v4h14v-4"/></svg>
           <label for="audioFile" data-i18n="chooseFile">Choose audio or drop it here</label><br>
           <input id="audioFile" type="file" accept=".wav,.mp3,.m4a,.aac,.ogg,.flac,.webm,audio/*" aria-describedby="formatHint">
           <p class="muted" id="formatHint" data-i18n="formatHint">WAV / MP3. Other audio formats depend on your browser.</p>
@@ -773,7 +785,6 @@
           </div>
         </section>
         <p id="inputError" role="alert" hidden></p>
-        <div class="source-info" id="sourceInfo" hidden><strong id="sourceName"></strong><span class="muted" id="sourceMeta"></span></div>
         <section class="detection-settings" aria-labelledby="detectionSettingsTitle">
           <h3 id="detectionSettingsTitle" data-i18n="detectionSettingsTitle">Note detection</h3>
           <label class="control-field" for="sensitivityPreset"><span data-i18n="sensitivityPreset">Sensitivity</span><select id="sensitivityPreset" aria-describedby="detectionSettingsHint"><option value="fewer" data-i18n="presetFewer">Fewer notes</option><option value="standard" selected data-i18n="presetStandard">Standard</option><option value="more" data-i18n="presetMore">More notes</option><option value="custom" data-i18n="presetCustom">Custom</option></select></label>
@@ -906,7 +917,7 @@
 
   </main>
   <nav class="app-mobile-bottom-bar" id="mobileBottomBar" style="--app-mobile-bottom-items:3" data-i18n-aria-label="mobileNavigation" aria-label="Workflow pages">
-    <button type="button" class="app-mobile-bottom-item" data-mobile-key="input" data-mobile-page-target="inputCard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-4-8 4-4 4 4M5 14v6h14v-6"/></svg><span data-i18n="tabInput">Input</span></button>
+    <button type="button" class="app-mobile-bottom-item" data-mobile-key="input" data-mobile-page-target="inputCard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v4h14v-4"/></svg><span data-i18n="tabInput">Input</span></button>
     <button type="button" class="app-mobile-bottom-item" data-mobile-key="notes" data-mobile-page-target="reviewCard" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4zM8 5v9m4-9v9m4-9v9M4 14h16"/></svg><span data-i18n="tabNotes">Notes</span></button>
     <button type="button" class="app-mobile-bottom-item" data-mobile-key="export" data-mobile-page-target="outputCard" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v4h14v-4"/></svg><span data-i18n="tabExport">Export</span></button>
   </nav>
@@ -2632,6 +2643,8 @@ Object.assign(translations.ja,{
  helpExport:'MIDIとCSVに音声は含まれません。MIDIのテンポは120 BPM固定（推定値ではありません）、ベロシティは96固定です。CSVは音符の時刻を秒数で保存します。音色や重なった音符の再生は音楽アプリによって異なる場合があります。'
 });
 
+Object.assign(translations.en,{replaceFile:'Choose another audio file or drop it here'});
+Object.assign(translations.ja,{replaceFile:'別の音声ファイルを選ぶか、ここにドロップ'});
 const languageKey=APP_CONFIG.slug+':language';
 function readStorage(key){try{return localStorage.getItem(key);}catch{return null;}}
 function writeStorage(key,value){try{localStorage.setItem(key,value);}catch{}}
@@ -2859,6 +2872,9 @@ function invalidate({keepIdleWorker=false}={}){const token=generation.next();if(
 function pitchName(pitch){return ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][pitch%12]+(Math.floor(pitch/12)-1);}
 function render(){
  document.body.dataset.phase=state.phase;
+ document.body.classList.toggle('has-audio-input',!!state.file||!!recording?.active()||!!recording?.hasRecording());
+ $('#dropZone').classList.toggle('is-compact',!!state.file);
+ $('#dropZone label').textContent=translate(state.file?'replaceFile':'chooseFile');
  const invalidFields=invalidSettingsFields();
  $('#detectionSettingsError').hidden=!settingsError;$('#detectionSettingsError').textContent=settingsError?[...invalidFields.map(translate),translate('invalidDetectionSettings')].join(' · '):'';
  for(const key of settingsFields)$('#'+key).setAttribute('aria-invalid',String(invalidFields.includes(key)));
@@ -3011,7 +3027,7 @@ recording=AudioMidiRecordingUI.create({translate,onChange:render,isBusy:busy,con
  onDiscard:({accepted})=>{if(accepted&&state.sourceKind==='recording')clearSource();},
  onListen:()=>{mobile.showPage('notes');review.playOriginal();}
 });
-mobile=AppMobileBottomBar.mount($('#mobileBottomBar'),{initialPage:'input',pageTopOffset:90,
+mobile=AppMobileBottomBar.mount($('#mobileBottomBar'),{initialPage:'input',pageTopOffset:12,
  beforePageChange:async key=>{if(!await recording.leave())return false;return key==='input'||(key==='notes'?!!state.originalBuffer:state.phase==='result');},
  onPageChange:({key})=>{if(key==='notes')review.reveal();else review.pause();}
 });

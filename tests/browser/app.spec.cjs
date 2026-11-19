@@ -82,7 +82,15 @@ for(const variant of ['index.html','index.self-extract.html'])test(`${variant}: 
  expect(source.y+source.height).toBeLessThan(drop.y);
  expect(drop.height).toBeLessThan(before.height);
  await expect(page.locator('#dropZone label')).toContainText(/another|別の/);
+ await expect(page.locator('#audioFile')).not.toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ // The visible label still opens the native picker when the filename field is visually hidden.
+ const chooserPromise=page.waitForEvent('filechooser');
+ await page.locator('#dropZone label').click();
+ const chooser=await chooserPromise;
+ await chooser.setFiles({name:'picker-replacement.wav',mimeType:'audio/wav',buffer:makeWav({duration:1.2})});
+ await phase(page,'ready');
+ await expect(page.locator('#sourceName')).toHaveText('picker-replacement.wav');
  const data=await page.evaluateHandle(bytes=>{const dt=new DataTransfer();dt.items.add(new File([new Uint8Array(bytes)],'replacement.wav',{type:'audio/wav'}));return dt;},Array.from(makeWav({duration:1.5})));
  await page.locator('#dropZone').dispatchEvent('drop',{dataTransfer:data});await data.dispose();await phase(page,'ready');
  await expect(page.locator('#sourceName')).toHaveText('replacement.wav');

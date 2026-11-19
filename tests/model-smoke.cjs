@@ -13,7 +13,12 @@ const workerContext={self:null,console,TextEncoder,TextDecoder,setTimeout,clearT
 let wasmAccesses=0;
 Object.defineProperty(workerContext,'WebAssembly',{get(){wasmAccesses++;throw new Error('Unexpected worker WASM probe');}});
 vm.createContext(workerContext,{codeGeneration:{strings:false,wasm:false}});
-vm.runInContext(core.buildWorkerSource(fs.readFileSync(path.join(cache,'-tensorflow-tfjs-4.22.0/extracted/package/dist/tf.min.js'),'utf8'),fs.readFileSync(path.join(cache,'-tonejs-midi-2.0.28/extracted/package/build/Midi.js'),'utf8'),fs.readFileSync(path.join(cache,'-spotify-basic-pitch-1.0.1/extracted/package/cjs/toMidi.js'),'utf8'),fs.readFileSync(path.join(root,'src/detection-settings.js'),'utf8')+'\n'+fs.readFileSync(path.join(root,'src/inference-worker.js'),'utf8')),workerContext);
+const workerSource=core.buildWorkerSource(fs.readFileSync(path.join(cache,'-tensorflow-tfjs-4.22.0/extracted/package/dist/tf.min.js'),'utf8'),fs.readFileSync(path.join(cache,'-tonejs-midi-2.0.28/extracted/package/build/Midi.js'),'utf8'),fs.readFileSync(path.join(cache,'-spotify-basic-pitch-1.0.1/extracted/package/cjs/toMidi.js'),'utf8'),fs.readFileSync(path.join(root,'src/detection-settings.js'),'utf8')+'\n'+fs.readFileSync(path.join(root,'src/inference-worker.js'),'utf8'));
+try { vm.runInContext(workerSource,workerContext); } catch(error) {
+  const m=String(error.stack).match(/evalmachine\.<anonymous>:(\d+):(\d+)/);
+  if(m){ const line=workerSource.split('\n')[Number(m[1])-1]; console.error('TF.js source near CSP probe:',line?.slice(Math.max(0,Number(m[2])-200),Number(m[2])+160)); }
+  throw error;
+}
 assert.equal(wasmAccesses,0,'Pinned worker bootstrap must not probe WASM');
 assert.equal(workerContext.tf.version.tfjs,'4.22.0');
 assert.equal(typeof workerContext.tf.findBackendFactory('cpu'),'function');

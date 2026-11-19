@@ -82,7 +82,7 @@ for(const variant of ['index.html','index.self-extract.html'])test(`${variant}: 
  expect(source.y+source.height).toBeLessThan(drop.y);
  expect(drop.height).toBeLessThan(before.height);
  await expect(page.locator('#dropZone label')).toContainText(/another|別の/);
- await expect(page.locator('#audioFile')).not.toBeVisible();
+ await expect(page.locator('#audioFile')).toHaveCSS('clip-path','inset(50%)');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  // The visible label still opens the native picker when the filename field is visually hidden.
  const chooserPromise=page.waitForEvent('filechooser');

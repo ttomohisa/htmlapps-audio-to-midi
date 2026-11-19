@@ -1,0 +1,20 @@
+name: Temporary TFJS 4.22 lock probe
+on:
+  push:
+    branches:
+      - fix/issue-13-tfjs-4-22
+permissions:
+  contents: read
+jobs:
+  lock:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Generate npm-verified dependency lock
+        shell: pwsh
+        run: |
+          ./scripts/update-dependency.ps1 -Id tfjs -Version 4.22.0 -SkipBuild
+          Write-Host "LOCK_JSON_BEGIN"
+          Get-Content -Raw -Encoding UTF8 dependencies.lock.json
+          Write-Host "LOCK_JSON_END"

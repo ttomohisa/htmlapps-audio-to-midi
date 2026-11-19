@@ -81,7 +81,7 @@ Read [AGENTS.md](AGENTS.md) and [APP_SPEC.md](APP_SPEC.md) before changing the a
 
 ```text
 src/                         # Template, UI, pure contracts and worker inference
-app.config.json              # App identity and version (1.0.0)
+app.config.json              # App identity and version (1.0.1)
 dependencies.json            # Pinned runtimes and embedded assets
 dependencies.lock.json       # Verified package hashes
 scripts/                     # PowerShell build and verification
@@ -119,7 +119,7 @@ The hosted demo makes an initial HTML request. To work with the network disconne
 
 ## Limitations
 
-- Version **1.0.0** targets Windows and Android Chrome with Web Audio, Workers and DecompressionStream. Other OS/browser combinations, DAW playback and screen readers remain unverified. See the [release decision and verification limits](docs/RELEASE_CHECKLIST.md).
+- Version **1.0.1** targets Windows and Android Chrome with Web Audio, Workers and DecompressionStream. Other OS/browser combinations, DAW playback and screen readers remain unverified. See the [release decision and verification limits](docs/RELEASE_CHECKLIST.md).
 - One file at a time, **0.5–60 seconds**, up to **50 MiB**. WAV/MP3 are accepted; M4A/AAC/OGG/FLAC/WebM also depend on browser decoding.
 - Transcription is approximate. Mixed instruments, noise and harmonics can create incorrect notes. The simple synth does not reproduce the original instrument.
 - MIDI uses fixed 120 BPM to preserve seconds, channel 1, piano program 0 and velocity 96. Tempo, dynamics and pitch bends are not estimated.

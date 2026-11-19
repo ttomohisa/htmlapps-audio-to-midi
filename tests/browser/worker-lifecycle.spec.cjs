@@ -160,12 +160,13 @@ for(const variant of variants){
   expect(probe.responses.length).toBeGreaterThan(0);
   expect(probe.responses.every(response=>probe.posts.some(post=>post.workerId===response.workerId&&post.jobId===response.jobId))).toBe(true);
   expect(probe.responses.filter(response=>response.phase==='complete')).toHaveLength(4);
-  // A newly invalid source must also release the formerly idle native model.
+  // An invalid new source preserves the score and the idle model.
   await page.locator('#audioFile').setInputFiles({name:'corrupt-replacement.wav',mimeType:'audio/wav',buffer:makeWav().subarray(0,12)});
-  await phase(page,'error');await expect(page.locator('#noteRows .note-row')).toHaveCount(0);
-  await expect(page.locator('#downloadButton')).toBeDisabled();
-  probe=await snapshot(page);expect(probe.live).toEqual([]);
-  expect(probe.records.every(record=>record.terminated&&probe.revoked.includes(record.url))).toBe(true);
+  await phase(page,'result');await expect(page.locator('#inputError')).toBeVisible();
+  expect(await notes(page)).toEqual(replacement);
+  await expect(page.locator('#downloadButton')).toBeEnabled();
+  probe=await snapshot(page);expect(probe.live).toEqual([2]);
+  expect(probe.records[1].terminated).toBe(false);
   await page.locator('#resetButton').click();await page.locator('#appConfirmOk').click();await phase(page,'empty');
   probe=await snapshot(page);expect(probe.live).toEqual([]);
   expect(probe.records.every(record=>record.terminated&&probe.revoked.includes(record.url))).toBe(true);

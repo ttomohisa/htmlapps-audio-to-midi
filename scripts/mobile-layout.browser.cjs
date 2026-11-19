@@ -41,7 +41,8 @@ async function main() {
         await page.waitForFunction(() => /^\d+\.\d+\.\d+$/.test(document.querySelector('#buildVersion').textContent));
         if (await page.locator('html').getAttribute('lang') !== language) await page.locator('#languageButton').click();
         assert.equal((await page.locator('[data-i18n="localBadge"]').textContent()).trim(), language === 'ja' ? '完全ローカル処理' : 'Fully local processing');
-        await bounds(page.locator('.local-badge'), width, height, label, false);
+        assert.equal(await page.locator('.local-badge').isVisible(), width > cfg.bp, label + ': local badge at initial width');
+        if (width > cfg.bp) await bounds(page.locator('.local-badge'), width, height, label, false);
         assert.equal(await page.locator('body > footer').isVisible(), width > cfg.bp, label + ': initial footer');
         assert.equal(await page.locator('[data-mobile-key="notes"]').isDisabled(), true);
         assert.equal(await page.locator('[data-mobile-key="export"]').isDisabled(), true);
@@ -62,12 +63,24 @@ async function main() {
           await page.setViewportSize({width:w,height}); await settle(page);
           assert.equal(await page.locator('body > footer').isVisible(), w > cfg.bp, label + ': footer resize');
           assert.equal(await page.locator(cfg.nav).isVisible(), w <= cfg.bp, label + ': functional bar');
+          assert.equal(await page.locator('.local-badge').isVisible(), w > cfg.bp, label + ': local badge after resize');
           if (w <= cfg.bp) await bounds(page.locator(cfg.nav), w, height, label);
         }
         await page.evaluate(() => scrollTo({left:0,top:0,behavior:'instant'})); await settle(page);
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), label + ': page width');
         await page.locator('#helpButton').click();
         const body = page.locator(cfg.body), details = page.locator(cfg.details);
+        const helpSpacing=await page.locator('#helpDialog .help-tips').evaluate(el=>{
+          const css=getComputedStyle(el),previous=el.previousElementSibling;
+          return {
+            border:css.borderTopWidth+' '+css.borderRightWidth+' '+css.borderBottomWidth+' '+css.borderLeftWidth,
+            shadow:css.boxShadow,
+            gap:el.getBoundingClientRect().top-previous.getBoundingClientRect().bottom
+          };
+        });
+        assert.equal(helpSpacing.border,'0px 0px 0px 0px',label+': supplemental help has no frame');
+        assert.equal(helpSpacing.shadow,'none',label+': supplemental help has no shadow');
+        assert.ok(helpSpacing.gap>=0&&helpSpacing.gap<=16,label+': no excessive blank space before supplemental help '+JSON.stringify(helpSpacing));
         await metadata(page);
         assert.ok(await body.evaluate(e => e.lastElementChild.classList.contains('help-build')), label + ': final Help child');
         const hiddenBuild = cfg.hideBuild && width <= cfg.bp;

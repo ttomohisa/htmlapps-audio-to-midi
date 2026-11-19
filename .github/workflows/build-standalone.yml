@@ -10,6 +10,8 @@ on:
       - "src/**"
       - "assets/**"
       - "README*.md"
+      - "CHANGELOG.md"
+      - "docs/RELEASE_CHECKLIST.md"
       - "docs/VERIFICATION.md"
       - "tests/**"
       - "package*.json"
@@ -25,6 +27,7 @@ on:
       - "scripts/build-self-extract.ps1"
       - "scripts/verify-self-extract.ps1"
       - ".github/workflows/build-standalone.yml"
+      - ".github/workflows/release-on-merge.yml"
 
 permissions:
   contents: read
@@ -53,10 +56,11 @@ jobs:
       - name: Install test dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
 
-      - name: Pure contract and real model tests
-        run: |
-          npm test
-          npm run test:model
+      - name: Pure contract tests
+        run: npm test
+
+      - name: Real model smoke tests
+        run: npm run test:model
 
       - name: Install Chromium
         run: npx playwright install chromium

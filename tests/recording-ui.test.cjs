@@ -9,12 +9,12 @@ test('recorded WebM files can be reloaded through common validation',()=>{
  const core=require('../src/audio-core.js');assert.equal(core.validateFile({name:'recording.webm',size:1024,type:'audio/webm'}),null);
 });
 const vm=require('node:vm');
-function harness({confirmResult=true,load=async()=>true,pendingStart=false}={}){
+function harness({confirmResult=true,load=async()=>true,pendingStart=false,startSucceeds=true}={}){
  const elements=new Map(),loads=[],prompts=[];let options;
- const element=id=>{if(!elements.has(id))elements.set(id,{dataset:{},value:'',addEventListener(type,fn){this[type]=fn;},setAttribute(){},append(){},remove(){}});return elements.get(id);};
+ const element=id=>{if(!elements.has(id))elements.set(id,{dataset:{},value:'',addEventListener(type,fn){this[type]=fn;},setAttribute(){},append(){},remove(){},click(){this.clicked=true;}});return elements.get(id);};
  let state={status:'idle',elapsedSeconds:0,level:0,error:null,mimeType:'audio/webm',blob:null};
  const emit=patch=>{state={...state,...patch};options.onChange({...state});};
- const fake={snapshot:()=>({...state}),discard:()=>emit({status:'idle',blob:null,error:null}),dispose(){},start:()=>{emit({status:pendingStart?'requesting':'recording'});return pendingStart?new Promise(()=>{}):Promise.resolve(true);},stop:async()=>{emit({status:'recorded'});return state.blob;}};
+ const fake={snapshot:()=>({...state}),discard:()=>emit({status:'idle',blob:null,error:null}),dispose(){},start:()=>{emit({status:pendingStart?'requesting':startSucceeds?'recording':'error',error:startSucceeds?null:'permissionDenied',mimeType:startSucceeds?state.mimeType:'',blob:null});return pendingStart?new Promise(()=>{}):Promise.resolve(startSucceeds);},stop:async()=>{emit({status:'recorded'});return state.blob;}};
  const context={AudioMidiRecording:{createRecorder:o=>(options=o,fake)},document:{getElementById:element,createElement:element,body:{append(){}}},location:{protocol:'file:'},File,URL:{createObjectURL:()=>'',revokeObjectURL(){}},setTimeout:()=>0};
  const factory=vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/recording-ui.js'),'utf8')+';AudioMidiRecordingUI',context);
  const ui=factory.create({translate:x=>x,onRecording:file=>{loads.push(file);return load(file);},onChange(){},onStart(){},onDiscard(){},onListen(){},isBusy:()=>false,confirm:async o=>{prompts.push(o);return confirmResult;},toast(){}});
@@ -47,4 +47,43 @@ test('pending microphone permission does not block confirmed file replacement',a
 
 test('recording time does not repeatedly announce through a live region',()=>{
  assert.match(html,/<output id="recordingClock" aria-live="off"/);
+});
+
+test('denied second recording preserves the previously accepted and downloadable take',async()=>{
+ const h=harness({startSucceeds:false});
+ h.emit({status:'recorded',blob:new Blob(['previous take'],{type:'audio/webm'})});
+ await flush();
+ assert.equal(h.ui.snapshot().accepted,true);
+ await h.element('recordButton').click();
+ await flush();
+ assert.equal(h.ui.snapshot().error,'permissionDenied');
+ assert.equal(h.ui.hasRecording(),true);
+ assert.equal(h.ui.snapshot().accepted,true);
+ assert.equal(h.element('downloadRecording').disabled,false);
+});
+test('successful second microphone session retires the previous take only after start',async()=>{
+ const h=harness();
+ h.emit({status:'recorded',blob:new Blob(['previous take'],{type:'audio/webm'})});
+ await flush();
+ await h.element('recordButton').click();
+ await flush();
+ assert.equal(h.ui.snapshot().status,'recording');
+ assert.equal(h.ui.hasRecording(),false);
+});
+
+test('failed second recording retains the previous recording MIME extension for downloads',async()=>{
+ for(const [mime,extension] of [['audio/mp4','m4a'],['audio/ogg;codecs=opus','ogg'],['audio/webm;codecs=opus','webm']]){
+  const h=harness({startSucceeds:false});
+  h.emit({status:'recorded',mimeType:mime,blob:new Blob(['previous recording'],{type:mime})});
+  await flush();
+  assert.equal(h.element('recordingExtension').textContent,'.'+extension);
+  await h.element('recordButton').click();
+  await flush();
+  assert.equal(h.ui.snapshot().error,'permissionDenied');
+  assert.equal(h.element('recordingExtension').textContent,'.'+extension);
+  assert.equal(h.element('downloadRecording').disabled,false);
+  h.element('downloadRecording').click();
+  assert.equal(h.element('a').clicked,true);
+  assert.ok(h.element('a').download.endsWith('.'+extension),h.element('a').download);
+ }
 });

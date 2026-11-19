@@ -1,5 +1,16 @@
 # Audio to MIDI 1.0 release decision
 
+## v1.0.1 release-candidate follow-up (2026-11-17)
+
+This entry supplements, rather than rewrites, the historical 1.0.0 owner decision below.
+
+- Candidate PR: [#16](https://github.com/ttomohisa/htmlapps-audio-to-midi/pull/16). The build, offline browser/model checks, bilingual UI, recording source retention and note-editor controls were changed since the original 1.0.0 acceptance record. Use CI for the exact final PR head; prior commits and baseline pass counts are not the final release result.
+- Runtime files/metadata: `app.config.json`, `package.json`, `package-lock.json`, the generated `audio-to-midi.html` and both README files indicate `1.0.1`. `CHANGELOG.md` records the patch. GitHub Release is configured to run only for a merged PR commit on `main` and to rerun build/tests before publishing a `v1.0.1` tag.
+- **Manual follow-up still outstanding:** The original physical-device cases R1–R4 below were not individually reported for this candidate. Audio input and microphone permission/stop on a real Android device, reopening the standalone HTML offline, interruption/recovery and MIDI import/listening in actual music apps are not certified by browser CI.
+- **After user merge:** Confirm the release workflow actually runs to success, the `v1.0.1` tag points to that merge commit, the downloadable files and the GitHub Pages deployment are accessible, and verify the desired UI in the released URL. This cannot be marked PASS before merge.
+- Do not claim that automated Firefox/WebKit coverage is equivalent to physical iPhone/iPad acceptance.
+
+
 Status: **OWNER ACCEPTANCE RECORDED / PUBLICATION PENDING**. Scope approved on 2026-10-17; on 2026-10-18 the owner reported “Audio to MIDIはOKです。次に進んで。次はv1.0.0かな？” (Audio to MIDI is OK; proceed to the next step, v1.0.0). This is general owner confirmation and approval to proceed, not four individually reported test passes. Base: PR11 merge `4c6677ad994cbf30f64f4f21a96338cbc94ad385`. Final-head CI and owner merge are still required for publication. No new failure was reported. The known correctness/privacy blockers below remain unchanged.
 
 ## Bounded support scope

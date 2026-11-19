@@ -40,3 +40,71 @@ test('mobile Notes waits for a measurable viewport before centering the selected
  const review=fs.readFileSync(path.join(__dirname,'../src/review-ui.js'),'utf8'),ui=fs.readFileSync(path.join(__dirname,'../src/app-ui.js'),'utf8');
  assert.ok(review.includes('piano.clientWidth<=0'));assert.ok(review.includes('needsReveal'));assert.ok(ui.includes("if(key==='notes')review.reveal()"));
 });
+
+test('concise bilingual help retains licenses and hides the local badge on phones',()=>{
+ const ui=fs.readFileSync(path.join(__dirname,'../src/app-ui.js'),'utf8');
+ const vm=require('node:vm');
+ const copy=ui.slice(ui.indexOf('const translations='),ui.indexOf('const languageKey='));
+ const translations=vm.runInNewContext(copy+';translations');
+ assert.equal(translations.ja.lead,'録音や音声ファイルから音符を検出します。音程や長さを直して、MIDIやCSVで保存できます。');
+ assert.equal(translations.en.helpMore,'More about the controls');
+ assert.equal(translations.ja.helpMore,'操作の補足');
+ for(const value of [
+  '閉じるボタン、またはEscキーで元の位置に戻ります。',
+  '端末には言語設定だけを保存します。',
+  'スマートフォンでは終了前の警告が出ない場合があります。'
+ ])assert.ok(!ui.includes(value),value);
+ assert.ok(!html.includes('data-i18n="helpDialogNote"'));
+ assert.match(html,/@media \(max-width: 600px\)\s*\{\s*\.page-intro \.local-badge \{ display: none; \}/);
+ assert.match(html,/<details class="help-tips">[\s\S]*?data-i18n="helpMore"/);
+ assert.ok(html.includes('<details id="licensesDetails">'));
+ assert.ok(html.includes('<pre class="license-text" id="licenseText"></pre>'));
+ assert.ok(html.indexOf('id="licensesDetails"')>html.indexOf('class="help-tips"'));
+});
+
+test('detection preset explanation matches the visible choices without unexplained thresholds',()=>{
+ const vm=require('node:vm');
+ const source=fs.readFileSync(path.join(__dirname,'../src/app-ui.js'),'utf8');
+ const t=vm.runInNewContext(source.slice(source.indexOf('const translations='),source.indexOf('const languageKey='))+';translations');
+ const settings=require('../src/detection-settings.js');
+ assert.ok(settings.presets.fewer.onsetThreshold>settings.presets.standard.onsetThreshold);
+ assert.ok(settings.presets.standard.onsetThreshold>settings.presets.more.onsetThreshold);
+ assert.match(t.ja.detectionSettingsHint,/少なめ/);
+ assert.match(t.ja.detectionSettingsHint,/多め/);
+ assert.doesNotMatch(t.ja.detectionSettingsHint,/しきい値/);
+ assert.match(t.en.detectionSettingsHint,/Fewer/);
+ assert.match(t.en.detectionSettingsHint,/More/);
+ assert.ok(html.includes('aria-describedby="detectionSettingsHint"'));
+});
+
+test('supplemental help is unframed while license disclosure remains framed',()=>{
+ assert.match(html,/\.dialog-body \.help-tips \{[^}]*border: 0;[^}]*box-shadow: none;/);
+ assert.match(html,/\.dialog-body \.help-tips summary \{ padding: 9px 0;/);
+ assert.ok(html.includes('<details id="licensesDetails">'));
+});
+
+test('compact MIDI explanation, hero and note controls keep bilingual copy and behavior',()=>{
+ const vm=require('node:vm');
+ const source=fs.readFileSync(path.join(__dirname,'../src/app-ui.js'),'utf8');
+ const t=vm.runInNewContext(source.slice(source.indexOf('const translations='),source.indexOf('const languageKey='))+';translations');
+ assert.equal(t.ja.introTitle,'メロディーをMIDIに変換');
+ assert.ok(html.includes('id="heroTitle" data-i18n="introTitle">メロディーをMIDIに変換'));
+ for(const lang of ['ja','en']){
+  assert.ok(t[lang].midiNote.length<175,lang+' MIDI explanation is too long');
+  assert.match(t[lang].midiNote,/120 BPM/);
+  assert.match(t[lang].midiNote,/96/);
+ }
+ assert.match(t.ja.midiNote,/音声ではありません/);
+ assert.match(t.en.midiNote,/not audio/);
+ assert.match(html,/\.output-card #downloadButton \{ margin-top:16px; \}/);
+ assert.match(html,/\.note-step-controls \{[^}]*width:124px;[^}]*border-radius:10px;/);
+ for(const id of ['pitchDown','pitchUp','startEarlier','startLater','endEarlier','endLater']){
+  assert.ok(html.includes('id="'+id+'"'),id+' missing');
+  assert.ok(html.includes('data-i18n-aria-label="'+id+'"'),id+' accessible label missing');
+ }
+ for(const key of ['addNote','deleteNote','undoEdit','redoEdit']){
+  assert.ok(html.includes('data-i18n="'+key+'"'),key+' translated control missing');
+ }
+ assert.match(html,/class="note-editor-main-actions"/);
+ assert.match(html,/class="note-editor-history-actions"/);
+});

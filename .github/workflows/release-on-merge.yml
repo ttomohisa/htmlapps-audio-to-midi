@@ -1,0 +1,172 @@
+name: Create GitHub Release after PR merge
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: audio-to-midi-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout the exact main commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify semantic version and detect an existing release
+        id: version
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MERGED_SHA: ${{ github.sha }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # Release only the exact commit that was produced by a merged PR.
+          # Direct pushes to main are not eligible.
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' }
+          $commitApi = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/commits/$env:MERGED_SHA/pulls"
+          $associatedPrs = @(Invoke-RestMethod -Method Get -Uri $commitApi -Headers $headers -ErrorAction Stop)
+          $mergedPrs = @($associatedPrs | Where-Object {
+            $_.merged_at -and $_.base.ref -eq 'main' -and $_.merge_commit_sha -eq $env:MERGED_SHA
+          })
+          if (-not $mergedPrs.Count) {
+            Write-Host 'This main commit is not the merge commit of a merged PR; skipping release.'
+            "publish=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            exit 0
+          }
+          $app = Get-Content -Raw -Encoding UTF8 app.config.json | ConvertFrom-Json
+          $package = Get-Content -Raw -Encoding UTF8 package.json | ConvertFrom-Json
+          $lock = Get-Content -Raw -Encoding UTF8 package-lock.json | ConvertFrom-Json -AsHashtable
+          $version = [string]$app.version
+          if ($version -cnotmatch '^\d+\.\d+\.\d+$') { throw "Expected a stable semantic version, got '$version'." }
+          $rootLock = $lock['packages']['']
+          if ($null -eq $rootLock -or $version -cne [string]$package.version -or $version -cne [string]$lock['version'] -or $version -cne [string]$rootLock['version']) {
+            throw "Version mismatch between app.config.json, package.json and package-lock.json."
+          }
+          $head = (& git rev-parse HEAD).Trim()
+          if ($LASTEXITCODE -ne 0 -or $head -cne $env:MERGED_SHA) { throw 'The checkout is not the merged PR commit.' }
+          $tag = "v$version"
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          # A missing release (HTTP 404) is expected for a new version.
+          # Other API failures must not be mistaken for a missing release.
+          $release = $null
+          try {
+            $uri = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/$tag"
+            $release = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers -ErrorAction Stop
+          } catch {
+            if ([int]$_.Exception.Response.StatusCode -ne 404) { throw }
+          }
+          $remoteTag = & git ls-remote --tags origin "refs/tags/$tag"
+          if ($LASTEXITCODE -ne 0) { throw 'Could not inspect remote release tags.' }
+          if ($remoteTag) {
+            & git fetch origin "refs/tags/$tag:refs/tags/$tag"
+            if ($LASTEXITCODE -ne 0) { throw 'Could not fetch existing tag.' }
+            $tagTarget = (& git rev-list -n 1 $tag).Trim()
+            if ($tagTarget -cne $env:MERGED_SHA) {
+              throw "$tag already exists on a different commit. Bump the app patch version before releasing."
+            }
+          } elseif ($null -ne $release) {
+            throw "$tag has a Release but no corresponding remote Git tag."
+          }
+          if ($null -ne $release) {
+            $existingNames = @($release.assets | ForEach-Object { [string]$_.name })
+            $requiredNames = @('index.html', 'index.self-extract.html', 'audio-to-midi.html', 'dependency-manifest.json', 'self-extract-manifest.json')
+            $missing = @($requiredNames | Where-Object { $existingNames -notcontains $_ })
+            if (-not $missing.Count) {
+              Write-Host "$tag already has all expected assets. No duplicate release will be created."
+              "publish=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+              exit 0
+            }
+            Write-Host "$tag exists but needs missing assets: $($missing -join ', ')"
+          }
+          "repair=$($null -ne $release)".ToLowerInvariant() | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "publish=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Validate and build the standalone HTML
+        if: steps.version.outputs.publish == 'true'
+        shell: pwsh
+        run: ./scripts/check-repository.ps1
+
+      - name: Set up Node.js
+        if: steps.version.outputs.publish == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install test dependencies
+        if: steps.version.outputs.publish == 'true'
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Run unit and contract tests
+        if: steps.version.outputs.publish == 'true'
+        run: npm test
+
+      - name: Verify the real audio model
+        if: steps.version.outputs.publish == 'true'
+        run: npm run test:model
+
+      - name: Install Chromium
+        if: steps.version.outputs.publish == 'true'
+        run: npx playwright install chromium
+
+      - name: Run offline browser regression tests
+        if: steps.version.outputs.publish == 'true'
+        run: npm run test:browser
+
+      - name: Create version tag and GitHub Release
+        if: steps.version.outputs.publish == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MERGED_SHA: ${{ github.sha }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          REPAIR_RELEASE: ${{ steps.version.outputs.repair }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $assets = @(
+            'dist/index.html',
+            'dist/index.self-extract.html',
+            'audio-to-midi.html',
+            'dist/dependency-manifest.json',
+            'dist/self-extract-manifest.json'
+          )
+          foreach ($asset in $assets) {
+            if (-not (Test-Path -LiteralPath $asset -PathType Leaf)) { throw "Release artifact missing: $asset" }
+          }
+          if ($env:REPAIR_RELEASE -eq 'true') {
+            # Reattach only absent files. Do not clobber an already published
+            # artifact, which could be destroyed by a failed replacement upload.
+            $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' }
+            $uri = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/$env:RELEASE_TAG"
+            $release = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers -ErrorAction Stop
+            $existingNames = @($release.assets | ForEach-Object { [string]$_.name })
+            $missingAssets = @($assets | Where-Object { $existingNames -notcontains [System.IO.Path]::GetFileName($_) })
+            if ($missingAssets.Count) {
+              & gh release upload $env:RELEASE_TAG @missingAssets --repo $env:GITHUB_REPOSITORY
+              if ($LASTEXITCODE -ne 0) { throw 'Failed to repair missing GitHub Release assets.' }
+            }
+          } else {
+            & gh release create $env:RELEASE_TAG @assets --repo $env:GITHUB_REPOSITORY --target $env:MERGED_SHA --title "Audio to MIDI $env:RELEASE_TAG" --generate-notes
+            if ($LASTEXITCODE -ne 0) { throw 'Failed to create GitHub tag and release.' }
+          }
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' }
+          $uri = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/$env:RELEASE_TAG"
+          $published = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers -ErrorAction Stop
+          $publishedNames = @($published.assets | ForEach-Object { [string]$_.name })
+          foreach ($asset in $assets) {
+            if ($publishedNames -notcontains [System.IO.Path]::GetFileName($asset)) {
+              throw "GitHub Release is incomplete: $asset was not uploaded."
+            }
+          }
+          Write-Host "GitHub Release $env:RELEASE_TAG has all expected standalone assets."

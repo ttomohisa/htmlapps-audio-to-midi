@@ -56,3 +56,20 @@ test('dense visible-range queries equal a brute-force reference without changing
  }
  assert.equal(JSON.stringify(notes),original);
 });
+
+test('large note menus use a bounded sliding window without losing reachability',()=>{
+ const t=api();assert.deepEqual(t.notePickerWindow(0,0),{start:0,end:0});
+ assert.deepEqual(t.notePickerWindow(10,0),{start:0,end:10});
+ const total=100000,limit=240;
+ let selected=0,windows=0;
+ while(selected<total-1){
+  const range=t.notePickerWindow(total,selected,limit);
+  assert.ok(range.end-range.start<=limit);
+  assert.ok(selected>=range.start&&selected<range.end);
+  selected=range.end<total?range.end:total-1;
+  assert.ok(++windows<1000,'remaining notes are reachable from the next-page option');
+ }
+ const tail=t.notePickerWindow(total,selected,limit);
+ assert.deepEqual(tail,{start:total-limit,end:total});
+ assert.deepEqual(t.notePickerWindow(total,total-1,limit),tail);
+});

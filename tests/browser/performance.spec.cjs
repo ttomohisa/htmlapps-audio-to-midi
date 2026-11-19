@@ -28,7 +28,7 @@ for(const variant of ['index.html','index.self-extract.html','deployed'])test(`$
  await page.goto(variant==='deployed'?process.env.PREVIEW_URL:pathToFileURL(path.join(__dirname,'../../dist',variant)).href);requests.length=0;await context.setOffline(true);
  await page.locator('#audioFile').setInputFiles({name:'synthetic-dense-60s.wav',mimeType:'audio/wav',buffer:makeWav({duration:60,sampleRate:8000,notes:[]})});
  await expect(page.locator('body')).toHaveAttribute('data-phase','ready');await page.locator('#analyzeButton').click();await expect(page.locator('body')).toHaveAttribute('data-phase','result');
- await expect(page.locator('#notePicker option')).toHaveCount(normalized.length);
+ const pickerCount=await page.locator('#notePicker option').count();expect(pickerCount).toBeLessThanOrEqual(242);expect(pickerCount).toBeGreaterThan(100);
  const before=await downloadMidi(page);expect(parseMidi(before).tracks[1].filter(e=>e.type==='noteOn')).toHaveLength(normalized.length);
  const samples=[];
  async function checkBounds(){
@@ -39,8 +39,17 @@ for(const variant of ['index.html','index.self-extract.html','deployed'])test(`$
   expect(m.waveLeft).toBeCloseTo(m.scrollLeft,1);return m;
  }
  const initial=await checkBounds();expect(initial.svgWidth).toBe(4800);
- // Native keyboard selection reaches a note omitted from the visible SVG.
+ // Page the native selector forward, then use End to reach the final note.
  await expect(page.locator(`#pianoRoll [data-note-id="${last.id}"]`)).toHaveCount(0);
+ const jumps=await page.locator('#notePicker').evaluate(picker=>{
+  let pages=0;
+  while([...picker.options].some(option=>option.value==='__next_notes__')){
+   picker.value='__next_notes__';picker.dispatchEvent(new Event('change',{bubbles:true}));
+   if(++pages>120)throw new Error('Note picker paging did not reach the end');
+  }
+  return pages;
+ });
+ expect(jumps).toBeGreaterThan(0);
  await page.locator('#notePicker').focus();await page.keyboard.press('End');
  await expect(page.locator('#selectedNoteDetails')).toHaveAttribute('data-note-id',last.id);
  const selected=page.locator(`#pianoRoll [data-note-id="${last.id}"]`);await expect(selected).toHaveCount(1);

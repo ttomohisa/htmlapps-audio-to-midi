@@ -71,6 +71,44 @@ foreach ($file in $scriptFiles) {
   }
 }
 
+# Release automation includes inline pwsh blocks in YAML. Parse those too.
+$releaseWorkflow = Join-Path $RootPath ".github/workflows/release-on-merge.yml"
+if (Test-Path -LiteralPath $releaseWorkflow -PathType Leaf) {
+  $lines = @([System.IO.File]::ReadAllLines($releaseWorkflow))
+  $releaseRunBlocks = 0
+  for ($i = 0; $i -lt $lines.Count; $i += 1) {
+    if ($lines[$i] -cnotmatch '^        run:\s*\|\s*$') { continue }
+    $releaseRunBlocks += 1
+    $block = New-Object System.Collections.Generic.List[string]
+    $firstLine = $i + 2
+    $j = $i + 1
+    while ($j -lt $lines.Count) {
+      $line = [string]$lines[$j]
+      if ($line.StartsWith("          ")) {
+        $block.Add($line.Substring(10))
+      } elseif ([string]::IsNullOrWhiteSpace($line)) {
+        $block.Add("")
+      } else { break }
+      $j += 1
+    }
+    $tokens = $null
+    $parseErrors = $null
+    [void][System.Management.Automation.Language.Parser]::ParseInput(
+      ($block -join [Environment]::NewLine),
+      [ref]$tokens,
+      [ref]$parseErrors
+    )
+    foreach ($parseError in @($parseErrors)) {
+      $lineNumber = $firstLine + $parseError.Extent.StartLineNumber - 1
+      $failures += "$($releaseWorkflow):$($lineNumber): $($parseError.Message)"
+    }
+    $i = $j - 1
+  }
+  if ($releaseRunBlocks -lt 2) {
+    $failures += "$releaseWorkflow should contain at least two inline PowerShell run blocks."
+  }
+}
+
 if ($failures.Count -gt 0) {
   Write-Host "[PowerShell Syntax] Failed." -ForegroundColor Red
   foreach ($failure in $failures) {

@@ -12,7 +12,7 @@ const assert = require('node:assert/strict');
 const {execFileSync} = require('node:child_process');
 const root = path.join(__dirname, '..');
 const cache = path.join(root, '.cache');
-const tf = require(path.join(cache, '-tensorflow-tfjs-3.21.0/extracted/package/dist/tf.min.js'));
+const tf = require(path.join(cache, '-tensorflow-tfjs-4.22.0/extracted/package/dist/tf.min.js'));
 const Midi = require(path.join(cache, '-tonejs-midi-2.0.28/extracted/package/build/Midi.js'));
 const post = {exports: {}};
 vm.runInNewContext(fs.readFileSync(path.join(cache, '-spotify-basic-pitch-1.0.1/extracted/package/cjs/toMidi.js'), 'utf8'), {

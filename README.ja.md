@@ -81,7 +81,7 @@ WindowsまたはAndroidのChromeで[デモを開く](https://ttomohisa.github.io
 
 ```text
 src/                         # テンプレート、UI、純粋関数、Worker推論
-app.config.json              # アプリ情報とバージョン（1.0.1）
+app.config.json              # アプリ情報とバージョン（1.0.2）
 dependencies.json            # 固定依存バージョンと内包対象
 dependencies.lock.json       # 検証済みパッケージハッシュ
 scripts/                     # PowerShellのビルド・検証
@@ -119,7 +119,7 @@ Web版では最初のHTML配信が発生します。通信を完全に切って�
 
 ## 制限事項
 
-- **バージョン1.0.1**の対象は、Web Audio・Worker・DecompressionStream対応のWindows／AndroidのChromeです。他のOS／ブラウザー、DAW再生、読み上げ支援は未検証です。[リリース判断と検証範囲](docs/RELEASE_CHECKLIST.md)を参照してください。
+- **バージョン1.0.2**の対象は、Web Audio・Worker・DecompressionStream対応のWindows／AndroidのChromeです。他のOS／ブラウザー、DAW再生、読み上げ支援は未検証です。[リリース判断と検証範囲](docs/RELEASE_CHECKLIST.md)を参照してください。
 - ファイルは1つずつ、**0.5〜60秒・最大50 MiB**です。WAV／MP3に加え、M4A／AAC／OGG／FLAC／WebMもブラウザーがデコードできる場合に使えます。
 - 採譜は推定です。複数楽器の楽曲・雑音・倍音などで誤検出が起きます。簡易合成音は元の楽器の音色を再現しません。
 - MIDIは秒数を保持するための固定120 BPM、チャンネル1、ピアノ音色0、ベロシティ96で保存します。テンポ・強弱は推定せず、ピッチベンドは出力しません。
@@ -131,7 +131,7 @@ Web版では最初のHTML配信が発生します。通信を完全に切って�
 | ライブラリ | バージョン | ライセンス | 用途 |
 | --- | ---: | --- | --- |
 | Spotify Basic Pitch | 1.0.1 | Apache-2.0 | 内包モデルと音符の後処理 |
-| TensorFlow.js | 3.21.0 | Apache-2.0 | 端末内CPU推論 |
+| TensorFlow.js | 4.22.0 | Apache-2.0 | 端末内CPU推論 |
 | Tonejs MIDI | 2.0.28 | MIT | MIDI出力 |
 
 詳細は [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) を参照してください。ランタイムのライセンス全文はアプリ内ヘルプでも確認できます。

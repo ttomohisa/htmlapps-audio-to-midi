@@ -6,7 +6,7 @@ const path = require('node:path');
 const runtime = require('../src/inference-worker.js');
 const {constants, runEagerReference} = require('./fixtures/inference-reference.cjs');
 const cache = path.join(__dirname, '../.cache');
-const tf = require(path.join(cache, '-tensorflow-tfjs-3.21.0/extracted/package/dist/tf.min.js'));
+const tf = require(path.join(cache, '-tensorflow-tfjs-4.22.0/extracted/package/dist/tf.min.js'));
 const Midi = require(path.join(cache, '-tonejs-midi-2.0.28/extracted/package/build/Midi.js'));
 const post = {exports: {}};
 vm.runInNewContext(fs.readFileSync(path.join(cache, '-spotify-basic-pitch-1.0.1/extracted/package/cjs/toMidi.js'), 'utf8'), {

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2 — dependency maintenance (2026-11-19)
+
+- Update the embedded TensorFlow.js runtime from 3.21.0 to 4.22.0; keep Spotify Basic Pitch 1.0.1 and Tonejs MIDI 2.0.28 unchanged.
+- Refresh the npm-verified dependency lock and third-party notices. Update version-pinned inference, model smoke, and performance test paths to exercise the new runtime.
+- Preserve the CPU-only Worker, offline single-HTML architecture, CSP boundary, note editing and MIDI/CSV export contracts. Browser/real-model regression outcomes are checked by CI before release.
+
 ## 1.0.1 — release candidate (2026-11-17)
 
 - Preserve the existing audio and edited notes if microphone permission is denied or a replacement audio file cannot be decoded. Keep the previous source until a new file is validated, and cover cancellation and replacement races with regression tests.

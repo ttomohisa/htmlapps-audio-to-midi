@@ -13,7 +13,7 @@ save();
 (async()=>{
  let model;
  try{
-const tf=require(path.join(cache,'-tensorflow-tfjs-3.21.0/extracted/package/dist/tf.min.js'));
+const tf=require(path.join(cache,'-tensorflow-tfjs-4.22.0/extracted/package/dist/tf.min.js'));
 const Midi=require(path.join(cache,'-tonejs-midi-2.0.28/extracted/package/build/Midi.js'));
 const post={exports:{}};
 const postFile=path.join(cache,'-spotify-basic-pitch-1.0.1/extracted/package/cjs/toMidi.js');

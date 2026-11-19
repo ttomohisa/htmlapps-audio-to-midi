@@ -2,9 +2,9 @@
 const AudioMidiCore = (() => {
   const SAMPLE_RATE = 22050, PPQ = 480, TICKS_PER_SECOND = 960;
   function buildWorkerSource(tfSource,midiSource,postSource,inferenceSource) {
-    // TF.js 3.21's legacy regenerator assigns this name in strict mode. Declare it
-    // first so it never takes its Function-constructor fallback under our CSP.
-    // TF.js also bundles long.js's optional integer WASM probe.
+    // Declare the legacy regenerator global for bundled TF.js variants that
+    // assign it under strict mode, without relaxing the no-eval CSP.
+    // The runtime also bundles long.js's optional integer WASM probe.
     // Hide that API only inside the unchanged TF source, selecting its existing
     // JS fallback before Firefox can report a caught compilation as a CSP error.
     // Preserve the UMD this binding and the worker's actual WebAssembly global.

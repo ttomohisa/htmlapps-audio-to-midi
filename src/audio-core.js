@@ -2,13 +2,18 @@
 const AudioMidiCore = (() => {
   const SAMPLE_RATE = 22050, PPQ = 480, TICKS_PER_SECOND = 960;
   function buildWorkerSource(tfSource,midiSource,postSource,inferenceSource) {
-    // Declare the legacy regenerator global for bundled TF.js variants that
-    // assign it under strict mode, without relaxing the no-eval CSP.
-    // The runtime also bundles long.js's optional integer WASM probe.
-    // Hide that API only inside the unchanged TF source, selecting its existing
-    // JS fallback before Firefox can report a caught compilation as a CSP error.
-    // Preserve the UMD this binding and the worker's actual WebAssembly global.
-    return 'var regeneratorRuntime;\n(function(WebAssembly){\n'+tfSource+'\n}).call(self,undefined);\n'+midiSource+'\nconst BasicPitchPostprocess=(()=>{const exports={};const require=id=>{if(id!=="@tonejs/midi")throw new Error("Unknown module");return {Midi:self.Midi};};\n'+postSource+'\nreturn exports;})();\n'+inferenceSource;
+    // TF.js 4 reads globalThis.WebAssembly during bundle initialization, outside
+    // the lexical shadow used by the older runtime. Mask the Worker global only
+    // while evaluating the unmodified TensorFlow.js bundle; restore its original
+    // property descriptor even on failure so later worker code is unaffected.
+    // Keep the legacy regenerator declaration for bundled runtime variants.
+    return 'var regeneratorRuntime;\n'+
+      'const __tfWasm=Object.getOwnPropertyDescriptor(self,"WebAssembly");\n'+
+      'Object.defineProperty(self,"WebAssembly",{configurable:true,writable:true,value:undefined});\n'+
+      'try{(function(WebAssembly){\n'+tfSource+'\n}).call(self,undefined);}finally{\n'+
+      'if(__tfWasm)Object.defineProperty(self,"WebAssembly",__tfWasm);\n'+
+      'else delete self.WebAssembly;}\n'+
+      midiSource+'\nconst BasicPitchPostprocess=(()=>{const exports={};const require=id=>{if(id!=="@tonejs/midi")throw new Error("Unknown module");return {Midi:self.Midi};};\n'+postSource+'\nreturn exports;})();\n'+inferenceSource;
   }
   function validateFile(file) {
     if (!file || !Number.isFinite(file.size) || file.size <= 0) return 'emptyFile';

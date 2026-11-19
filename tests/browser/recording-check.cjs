@@ -20,10 +20,10 @@ async function checkRecording(page,context,testInfo,{mobile=false}={}){
   await page.locator('[data-mobile-key="notes"]').click();await page.locator('#appConfirmOk').click();
  }else await page.locator('#stopRecordButton').click();
  await expect(page.locator('body')).toHaveAttribute('data-phase','ready');await expect(page.locator('#recordingPanel')).toHaveAttribute('data-recording','recorded');
- if(mobile){await expect(page.locator('.page-intro')).not.toBeVisible();await expect(page.locator('#sourceInfo')).toBeVisible();await expect(page.locator('#dropZone')).toHaveClass(/is-compact/);}
+ if(mobile){await expect(page.locator('.page-intro')).not.toBeVisible();await expect(page.locator('#sourceInfo')).not.toHaveAttribute('hidden');await expect(page.locator('#dropZone')).toHaveClass(/is-compact/);}
  expect(await page.evaluate(()=>window.__micTracks.every(track=>track.readyState==='ended'))).toBe(true);
  expect(await page.locator('#noteCount').textContent()).toBe('—');await expect(page.locator('#downloadButton')).toBeDisabled();
- if(mobile)await page.locator('[data-mobile-key="input"]').click();
+ if(mobile){await page.locator('[data-mobile-key="input"]').click();await expect(page.locator('#sourceInfo')).toBeVisible();}
  await page.locator('#listenRecording').click();await expect(page.locator('#reviewCard')).toHaveAttribute('data-playback','playing');await page.locator('#stopButton').click();
  if(mobile)await page.locator('[data-mobile-key="input"]').click();
  await page.locator('.recording-export summary').click();await page.locator('#recordingFilename').fill('my-recording');
